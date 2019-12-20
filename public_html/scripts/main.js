@@ -28,6 +28,7 @@ var gameNameAnimation = false, introAnimation = false;      // booleans to anima
 var group;
 var audioLoader;
 var introSound;
+var fromIntro = true;       // to avoid recreate of the space background
 
 function init() {
 
@@ -138,6 +139,7 @@ function showStarWarsEntry () {
     // TEXT GROUP
     group = new THREE.Group();      // to work with text as a group
     group.position.y = 30;
+    group.name = "introObjects";
     scene.add(group);
     createLongTimeAgoText();
 }
@@ -274,6 +276,7 @@ function createBackgroundWithStars () {
     }
 }
 
+// manage sound button according to current sound mode
 function toggleSound() {
     console.log("hede");
     var icon = $('#soundIcon');
@@ -285,6 +288,29 @@ function toggleSound() {
         icon.attr('src', './img/sound_on.png');
         introSound.setVolume(1.0);
     }
+}
+
+function createLevelMap () {
+    console.log("level map");
+    
+    if (fromIntro) {        // no need to create space background again
+        //scene.remove("introObjects");
+        scene.traverse(function(child){
+            if(child.name == "introObjects"){
+               scene.remove(child);
+            }
+        });
+        fromIntro = false;
+        // LIGHT DURUYOR
+    } else {
+        // remove everything from the scene
+        for( var i = scene.children.length - 1; i >= 0; i--) {
+            scene.remove(scene.children[i]);
+        }
+        createBackgroundWithStars();        // create space in the background
+    }
+    
+    // create map
 }
 
 
