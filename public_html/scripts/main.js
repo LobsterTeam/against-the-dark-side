@@ -28,7 +28,7 @@ var gameNameAnimation = false, introAnimation = false;      // booleans to anima
 var group;
 var audioLoader;
 var introSound;
-var fromIntro = true;       // to avoid recreate of the space background
+var fromIntro = true, onLevelMap = false;       // to avoid recreate of the space background
 
 function init() {
 
@@ -92,6 +92,14 @@ function init() {
     //window.addEventListener( 'resize', onWindowResize, false );
     
     showStarWarsEntry();
+    
+    document.addEventListener("mousedown", function() {
+        if (onLevelMap) {
+            console.log("miyav");
+            clearScene();       // clear everything from the scene
+            createGameScene();
+        }
+    });
 }
 
 function onWindowResize() {
@@ -290,11 +298,20 @@ function toggleSound() {
     }
 }
 
+function clearScene () {
+    for( var i = scene.children.length - 1; i >= 0; i--) {
+        scene.remove(scene.children[i]);
+    }
+}
+
 function createLevelMap () {
     console.log("level map");
     
+    onLevelMap = true;
+
     if (fromIntro) {        // no need to create space background again
         //scene.remove("introObjects");
+        $('#skipButton').hide();
         scene.traverse(function(child){
             if(child.name == "introObjects"){
                scene.remove(child);
@@ -303,16 +320,33 @@ function createLevelMap () {
         fromIntro = false;
         // LIGHT DURUYOR
     } else {
-        // remove everything from the scene
-        for( var i = scene.children.length - 1; i >= 0; i--) {
-            scene.remove(scene.children[i]);
-        }
+        clearScene();   // remove everything from the scene
         createBackgroundWithStars();        // create space in the background
     }
     
     // create map
 }
 
+function createGameScene() {
+    directionalLight.color.setHex(0xffffff);
+    createTerrain();
+    createSky();
+    createSuns();
+}
+
+function createTerrain() {
+    
+    // oguz bakir miyav
+    
+}
+
+function createSky () {
+    
+    // oguz bakir miyav
+    
+}
+
+function createSuns () {}
 
 init();
 animate();
