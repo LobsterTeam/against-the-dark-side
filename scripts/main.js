@@ -26,6 +26,8 @@ var directionalLight;
 var textMesh;
 var gameNameAnimation = false, introAnimation = false;      // booleans to animate intro texts
 var group;
+var audioLoader;
+var introSound;
 
 function init() {
 
@@ -142,6 +144,18 @@ function showStarWarsEntry () {
 
 function createLongTimeAgoText () {
     loadFont(longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000, 0);
+    // create an AudioListener and add it to the camera
+    var listener = new THREE.AudioListener();
+    camera.add(listener);
+    // create a global audio source
+    introSound = new THREE.Audio(listener);
+    audioLoader = new THREE.AudioLoader();
+    // load a sound and set it as the Audio object's buffer
+    audioLoader.load('sounds/star_wars_intro.ogg', function(buffer) {
+        introSound.setBuffer(buffer);
+        introSound.setLoop(false);
+        introSound.setVolume(1.0);
+    });
     // after 5 seconds remove it add game name
     setTimeout(function(){
         createGameNameText();
@@ -150,21 +164,7 @@ function createLongTimeAgoText () {
 
 function createGameNameText () {
     group.remove(textMesh);
-    // create an AudioListener and add it to the camera
-    var listener = new THREE.AudioListener();
-    camera.add(listener);
-
-    // create a global audio source
-    var sound = new THREE.Audio(listener);
-
-    // load a sound and set it as the Audio object's buffer
-    var audioLoader = new THREE.AudioLoader();
-    //audioLoader.load('sounds/star_wars_intro.ogg', function(buffer) {
-//	sound.setBuffer(buffer);
-//	sound.setLoop(false);
-//	sound.setVolume(0.5);
-//	sound.play();
-//    });
+    introSound.play();
     gameNameAnimation = true;
     loadFont(gameName, 'fonts/star_wars_entry/logo_font.json', 100, 0xfcdf00, 30, -300, 0);
     setTimeout(function(){
@@ -273,6 +273,20 @@ function createBackgroundWithStars () {
         scene.add(stars);
     }
 }
+
+function toggleSound() {
+    console.log("hede");
+    var icon = $('#soundIcon');
+    if (icon.attr('src') === "./img/sound_on.png") {
+        icon.attr('src', './img/sound_off.png');
+        introSound.setVolume(0.0);
+        
+    } else {
+        icon.attr('src', './img/sound_on.png');
+        introSound.setVolume(1.0);
+    }
+}
+
 
 init();
 animate();
