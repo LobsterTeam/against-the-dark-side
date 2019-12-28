@@ -1,9 +1,10 @@
-import { ImprovedNoise } from '../three.js-dev/examples/jsm/math/ImprovedNoise.js';
 import { FirstPersonControls } from '../three.js-dev/examples/jsm/controls/FirstPersonControls.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
+import * as TERRAIN from './terrain.js';
+import * as SUN from './sun.js';
 
 var container;
-var camera, scene, renderer;
+export var camera, scene, renderer;
 var mouseX = 0, mouseY = 0;     // mouse movement variables
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
@@ -43,6 +44,7 @@ var clock = new THREE.Clock();
 var startTerrain = false;
 
 window.createLevelMap = createLevelMap;
+window.toggleSound = toggleSound;
 
 
 function init() {
@@ -110,7 +112,7 @@ function init() {
     
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
-            console.log("miyav");
+            //console.log("miyav");
             clearScene();       // clear everything from the scene
             createGameScene();
         }
@@ -172,6 +174,9 @@ function showStarWarsEntry () {
 }
 
 function createLongTimeAgoText () {
+    if (onLevelMap) {
+        return;
+    }
     loadFont(longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000, 0);
     // create an AudioListener and add it to the camera
     var listener = new THREE.AudioListener();
@@ -187,27 +192,37 @@ function createLongTimeAgoText () {
     });
     // after 5 seconds remove it add game name
     setTimeout(function(){
-        createGameNameText();
+        if (!onLevelMap) {
+            createGameNameText();
+        }
     }, 5000);
 }
 
 function createGameNameText () {
+    if (onLevelMap) {
+        return;
+    }
     group.remove(textMesh);
     introSound.play();
     gameNameAnimation = true;
     loadFont(gameName, 'fonts/star_wars_entry/logo_font.json', 100, 0xfcdf00, 30, -300, 0);
     setTimeout(function(){
-        createIntroText();
+        if (!onLevelMap) {
+            createIntroText();
+        }
     }, 4000);
 }
 
 function createIntroText () {
+    if (onLevelMap) {
+        return;
+    }
     gameNameAnimation = false; // these needs to be checked later
     introAnimation = true;
     //group.remove(textMesh);
-    console.log(camera.position.x);
-    console.log(camera.position.y);
-    console.log(camera.position.z);
+    //console.log(camera.position.x);
+    //console.log(camera.position.y);
+    //console.log(camera.position.z);
     var a = group.position.z;
     for (i = 0; i < gameIntrotextArr.length; i++) {
         loadFont(gameIntrotextArr[i], 'fonts/star_wars_entry/intro_font.json', 70, 0xfcdf00, 
@@ -304,7 +319,7 @@ function createBackgroundWithStars () {
 }
 
 // manage sound button according to current sound mode
-function toggleSound() {
+export function toggleSound() {
     console.log("hede");
     var icon = $('#soundIcon');
     if (icon.attr('src') === "./img/sound_on.png") {
@@ -321,6 +336,7 @@ function clearScene () {
     for( var i = scene.children.length - 1; i >= 0; i--) {
         scene.remove(scene.children[i]);
     }
+    introAnimation = false;
 }
 
 export function createLevelMap () {
@@ -350,15 +366,16 @@ export function createLevelMap () {
 function createGameScene() {
     onLevelMap = false; // these needs to be checked later
     directionalLight.color.setHex(0xffffff);
+    SUN.createSuns();
     createTerrain();
     createSky();
-    createSuns();
 }
 
 function createTerrain() {
     startTerrain = true;
-    scene.background = new THREE.Color( 0xbfd1e5 );
-    var data = generateTerrainHeight( worldWidth, worldDepth );
+    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    //scene.background = texture;
+    var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
     camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
     var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
     geometry.rotateX( - Math.PI / 2 );
@@ -366,7 +383,7 @@ function createTerrain() {
     for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
         vertices[ j + 1 ] = data[ i ] * 10;
     }
-    texture = new THREE.CanvasTexture( generateTerrainTexture( data, worldWidth, worldDepth ) );
+    texture = new THREE.CanvasTexture( TERRAIN.generateTerrainTexture( data, worldWidth, worldDepth ) );
     texture.wrapS = THREE.ClampToEdgeWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
     mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
@@ -377,68 +394,12 @@ function createTerrain() {
     controls.lookSpeed = 0.1;
 }
 
-function generateTerrainHeight( width, height ) {
-    var size = width * height, data = new Uint8Array( size ),
-        perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
-    for ( var j = 0; j < 4; j ++ ) {
-        for ( var i = 0; i < size; i ++ ) {
-            var x = i % width, y = ~ ~ ( i / width );
-            data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
-        }
-        quality *= 5;
-    }
-    return data;
-}
-function generateTerrainTexture( data, width, height ) {
-    var canvas, canvasScaled, context, image, imageData, vector3, sun, shade;
-    vector3 = new THREE.Vector3( 0, 0, 0 );
-    sun = new THREE.Vector3( 1, 1, 1 );
-    sun.normalize();
-    canvas = document.createElement( 'canvas' );
-    canvas.width = width;
-    canvas.height = height;
-    context = canvas.getContext( '2d' );
-    context.fillStyle = '#000';
-    context.fillRect( 0, 0, width, height );
-    image = context.getImageData( 0, 0, canvas.width, canvas.height );
-    imageData = image.data;
-    for ( var i = 0, j = 0, l = imageData.length; i < l; i += 4, j ++ ) {
-        vector3.x = data[ j - 2 ] - data[ j + 2 ];
-        vector3.y = 2;
-        vector3.z = data[ j - width * 2 ] - data[ j + width * 2 ];
-        vector3.normalize();
-        shade = vector3.dot( sun );
-        imageData[ i ] = ( 96 + shade * 128 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 1 ] = ( 32 + shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 2 ] = ( shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
-    }
-    context.putImageData( image, 0, 0 );
-    // Scaled 4x
-    canvasScaled = document.createElement( 'canvas' );
-    canvasScaled.width = width * 4;
-    canvasScaled.height = height * 4;
-    context = canvasScaled.getContext( '2d' );
-    context.scale( 4, 4 );
-    context.drawImage( canvas, 0, 0 );
-    image = context.getImageData( 0, 0, canvasScaled.width, canvasScaled.height );
-    imageData = image.data;
-    for ( var i = 0, l = imageData.length; i < l; i += 4 ) {
-        var v = ~ ~ ( Math.random() * 5 );
-        imageData[ i ] += v;
-        imageData[ i + 1 ] += v;
-        imageData[ i + 2 ] += v;
-    }
-    context.putImageData( image, 0, 0 );
-    return canvasScaled;
-}
 
 function createSky () {
     
     // oguz bakir miyav
     
 }
-
-function createSuns () {}
 
 init();
 animate();
