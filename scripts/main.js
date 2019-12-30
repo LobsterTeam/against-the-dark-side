@@ -105,13 +105,7 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
 }
 
-export function setGameNameAnimation (bool) {
-    gameNameAnimation = bool;    
-}
 
-export function setIntroAnimation (bool) {
-    introAnimation = bool;    
-}
 
 function onWindowResize() {
     windowHalfX = window.innerWidth / 2;
@@ -141,7 +135,11 @@ function render() {
             INTRO.setGameNameOpacity(perpIntroGroup);
         }
         skewedIntroGroup.position.y += 3;
-        INTRO.setIntroTextOpacity(skewedIntroGroup);
+        if (INTRO.setIntroTextOpacity(skewedIntroGroup, 0) == INTRO.gameIntrotextArr.length) {
+            // if intro text is done create level map
+            introAnimation = false;
+            createLevelMap();
+        }
     }
     
     //camera.lookAt( scene.position );
@@ -166,11 +164,11 @@ function showStarWarsEntry () {
     // initialize text groups
     perpIntroGroup = new THREE.Group();      // to work with text as a group
     perpIntroGroup.position.y = 0;
-    perpIntroGroup.name = "perpIntroObjects";       // TODO
+    perpIntroGroup.name = "perpIntroObjects";
     skewedIntroGroup = new THREE.Group();
     skewedIntroGroup.position.y = 0;
     rotatedGroup = new THREE.Group();
-    rotatedGroup.name = "rotatedGroup";     // TODO
+    rotatedGroup.name = "rotatedGroup";
     
     // create a global audio source
     var listener = new THREE.AudioListener();
@@ -181,15 +179,14 @@ function showStarWarsEntry () {
 
 // manage sound button according to current sound mode
 export function toggleSound() {
-    console.log("hede");
     var icon = $('#soundIcon');
     if (icon.attr('src') === "./img/sound_on.png") {
         icon.attr('src', './img/sound_off.png');
-        introSound.setVolume(0.0);
+        introSound.setVolume(0.0);      // TODO check introSound
         
     } else {
         icon.attr('src', './img/sound_on.png');
-        introSound.setVolume(1.0);
+        introSound.setVolume(1.0);      // TODO check introSound
     }
 }
 
@@ -220,12 +217,11 @@ export function createLevelMap () {
         fromIntro = false;
         introSound.pause();
         //muteAudioSlowly();
-        // LIGHT DURUYOR
+        // TODO LIGHT DURUYOR
     } else {
         clearScene();   // remove everything from the scene
         INTRO.createBackgroundWithStars();        // create space in the background
     }
-    
     // create map
 }
 
@@ -268,11 +264,18 @@ function createTerrain() {
     controls.lookSpeed = 0.1;
 }
 
-
 function createSky () {
     
     // oguz bakir miyav
     
+}
+
+export function setGameNameAnimation (bool) {
+    gameNameAnimation = bool;    
+}
+
+export function setIntroAnimation (bool) {
+    introAnimation = bool;    
 }
 
 init();
