@@ -4,20 +4,22 @@ import { scene, camera, renderer, onLevelMap, listener, directionalLight, perpIn
 
 var gameName = "AGAINST THE\n  DARK SIDE";
 var longTimeAgoText = "A long time ago, in a galaxy far,\nfar away...";
-var gameIntrotextArr = ["It is a period of civil war. Rebel",
-                        "spaceships, striking from a hidden",
-                        "base, have won their first victory", 
-                        "against the evil Galactic Empire.", 
-                        "During the battle, Rebel spies managed", 
-                        "to steal secret plans to the Empire's", 
-                        "ultimate weapon, the DEATH STAR an",
-                        "armored space station with enough",
-                        "power to destroy an entire planet.",
-                        "You, as a rebel spy are received",
-                        "the task to transmit the secret plans",
-                        "to hidden base. Each level continues", 
-                        "to the next. You must fight against",
-                        "the dark side. May the force be with you!"];
+export var gameIntrotextArr = [ "It is  a  period of  civil war. Rebel",
+                                "spaceships,  striking from a hidden",
+                                "base,  have won their first victory",
+                                "against the evil  Galactic  Empire.", 
+                                "During  the  battle,   Rebel  spies", 
+                                "managed  to  steal  secret plans", 
+                                "to the Empire's  ultimate weapon,",
+                                "the  DEATH  STAR  an  armored",
+                                "space station with enough power",
+                                "to destroy an entire planet.  You",
+                                "as a  rebel spy are received the",
+                                "task to transmit the secret plans", 
+                                "to the  hidden  base. Each  level",
+                                "continues to the  next one.  You",
+                                "must fight against the dark side.",
+                                "May  the  force  be  with  you!"];
 var textMesh, i;
 var radius = 6371;      // constant scalar for star background
 
@@ -71,12 +73,13 @@ export function createLongTimeAgoText () {
         return;
     }
     // load a long time ago text
-    loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000);
+    console.log(window.innerWidth);
+    loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000); // TODO y ve z
     
     // load intro text before so it does not create an interrupt
     for (i = 0; i < gameIntrotextArr.length; i++) {
-        loadFont(skewedIntroGroup, gameIntrotextArr[i], 'fonts/star_wars_entry/intro_font.json', 70, 0xfcdf00, 
-                -150 * i, -window.innerHeight);     // TODO y ve z
+        loadFont(skewedIntroGroup, gameIntrotextArr[i], 'fonts/star_wars_entry/intro_font.json',
+            70, 0xfcdf00, -150 * i, -window.innerHeight);     // TODO y ve z
     }
     
     camera.add(introSound);     // add star wars intro sound
@@ -93,7 +96,8 @@ export function createLongTimeAgoText () {
         if (!onLevelMap) {
             createGameNameText();
         } else {
-            // TODO
+            createLevelMap();
+            return;
         }
     }, 5000);
 }
@@ -104,16 +108,10 @@ function createGameNameText () {
         return;
     }
     perpIntroGroup.remove(textMesh);    // remove a long time ago text
-    loadFont(perpIntroGroup, gameName, 'fonts/star_wars_entry/logo_font.json', 100, 0xfcdf00, 30, -300);
+    loadFont(perpIntroGroup, gameName, 'fonts/star_wars_entry/logo_font.json', 
+            100, 0xfcdf00, 30, -300);       // TODO y ve z
     introSound.play();      // add star wars intro sound
     setGameNameAnimation(true);
-    setTimeout(function(){
-        if (!onLevelMap) {
-            createIntroText();
-        } else {
-            // TODO
-        }
-    }, 4000);       // TODO remove timer
 }
 
 function createIntroText () {
@@ -127,15 +125,6 @@ function createIntroText () {
     scene.add(rotatedGroup);
     setGameNameAnimation(false);
     setIntroAnimation(true);
-    //perpIntroGroup.remove(textMesh); // TODO
-
-    setTimeout(function(){
-        setIntroAnimation(false);
-        // remove group elements one by one
-        // TODO
-        createLevelMap();
-        console.log("end intro");
-    }, 33000);      // TODO
 }
 
 function loadFont(groupName, text, font, textSize, colorHex, y, z) {
@@ -163,7 +152,7 @@ function createText(groupName, text, font, textSize, colorHex, y, z) {
     });
     textGeo.computeBoundingBox();
     textGeo.computeVertexNormals();
-    var centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+    var centerOffset = - 0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
     textMesh = new THREE.Mesh(textGeo, materials);
     textMesh.position.x = centerOffset;
     textMesh.position.y = y;
@@ -172,34 +161,41 @@ function createText(groupName, text, font, textSize, colorHex, y, z) {
 }
 
 // manage opacity of far texts
-
-
 export function setGameNameOpacity(obj) {
     obj.children.forEach((child) => {
         setGameNameOpacity(child);
     });
     if ( obj.material ) {
         var position = new THREE.Vector3();
-        position.setFromMatrixPosition( obj.matrixWorld );
-        console.log(position.z);
+        position.setFromMatrixPosition(obj.matrixWorld);
+        // to start intro text animation
+        if (position.z == -3000) {
+            if (!onLevelMap) {
+                createIntroText();
+            } else {
+                createLevelMap();
+                return;
+            }
+        }
         if (position.z < -6000) {
             obj.material[0].opacity = 0;
             obj.material[1].opacity = 0;
         } else {
-            obj.material[0].opacity =  1 + Math.sin(position.z * .00025);
-            obj.material[1].opacity =  1 + Math.sin(position.z * .00025);
+            obj.material[0].opacity =  1 + Math.sin(position.z * .00022);
+            obj.material[1].opacity =  1 + Math.sin(position.z * .00022);
         }
     };
 };
 
-export function setIntroTextOpacity(obj) {
+export function setIntroTextOpacity(obj, zeroOpacityCounter) {
     obj.children.forEach((child) => {
-        setIntroTextOpacity(child);
+        zeroOpacityCounter = setIntroTextOpacity(child, zeroOpacityCounter);
     });
     if ( obj.material ) {
         var position = new THREE.Vector3();
-        position.setFromMatrixPosition( obj.matrixWorld );
+        position.setFromMatrixPosition(obj.matrixWorld);
         if (position.y > 600) {
+            zeroOpacityCounter++;
             obj.material[0].opacity = 0;
             obj.material[1].opacity = 0;
         } else if (position.y < 0) {
@@ -208,7 +204,8 @@ export function setIntroTextOpacity(obj) {
         } else {
             obj.material[0].opacity =  1 + Math.sin(-position.y * .0025);
             obj.material[1].opacity =  1 + Math.sin(-position.y * .0025);
-        }
+        }        
     };
+    return zeroOpacityCounter;      // to understand when it ends
 };
 
