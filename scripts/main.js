@@ -94,7 +94,9 @@ function init() {
     //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     //window.addEventListener( 'resize', onWindowResize, false );
     
-    showInstruction();
+    showClick();
+    
+
     
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
@@ -106,24 +108,27 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
 }
 
-function showInstruction() {
-    const instructionbox = document.getElementById('instructionbox');
-    instructionbox.style.display = 'block';
-    instructionbox.style.marginLeft = `-${parseInt(
-        instructionbox.offsetWidth / 2
+function showClick() {
+    const skipclickbox = document.getElementById('skipclickbox');
+    skipclickbox.style.display = 'block';
+    skipclickbox.style.marginLeft = `-${parseInt(
+        skipclickbox.offsetWidth / 2
     )}px`;
-    instructionbox.style.marginTop = `-${parseInt(
-        instructionbox.offsetHeight / 2
+    skipclickbox.style.marginTop = `-${parseInt(
+        skipclickbox.offsetHeight / 2
     )}px`;
-    document.addEventListener('click', function(event) {
-        if (document.getElementById("instructionbox").style.display !== 'none'){
-            showStarWarsEntry();
-            document.getElementById("instructionbox").style.display = 'none';
-            document.getElementById("soundbutton").style.display = 'block';
-            document.getElementById("skipButton").style.display = 'block';
-        }
-    });
+    document.addEventListener('click', skipClick);
+    document.addEventListener('keydown', skipClick);
 
+}
+
+function skipClick() {
+    if (document.getElementById("skipclickbox").style.display !== 'none'){
+        showStarWarsEntry();
+        document.getElementById("skipclickbox").style.display = 'none';
+        document.getElementById("soundbutton").style.display = 'block';
+        document.getElementById("skipButton").style.display = 'block';
+    }
 }
 
 

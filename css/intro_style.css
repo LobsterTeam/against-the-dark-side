@@ -61,7 +61,7 @@ canvas { pointer-events:none; z-index:10; position:relative; }
     }
 }
 
-#instructionbox {
+#skipclickbox {
     position: absolute;
     padding: 12px;
     left: 50%;
