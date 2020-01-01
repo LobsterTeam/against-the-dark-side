@@ -125,13 +125,13 @@ function render() {
     
     // INTRO CHECKS
     if (gameNameAnimation) {
-        perpIntroGroup.position.z -= 10;
+        perpIntroGroup.position.z -= 15;
         INTRO.setGameNameOpacity(perpIntroGroup);
         
     } else if (introAnimation) {
         // if it is too far then we dont need to set opacity because it is already 0
-        if (perpIntroGroup.position.z > -6000) {
-            perpIntroGroup.position.z -= 10;
+        if (perpIntroGroup.position.z > -7000) {
+            perpIntroGroup.position.z -= 15;
             INTRO.setGameNameOpacity(perpIntroGroup);
         }
         skewedIntroGroup.position.y += 3;
@@ -141,6 +141,9 @@ function render() {
             createLevelMap();
         }
     }
+    //else if (onLevelMap) {            //MAYBE
+    //    camera.position.z -= 100;
+    //}
     
     //camera.lookAt( scene.position );
     renderer.render( scene, camera );
@@ -234,6 +237,7 @@ function muteAudioSlowly () {
 }
 
 function createGameScene() {
+    camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
     directionalLight.color.setHex(0xffffff);
     SUN.createSuns();
@@ -266,7 +270,6 @@ function createTerrain() {
 
 function createSky () {
     
-    // oguz bakir miyav
     
 }
 
