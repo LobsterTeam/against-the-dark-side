@@ -14,16 +14,22 @@ and open the template in the editor.
         <link href="./css/intro_style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <div id="soundbutton">
+        <div id="soundbutton" style="display: none;">
           <a onclick="return toggleSound();">
             <img border="0" id="soundIcon" src="./img/sound_on.png">
           </a>
         </div>
         
-        <div id="skipButton">
+        <div id="skipButton" style="display: none;">
             <button class="ovalButton" onclick="createLevelMap()">SKIP THE INTRO
                 <img class="skipIntroIcon" src="./img/skip_arrow.png">
             </button>
+        </div>
+        
+        <div id="instructionbox" style="display: block; margin-left: -348px; margin-top: -66px;">
+            <font color="#777777"><br>
+            <br>
+            CLICK ANYWHERE TO<br>FEEL THE FORCE</font>
         </div>
           
         <script type="module" src="scripts/main.js"></script>
