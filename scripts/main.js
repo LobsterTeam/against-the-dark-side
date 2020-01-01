@@ -26,6 +26,7 @@ var worldWidth = 256, worldDepth = 256,
         worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 var clock = new THREE.Clock();
 
+var hasInitialUserInput = false;
 var startTerrain = false;
 
 window.createLevelMap = createLevelMap;
@@ -93,7 +94,7 @@ function init() {
     //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     //window.addEventListener( 'resize', onWindowResize, false );
     
-    showStarWarsEntry();
+    showInstruction();
     
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
@@ -103,6 +104,26 @@ function init() {
     });
     
     window.addEventListener( 'resize', onWindowResize, false );
+}
+
+function showInstruction() {
+    const instructionbox = document.getElementById('instructionbox');
+    instructionbox.style.display = 'block';
+    instructionbox.style.marginLeft = `-${parseInt(
+        instructionbox.offsetWidth / 2
+    )}px`;
+    instructionbox.style.marginTop = `-${parseInt(
+        instructionbox.offsetHeight / 2
+    )}px`;
+    document.addEventListener('click', function(event) {
+        if (document.getElementById("instructionbox").style.display !== 'none'){
+            showStarWarsEntry();
+            document.getElementById("instructionbox").style.display = 'none';
+            document.getElementById("soundbutton").style.display = 'block';
+            document.getElementById("skipButton").style.display = 'block';
+        }
+    });
+
 }
 
 
