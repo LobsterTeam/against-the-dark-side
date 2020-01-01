@@ -2,9 +2,9 @@ import * as THREE from '../three.js-dev/build/three.module.js';
 import { scene, camera, renderer, onLevelMap, listener, directionalLight, perpIntroGroup,
     audioLoader, introSound, gameNameAnimation, setGameNameAnimation, setIntroAnimation, skewedIntroGroup, rotatedGroup, createLevelMap} from './main.js';
 
-var gameName = "AGAINST THE\n  DARK SIDE";
-var longTimeAgoText = "A long time ago, in a galaxy far,\nfar away...";
-export var gameIntrotextArr = [ "It is  a  period of  civil war. Rebel",
+var gameName = ["AGAINST THE", "DARK SIDE"];
+var longTimeAgoText = "A long time ago, in a galaxy far,\nfar away....";
+export var gameIntrotextArr = [ "It is a period  of  civil war.  Rebel",
                                 "spaceships,  striking from a hidden",
                                 "base,  have won their first victory",
                                 "against the evil  Galactic  Empire.", 
@@ -73,7 +73,7 @@ export function createLongTimeAgoText () {
         return;
     }
     // load a long time ago text
-    console.log(window.innerWidth);
+    //console.log(window.innerWidth);
     loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000); // TODO y ve z
     
     // load intro text before so it does not create an interrupt
@@ -108,8 +108,10 @@ function createGameNameText () {
         return;
     }
     perpIntroGroup.remove(textMesh);    // remove a long time ago text
-    loadFont(perpIntroGroup, gameName, 'fonts/star_wars_entry/logo_font.json', 
-            100, 0xfcdf00, 30, -300);       // TODO y ve z
+    loadFont(perpIntroGroup, gameName[0], 'fonts/star_wars_entry/logo_font.json', 
+            150, 0xfcdf00, 30, -300);       // TODO y ve z
+    loadFont(perpIntroGroup, gameName[1], 'fonts/star_wars_entry/logo_font.json', 
+            150, 0xfcdf00, -120, -299);       // TODO y ve z
     introSound.play();      // add star wars intro sound
     setGameNameAnimation(true);
 }
@@ -169,7 +171,7 @@ export function setGameNameOpacity(obj) {
         var position = new THREE.Vector3();
         position.setFromMatrixPosition(obj.matrixWorld);
         // to start intro text animation
-        if (position.z == -3000) {
+        if (position.z == -3990) {
             if (!onLevelMap) {
                 createIntroText();
             } else {
@@ -177,12 +179,15 @@ export function setGameNameOpacity(obj) {
                 return;
             }
         }
-        if (position.z < -6000) {
+        if (position.z < -7000) {
             obj.material[0].opacity = 0;
             obj.material[1].opacity = 0;
+        }  else if (position.z > -6000) {
+            obj.material[0].opacity =  1
+            obj.material[1].opacity =  1;
         } else {
-            obj.material[0].opacity =  1 + Math.sin(position.z * .00022);
-            obj.material[1].opacity =  1 + Math.sin(position.z * .00022);
+            obj.material[0].opacity =  1 + Math.sin(position.z * .002);
+            obj.material[1].opacity =  1 + Math.sin(position.z * .002);
         }
     };
 };
@@ -208,4 +213,3 @@ export function setIntroTextOpacity(obj, zeroOpacityCounter) {
     };
     return zeroOpacityCounter;      // to understand when it ends
 };
-
