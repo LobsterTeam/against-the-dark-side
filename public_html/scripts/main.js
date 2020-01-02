@@ -289,7 +289,7 @@ function createTerrain() {
     mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
     scene.add( mesh );
 
-    controls = new FirstPersonControls( camera, renderer.domElement );
+    controls = new FirstPersonControls( camera );
     controls.movementSpeed = 1000;
     controls.lookSpeed = 0.1;
 }
