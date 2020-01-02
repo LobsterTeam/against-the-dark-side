@@ -63,15 +63,14 @@ canvas { pointer-events:none; z-index:10; position:relative; }
 
 #skipclickbox {
     position: absolute;
-    padding: 12px;
     left: 50%;
     top: 50%;
     color: #fff;
-    background-color: #121212;
+    background-color: #1F1F1F;
     z-index: 13;
     display:none;
     text-align:center;
-    font: 10px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
+    font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
     opacity: 0.8;
     border-radius: 20px;
     padding: 48px;
