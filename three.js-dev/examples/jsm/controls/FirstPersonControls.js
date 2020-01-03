@@ -59,6 +59,8 @@ var FirstPersonControls = function ( object, domElement ) {
 
 	this.viewHalfX = 0;
 	this.viewHalfY = 0;
+        
+        this.speedStep = 5; // speed step of keyboard inputs
 
 	// private variables
 
@@ -175,8 +177,8 @@ var FirstPersonControls = function ( object, domElement ) {
 			case 39: /*right*/
 			case 68: /*D*/ this.moveRight = true; break;
 
-			case 82: /*R*/ this.moveUp = true; break;
-			case 70: /*F*/ this.moveDown = true; break;
+			case 33: /*PgUp*/ this.moveUp = true; break;
+			case 34: /*PgDn*/ this.moveDown = true; break;
 
 		}
 
@@ -198,8 +200,8 @@ var FirstPersonControls = function ( object, domElement ) {
 			case 39: /*right*/
 			case 68: /*D*/ this.moveRight = false; break;
 
-			case 82: /*R*/ this.moveUp = false; break;
-			case 70: /*F*/ this.moveDown = false; break;
+			case 33: /*PgUp*/ this.moveUp = false; break;
+			case 34: /*PgDn*/ this.moveDown = false; break;
 
 		}
 
@@ -248,14 +250,33 @@ var FirstPersonControls = function ( object, domElement ) {
 
 			var actualMoveSpeed = delta * this.movementSpeed;
 
-			if ( this.moveForward || ( this.autoForward && ! this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
-			if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
+			
+                        if ( this.moveForward && ( this.autoForward && ! this.moveBackward)) {
+                            if (this.movementSpeed < 1500) {
+                                this.movementSpeed += this.speedStep;
+                            }
+                        }
+                        if ( this.moveForward || this.autoForward ) {
+                            this.object.position.z -= actualMoveSpeed;
+                        }
+			if ( this.moveBackward ) {
+                            if (this.movementSpeed > 200) {
+                                this.movementSpeed -= this.speedStep;
+                            }
+                        }
+			if ( this.moveLeft ) {
+                            this.object.position.x -= actualMoveSpeed;
+                        }
+			if ( this.moveRight ) {
+                            this.object.position.x += actualMoveSpeed;
+                        }
 
-			if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
-			if ( this.moveRight ) this.object.translateX( actualMoveSpeed );
-
-			if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
-			if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
+			if ( this.moveUp ) {
+                            this.object.position.y += actualMoveSpeed;
+                        }
+			if ( this.moveDown ) {
+                            this.object.position.y -= actualMoveSpeed;
+                        }
 
 			var actualLookSpeed = delta * this.lookSpeed;
 
@@ -288,10 +309,9 @@ var FirstPersonControls = function ( object, domElement ) {
 			}
 
 			var position = this.object.position;
-
 			targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
 
-			this.object.lookAt( targetPosition );
+                        this.object.lookAt( targetPosition );
 
 		};
 
