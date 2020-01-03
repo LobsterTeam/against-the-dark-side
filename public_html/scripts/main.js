@@ -22,12 +22,14 @@ var fromIntro = true, onLevelMap = false;       // to avoid recreate of the spac
 
 var controls;
 var mesh, texture;
-var worldWidth = 256, worldDepth = 256,
+var worldWidth = 256, worldDepth = 1024,
         worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 var clock = new THREE.Clock();
 
 var hasInitialUserInput = false;
 var startTerrain = false;
+
+var speedStep = 5;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -277,7 +279,7 @@ function createTerrain() {
     //scene.background = texture;
     var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
     camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-    var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+    var geometry = new THREE.PlaneBufferGeometry( 7500, 30000, worldWidth - 1, worldDepth - 1 );
     geometry.rotateX( - Math.PI / 2 );
     var vertices = geometry.attributes.position.array;
     for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
@@ -290,7 +292,9 @@ function createTerrain() {
     scene.add( mesh );
 
     controls = new FirstPersonControls( camera );
-    controls.movementSpeed = 1000;
+    controls.autoForward = true;
+    controls.speedStep = speedStep;
+    controls.movementSpeed = 500;
     controls.lookSpeed = 0.1;
 }
 

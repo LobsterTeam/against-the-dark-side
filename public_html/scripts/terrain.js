@@ -6,7 +6,7 @@ export function generateTerrainHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size ),
         perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 1;
 
-    for ( var j = 0; j < 5; j ++ ) {
+    for ( var j = 0; j < 4; j ++ ) {
         for ( var i = 0; i < size; i ++ ) {
             
             var k = ~ ~ (i / 256);
@@ -17,7 +17,12 @@ export function generateTerrainHeight( width, height ) {
             if ((x < 106 || x > 156) || j < 2) {
                 var x = i % width;
                 var y = ~ ~ ( i / width );       // get floor
-                data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
+                data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.5 );
+            }
+            if ((x < 86 || x > 176) || j < 2) {
+                var x = i % width;
+                var y = ~ ~ ( i / width );       // get floor
+                data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 2.0 );
             }
             
             
