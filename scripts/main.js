@@ -31,6 +31,8 @@ var startTerrain = false;
 
 var speedStep = 5;
 
+var landSpeeder;
+
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
@@ -183,6 +185,15 @@ function render() {
         controls.update( clock.getDelta() );
     }
     
+    if (landSpeeder) {
+        for (i = scene.children.length - 1; i >= 0; i--) {
+            var child = scene.children[i];
+            if (child.name === "OSG_Scene"){
+                child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+            }
+        }
+    }
+    
     requestAnimationFrame(render);
 }
 
@@ -273,7 +284,7 @@ function createGameScene() {
     directionalLight.visible = false;
     var light = new THREE.HemisphereLight(  );
     scene.add( light );
-    LOADERS.gltfLoad('models/gltf/landspeeder/scene.gltf', scene, camera);
+    landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);
 
     SUN.createSuns();
     createTerrain();
@@ -330,7 +341,6 @@ function createTerrain() {
 }
 
 function createSky () {
-    
     
 }
 
