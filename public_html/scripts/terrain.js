@@ -1,6 +1,9 @@
 import { ImprovedNoise } from '../three.js-dev/examples/jsm/math/ImprovedNoise.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { sunPos } from './skyAndSun.js';
+import { getPixelValues } from './helpers/ImageHelpers.js';
+import { HeightMapBufferGeometry } from './helpers/HeightMapGeometry.js';
+import { HeightMapMesh } from './helpers/HeightMapMesh.js';
 
 export function generateTerrainHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size ),
@@ -108,3 +111,44 @@ function makeQuad(geometry, position, addFace, verts) {
     geometry.faces.push(new THREE.Face3(index2, index4, index3));
   }
 };
+
+export class Terrain {
+
+    // Constructs the Terrain with the height map file, width and depth
+    constructor() {
+        this.heightMapImage = document.getElementById('heightmap');
+        this.terrainData = getPixelValues(this.heightMapImage, 'r');
+        this.heightMapWidth = this.heightMapImage.width;
+        this.heightMapDepth = this.heightMapImage.height;
+    }
+
+    // Initializes the terrain mesh
+    init(worldMapWidth, worldMapMaxHeight, worldMapDepth) {
+        var heightMapGeometry = new HeightMapBufferGeometry(this.terrainData, this.heightMapWidth, this.heightMapDepth);
+        heightMapGeometry.scale(worldMapWidth, worldMapMaxHeight, worldMapDepth);
+
+        var sandTexture = this.wrapTexture('textures/sand4.jpg');
+        var terrainMaterialImp = this.terrainMaterial(sandTexture);
+
+        var terrainMesh = new HeightMapMesh(heightMapGeometry, terrainMaterialImp);
+        terrainMesh.receiveShadow = true;
+
+        return terrainMesh;
+    }
+
+    // Wraps the texture and returns it
+    wrapTexture(textureString) {
+        var objectTexture = new THREE.TextureLoader().load(textureString);
+        objectTexture.wrapS = THREE.RepeatWrapping;
+        objectTexture.wrapT = THREE.RepeatWrapping;
+        return objectTexture;
+    }
+
+    // Creates the terrain material as a MeshPhongMaterial to apply reflection
+    terrainMaterial(sandtexture) {
+        var tmi = new THREE.MeshPhongMaterial({
+            map: sandtexture
+        });
+        return tmi;
+    }
+}

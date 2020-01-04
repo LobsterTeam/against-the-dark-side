@@ -344,7 +344,18 @@ function createTerrain() {
     texture.wrapS = THREE.ClampToEdgeWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
     mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
-    scene.add( mesh );
+    //scene.add( mesh );
+    
+    var heightMapWidth = 512;
+    var heightMapDepth = 512;
+    var worldMapWidth = 100 * 0.3 * heightMapWidth;
+    var worldMapDepth = 100 * 0.3 * heightMapDepth;
+    var worldMapMaxHeight = 1000;
+    var terrain = new TERRAIN.Terrain();
+    var terrainMesh = terrain.init(worldMapWidth, worldMapMaxHeight, worldMapDepth);
+    scene.add(terrainMesh);
+    camera.position.z = 6000;
+    camera.position.y = 1000;
 
     controls = new FirstPersonControls( camera );
     controls.autoForward = true;
