@@ -12,8 +12,8 @@ export function createSuns() {
     sky.scale.setScalar( 450000 ); // skybox size
     scene.add( sky );
 
-    formSun(0xffffff, 0.49, 0.25);
-    formSun(0xffffff, 0.5074, 0.2689);
+    formSun(0xffffff, 0.3, 0.25);
+    formSun(0xffffff, 0.3, 0.2689);
     
 
 }
