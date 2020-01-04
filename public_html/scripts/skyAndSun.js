@@ -11,16 +11,7 @@ export function createTatooSuns(topSkyColor, bottomSkyColor,
                 tatooOneMieDirectionalG, tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
                 tatooTwoColor, tatooTwoRayleigh, tatooTwoMieCoefficient,
                 tatooTwoMieDirectionalG, tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth) {
-    // Add Sky
-    //sky = new Sky();
-    //sky.scale.setScalar( 450000 ); // skybox size
-    //scene.add( sky );
 
-    //formSun(tatooOneColor, tatooOneRayleigh, tatooOneMieCoefficient, tatooOneMieDirectionalG,
-    //            tatooOneLuminance, tatooOneInclination, tatooOneAzimuth);
-    //formSun(tatooTwoColor, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
-    //            tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
-    
     createSky(topSkyColor, bottomSkyColor);
     createSun(tatooOneColor, tatooOneInclination, tatooOneAzimuth);
     createSun(tatooTwoColor, tatooTwoInclination, tatooTwoAzimuth);
@@ -63,51 +54,4 @@ function createSun (color, inclination, azimuth) {
     sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
     sunPos = sunSphere.position;
     scene.add( sunSphere );
-}
-
-function formSun (color, rayleigh, mieCoefficient, mieDirectionalG, luminance, inclination, azimuth) {
-    
-    // Add Sun Helper
-    var sunSphere = new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 10000, 16, 8 ),
-            new THREE.MeshBasicMaterial( { color: color } )
-    );
-    sunSphere.position.y = - 700000;
-    //scene.add( sunSphere );
-
-    /// GUI
-
-    var effectController = {
-            turbidity: 0,
-            rayleigh: rayleigh,
-            mieCoefficient: mieCoefficient,
-            mieDirectionalG: mieDirectionalG,
-            luminance: luminance,
-            inclination: inclination, // elevation / inclination
-            azimuth: azimuth, // Facing front,
-            sun: true
-    };
-
-    var distance = 400000;
-    var uniforms = sky.material.uniforms;
-    uniforms[ "turbidity" ].value = effectController.turbidity;
-    uniforms[ "rayleigh" ].value = effectController.rayleigh;
-    uniforms[ "mieCoefficient" ].value = effectController.mieCoefficient;
-    uniforms[ "mieDirectionalG" ].value = effectController.mieDirectionalG;
-    uniforms[ "luminance" ].value = effectController.luminance;        // !!!
-    
-    var theta = Math.PI * ( effectController.inclination - 0.5 );
-    var phi = 2 * Math.PI * ( effectController.azimuth - 0.5 );
-    
-    sunSphere.position.x = distance * Math.cos( phi );
-    sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-    sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
-    
-    
-    sunPos = sunSphere.position;
-
-    sunSphere.visible = effectController.sun;
-
-    uniforms[ "sunPosition" ].value.copy( sunSphere.position );
-    console.log();
 }
