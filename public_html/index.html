@@ -9,8 +9,6 @@ and open the template in the editor.
         <title>Against the Dark Side</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        
         <link href="./css/intro_style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
@@ -25,16 +23,33 @@ and open the template in the editor.
                 <img class="skipIntroIcon" src="./img/skip_arrow.png">
             </button>
         </div>
-        
         <div id="skipclickbox" style="display: block; margin-left: -348px; margin-top: -66px;">
             <font color="#FFFFFF">
             CLICK ANYWHERE TO FEEL THE FORCE<br>(OR PRESS ANY KEY)</font>
         </div>
-          
         <script type="module" src="scripts/main.js"></script>
         <script src="scripts/jquery.min.js"></script>
+        <script type="x-shader/x-vertex" id="skyVertexShader">
+                varying vec3 vWorldPosition;
 
+                void main() {
+                        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                        vWorldPosition = worldPosition.xyz;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+        </script>
+        <script type="x-shader/x-fragment" id="skyFragmentShader">
+                uniform vec3 topColor;
+                uniform vec3 bottomColor;
+                uniform float offset;
+                uniform float exponent;
 
+                varying vec3 vWorldPosition;
+
+                void main() {
+                        float h = normalize( vWorldPosition + offset ).y;
+                        gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+                }
+        </script>
     </body>
-    
 </html>
