@@ -42,7 +42,7 @@ var startTerrain = false;
 var speedStep = 5;
 
 var landSpeeder;
-
+var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
@@ -63,58 +63,13 @@ function init() {
     //camera.add( pointLight );
     //scene.add( camera );
 
-    // manager
-    function loadModel() {
-        object.traverse( function ( child ) {
-                //if ( child.isMesh ) child.material.map = texture;
-        } );
-        object.position.y = - 95;
-        scene.add( object );
-    }
-
-    //var manager = new THREE.LoadingManager( loadModel );
-    //manager.onProgress = function ( item, loaded, total ) {
-    //        console.log( item, loaded, total );
-    //};
-
-    // model
-    function onProgress( xhr ) {
-        if ( xhr.lengthComputable ) {
-                var percentComplete = xhr.loaded / xhr.total * 100;
-                console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
-        }
-    }
-
-    function onError() {
-        console.log("Error while loading model");
-    }
-
-    //var mtlLoader = new THREE.MTLLoader();
-    //mtlLoader.load("models/r2d2-obj/r2-d2.mtl", function(materials){
-
-    //    materials.preload();
-    //    var objLoader = new THREE.OBJLoader();
-    //    objLoader.setMaterials(materials);
-    //    objLoader.load("models/r2d2-obj/r2-d2.obj", function(obj){
-    //        scene.add(obj);
-    //    }, onProgress, onError);
-    //})
-    
-    
-    
-
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     container.appendChild( renderer.domElement );
-
-    //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    //window.addEventListener( 'resize', onWindowResize, false );
     
     showClick();
-    
 
-    
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
             clearScene();       // clear everything from the scene
@@ -148,8 +103,6 @@ function skipClick() {
     }
 }
 
-
-
 function onWindowResize() {
     windowHalfX = window.innerWidth / 2;
     windowHalfY = window.innerHeight / 2;
@@ -164,7 +117,6 @@ function onWindowResize() {
 function render() {
     //camera.position.x += ( mouseX - camera.position.x ) * .05;
     //camera.position.y += ( - mouseY - camera.position.y ) * .05;
-    
     
     // INTRO CHECKS
     if (gameNameAnimation) {
@@ -200,11 +152,29 @@ function render() {
             var child = scene.children[i];
             if (child.name === "OSG_Scene"){
                 child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+            } else if (child.name === "r2-d2") {
+                child.position.set(camera.position.x - 130, camera.position.y - 480, camera.position.z - 700);
+                r2d2Move(child);
             }
         }
     }
     
     requestAnimationFrame(render);
+}
+
+function r2d2Move (r2d2) {
+    
+    if (r2d2.rotation.y > 5.0) {
+        r2d2RightMove = false;
+    } else if (r2d2.rotation.y < 1.0) {
+        r2d2RightMove = true;
+    }
+    
+    if (r2d2RightMove) {
+        r2d2.rotation.y += r2d2MoveSpeed;
+    } else {
+        r2d2.rotation.y -= r2d2MoveSpeed;
+    }    
 }
 
 
@@ -298,9 +268,12 @@ function createGameScene() {
                     tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
                     0xF9FFEF, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
                     tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
-    createTerrainSceneLights();
-    landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);        // TODO onload
     createTerrain();
+    createTerrainSceneLights();
+    LOADERS.objLoad("models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
+                    scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
+                    camera.position.z - 700, 3, 2.5);         // TODO onload
+    landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);        // TODO onload
 }
 
 function createTerrainSceneLights () {
@@ -316,7 +289,6 @@ function createTerrainSceneLights () {
     //directionalLight.color.setHSL( 0.1, 1, 0.95 );
     directionalLight.position.set( - 1, 1.75, 1 );
     directionalLight.position.multiplyScalar( 30 );
-    scene.add( directionalLight );
 
     directionalLight.castShadow = true;
     
@@ -348,9 +320,7 @@ function createTerrain1() {
     terrain.updateMatrixWorld(true);
     console.log(terrain.position.x);
     scene.add(terrain);
-
- 
-
+    
     controls = new FirstPersonControls( camera );
     //controls.autoForward = true;
     controls.speedStep = speedStep;
