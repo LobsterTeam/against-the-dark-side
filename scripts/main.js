@@ -8,6 +8,16 @@ import * as LOADERS from './loaders.js';
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, gameNameAnimation, skewedIntroGroup, rotatedGroup;
+
+// tatoo one properties
+export var tatooOneAzimuth = 0.3, tatooOneInclination = 0.45, tatooOneLuminance = 1,
+        tatooOneMieDirectionalG = 0.8, tatooOneRayleigh = 2, tatooOneMieCoefficient = 0.005;
+// tatoo two properties
+export var tatooTwoAzimuth = 0.25, tatooTwoInclination = 0.4, tatooTwoLuminance = 1,
+        tatooTwoMieDirectionalG = 0.8, tatooTwoRayleigh = 2, tatooTwoMieCoefficient = 0.005;
+// terrain scene sky colors
+//export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xf8fcff;
+export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
 var mouseX = 0, mouseY = 0;     // mouse movement variables
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
@@ -270,14 +280,49 @@ function muteAudioSlowly () {
 function createGameScene() {
     camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
-    directionalLight.visible = false;
-    var light = new THREE.HemisphereLight(  );
-    scene.add( light );
-    LOADERS.gltfLoad('models/gltf/landspeeder/scene.gltf', scene, camera);
+    //directionalLight.visible = false;    
+    
+    LOADERS.gltfLoad('models/gltf/landspeeder/scene.gltf', scene, camera);      // TODO onload
 
-    SUN.createSuns();
+    SUN.createTatooSuns(topSkyColor, bottomSkyColor,
+                    0xFDE585, tatooOneRayleigh, tatooOneMieCoefficient, tatooOneMieDirectionalG,
+                    tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
+                    0xF9FFEF, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
+                    tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
+    createTerrainSceneLights();
     createTerrain();
     createSky();
+}
+
+function createTerrainSceneLights () {
+    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    //hemiLight.color.setHSL( 0.6, 1, 0.6 );
+    //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+    hemiLight.position.set( 0, 50, 0 );
+    scene.add( hemiLight );
+
+    //
+
+    directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    //directionalLight.color.setHSL( 0.1, 1, 0.95 );
+    directionalLight.position.set( - 1, 1.75, 1 );
+    directionalLight.position.multiplyScalar( 30 );
+    scene.add( directionalLight );
+
+    directionalLight.castShadow = true;
+    
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+
+    var d = 50;
+
+    directionalLight.shadow.camera.left = - d;
+    directionalLight.shadow.camera.right = d;
+    directionalLight.shadow.camera.top = d;
+    directionalLight.shadow.camera.bottom = - d;
+
+    directionalLight.shadow.camera.far = 3500;
+    directionalLight.shadow.bias = - 0.0001;
 }
 
 function createTerrain1() {
@@ -327,11 +372,6 @@ function createTerrain() {
     controls.speedStep = speedStep;
     controls.movementSpeed = 500;
     controls.lookSpeed = 0.1;
-}
-
-function createSky () {
-    
-    
 }
 
 export function setGameNameAnimation (bool) {
