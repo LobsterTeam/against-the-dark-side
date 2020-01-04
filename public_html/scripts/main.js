@@ -274,6 +274,13 @@ function createGameScene() {
                     scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
                     camera.position.z - 700, 3, 2.5);         // TODO onload
     landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);        // TODO onload
+    if (landSpeeder) {      // when scene is loaded add controls
+        controls = new FirstPersonControls( camera );
+        controls.autoForward = true;
+        controls.speedStep = speedStep;
+        controls.movementSpeed = 500;
+        controls.lookSpeed = 0.1;
+    }
 }
 
 function createTerrainSceneLights () {
@@ -357,11 +364,7 @@ function createTerrain() {
     camera.position.z = 6000;
     camera.position.y = 1000;
 
-    controls = new FirstPersonControls( camera );
-    controls.autoForward = true;
-    controls.speedStep = speedStep;
-    controls.movementSpeed = 500;
-    controls.lookSpeed = 0.1;
+    
 }
 
 export function setGameNameAnimation (bool) {
