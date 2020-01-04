@@ -1,7 +1,7 @@
 import { FirstPersonControls } from '../three.js-dev/examples/jsm/controls/FirstPersonControls.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as TERRAIN from './terrain.js';
-import * as SUN from './sun.js';
+import * as SUN from './skyAndSun.js';
 import * as INTRO from './intro.js';
 import * as LOADERS from './loaders.js';
 
@@ -40,6 +40,8 @@ var hasInitialUserInput = false;
 var startTerrain = false;
 
 var speedStep = 5;
+
+var landSpeeder;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -193,6 +195,15 @@ function render() {
         controls.update( clock.getDelta() );
     }
     
+    if (landSpeeder) {
+        for (i = scene.children.length - 1; i >= 0; i--) {
+            var child = scene.children[i];
+            if (child.name === "OSG_Scene"){
+                child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+            }
+        }
+    }
+    
     requestAnimationFrame(render);
 }
 
@@ -282,16 +293,14 @@ function createGameScene() {
     onLevelMap = false; // these needs to be checked later
     //directionalLight.visible = false;    
     
-    LOADERS.gltfLoad('models/gltf/landspeeder/scene.gltf', scene, camera);      // TODO onload
-
     SUN.createTatooSuns(topSkyColor, bottomSkyColor,
                     0xFDE585, tatooOneRayleigh, tatooOneMieCoefficient, tatooOneMieDirectionalG,
                     tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
                     0xF9FFEF, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
                     tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
     createTerrainSceneLights();
+    landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);        // TODO onload
     createTerrain();
-    createSky();
 }
 
 function createTerrainSceneLights () {

@@ -4,8 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/oguz/412/BBM412-Project/public_html/index.html</file>
+            <file>file:/home/oguz/412/BBM412-Project/public_html/scripts/sun.js</file>
             <file>file:/home/oguz/412/BBM412-Project/public_html/scripts/main.js</file>
+            <file>file:/home/oguz/412/BBM412-Project/public_html/scripts/loaders.js</file>
             <file>file:/home/oguz/412/BBM412-Project/public_html/scripts/terrain.js</file>
+            <file>file:/home/oguz/412/BBM412-Project/public_html/scripts/intro.js</file>
         </group>
     </open-files>
 </project-private>
