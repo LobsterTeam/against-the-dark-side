@@ -3,7 +3,7 @@ import * as THREE from '../three.js-dev/build/three.module.js';
 import * as TERRAIN from './terrain.js';
 import * as SUN from './sun.js';
 import * as INTRO from './intro.js';
-
+import * as LOADERS from './loaders.js';
 
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
@@ -87,6 +87,9 @@ function init() {
     //        scene.add(obj);
     //    }, onProgress, onError);
     //})
+    
+    
+    
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -267,10 +270,38 @@ function muteAudioSlowly () {
 function createGameScene() {
     camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
-    directionalLight.color.setHex(0xffffff);
+    directionalLight.visible = false;
+    var light = new THREE.HemisphereLight(  );
+    scene.add( light );
+    LOADERS.gltfLoad('models/gltf/landspeeder/scene.gltf', scene, camera);
+
     SUN.createSuns();
     createTerrain();
     createSky();
+}
+
+function createTerrain1() {
+    startTerrain = true;
+    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    //scene.background = texture;
+    var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
+    //camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
+    var geometry = TERRAIN.makeTile(0.1, 40);
+    var terrain_material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.9, 0.55, 0.4)});
+    var terrain = new THREE.Mesh(geometry, terrain_material);
+    terrain.position.x = -2;
+    terrain.position.z = -2;
+    terrain.updateMatrixWorld(true);
+    console.log(terrain.position.x);
+    scene.add(terrain);
+
+ 
+
+    controls = new FirstPersonControls( camera );
+    //controls.autoForward = true;
+    controls.speedStep = speedStep;
+    controls.movementSpeed = 500;
+    controls.lookSpeed = 0.1;
 }
 
 function createTerrain() {

@@ -77,3 +77,34 @@ export function generateTerrainTexture( data, width, height ) {
     context.putImageData( image, 0, 0 );
     return canvasScaled;
 }
+
+export function makeTile(size, res) {
+  var geometry = new THREE.Geometry();
+  for (var i = 0; i <= res; i++) {
+    for (var j = 0; j <= res; j++) {
+      var z = j * size;
+      var x = i * size;
+      var position = new THREE.Vector3(x, 0, z);
+      var addFace = (i > 0) && (j > 0);
+      makeQuad(geometry, position, addFace, res + 1);
+    }
+  }
+  geometry.computeFaceNormals();
+  geometry.normalsNeedUpdate = true;
+          
+  return geometry;
+};
+
+function makeQuad(geometry, position, addFace, verts) {
+  geometry.vertices.push(position);
+    
+  if (addFace) {
+    var index1 = geometry.vertices.length - 1;
+    var index2 = index1 - 1;
+    var index3 = index1 - verts;
+    var index4 = index1 - verts - 1;
+    
+    geometry.faces.push(new THREE.Face3(index2, index3, index1));
+    geometry.faces.push(new THREE.Face3(index2, index4, index3));
+  }
+};
