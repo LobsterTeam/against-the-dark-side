@@ -1,6 +1,6 @@
 import { ImprovedNoise } from '../three.js-dev/examples/jsm/math/ImprovedNoise.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
-import { sunPos } from './sun.js';
+import { sunPos } from './skyAndSun.js';
 
 export function generateTerrainHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size ),
