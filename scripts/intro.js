@@ -68,10 +68,6 @@ export function createBackgroundWithStars () {
 }
 
 export function createLongTimeAgoText () {
-    if (onLevelMap) {
-        createLevelMap();
-        return;
-    }
     // load a long time ago text
     //console.log(window.innerWidth);
     loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000); // TODO y ve z
@@ -95,18 +91,11 @@ export function createLongTimeAgoText () {
     setTimeout(function(){
         if (!onLevelMap) {
             createGameNameText();
-        } else {
-            createLevelMap();
-            return;
         }
     }, 5000);
 }
 
 function createGameNameText () {
-    if (onLevelMap) {
-        createLevelMap();
-        return;
-    }
     perpIntroGroup.remove(textMesh);    // remove a long time ago text
     loadFont(perpIntroGroup, gameName[0], 'fonts/star_wars_entry/logo_font.json', 
             150, 0xfcdf00, 30, -300);       // TODO y ve z
@@ -117,10 +106,6 @@ function createGameNameText () {
 }
 
 function createIntroText () {
-    if (onLevelMap) {
-        createLevelMap();
-        return;
-    }
     // add initialized skewed intro group
     rotatedGroup.rotateX(-1);
     rotatedGroup.add(skewedIntroGroup);

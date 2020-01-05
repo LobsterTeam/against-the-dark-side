@@ -6,7 +6,6 @@
   "scenes": [
     {
       "nodes": [
-        20,
         21
       ],
       "name": "Scene"
@@ -250,36 +249,19 @@
       ]
     },
     {
-      "name": "scene.gltf",
+      "name": "scenegltf",
+      "extras": {
+        "name": "scene.gltf"
+      },
       "children": [
         19
       ]
     },
     {
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        5,
-        10,
-        7.5,
-        1
-      ],
-      "name": "DirectionalLight",
-      "extensions": {
-        "KHR_lights_punctual": {
-          "light": 0
-        }
-      }
+      "name": "export.gltf",
+      "children": [
+        20
+      ]
     }
   ],
   "bufferViews": [
@@ -1947,24 +1929,5 @@
         }
       ]
     }
-  ],
-  "extensions": {
-    "KHR_lights_punctual": {
-      "lights": [
-        {
-          "name": "DirectionalLight",
-          "color": [
-            1,
-            1,
-            1
-          ],
-          "intensity": 1,
-          "type": "directional"
-        }
-      ]
-    }
-  },
-  "extensionsUsed": [
-    "KHR_lights_punctual"
   ]
 }
