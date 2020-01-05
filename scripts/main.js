@@ -233,7 +233,7 @@ export function createLevelMap () {
         $('#skipButton').hide();
         
         for(i = scene.children.length - 1; i >= 0; i--) {
-            if (scene.children[i].name == "perpIntroObjects" 
+            if (scene.children[i].name == "perpIntroObj.mtl i nasilects" 
                     || scene.children[i].name == "rotatedGroup") {
                 console.log(scene.children[i].name);
                 scene.remove(scene.children[i]);
@@ -273,7 +273,13 @@ function createGameScene() {
     LOADERS.objLoad("models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
                     scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
                     camera.position.z - 700, 3, 2.5);         // TODO onload
-    landSpeeder = LOADERS.gltfLoad('models/gltf/landspeeder/export.gltf', scene, camera);        // TODO onload
+    LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
+                    scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
+                    camera.position.z - 5000, 200, 0);
+    LOADERS.objLoad ("models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
+                    scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
+                    camera.position.z - 5000, 200, 0);
+    landSpeeder = LOADERS.gltfLoad('models/landspeeder-gltf/export.gltf', scene, camera);        // TODO onload
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
         controls.autoForward = true;
@@ -285,32 +291,9 @@ function createGameScene() {
 
 function createTerrainSceneLights () {
     var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    //hemiLight.color.setHSL( 0.6, 1, 0.6 );
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
-    scene.add( hemiLight );
-
-    //
-
-    directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    //directionalLight.color.setHSL( 0.1, 1, 0.95 );
-    directionalLight.position.set( - 1, 1.75, 1 );
-    directionalLight.position.multiplyScalar( 30 );
-
-    directionalLight.castShadow = true;
-    
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-
-    var d = 50;
-
-    directionalLight.shadow.camera.left = - d;
-    directionalLight.shadow.camera.right = d;
-    directionalLight.shadow.camera.top = d;
-    directionalLight.shadow.camera.bottom = - d;
-
-    directionalLight.shadow.camera.far = 3500;
-    directionalLight.shadow.bias = - 0.0001;
+    scene.add( hemiLight );   
 }
 
 function createTerrain1() {
@@ -337,20 +320,20 @@ function createTerrain1() {
 
 function createTerrain() {
     startTerrain = true;
-    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    //var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
     //scene.background = texture;
-    var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
-    camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-    var geometry = new THREE.PlaneBufferGeometry( 7500, 30000, worldWidth - 1, worldDepth - 1 );
-    geometry.rotateX( - Math.PI / 2 );
-    var vertices = geometry.attributes.position.array;
-    for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-        vertices[ j + 1 ] = data[ i ] * 10;
-    }
-    texture = new THREE.CanvasTexture( TERRAIN.generateTerrainTexture( data, worldWidth, worldDepth ) );
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
+    //var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
+    //camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
+    //var geometry = new THREE.PlaneBufferGeometry( 7500, 30000, worldWidth - 1, worldDepth - 1 );
+    //geometry.rotateX( - Math.PI / 2 );
+    //var vertices = geometry.attributes.position.array;
+    //for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
+    //    vertices[ j + 1 ] = data[ i ] * 10;
+    //}
+    //texture = new THREE.CanvasTexture( TERRAIN.generateTerrainTexture( data, worldWidth, worldDepth ) );
+    //texture.wrapS = THREE.ClampToEdgeWrapping;
+    //texture.wrapT = THREE.ClampToEdgeWrapping;
+    //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
     //scene.add( mesh );
     
     var heightMapWidth = 512;
