@@ -233,7 +233,7 @@ export function createLevelMap () {
         $('#skipButton').hide();
         
         for(i = scene.children.length - 1; i >= 0; i--) {
-            if (scene.children[i].name == "perpIntroObj.mtl i nasilects" 
+            if (scene.children[i].name == "perpIntroObjects" 
                     || scene.children[i].name == "rotatedGroup") {
                 console.log(scene.children[i].name);
                 scene.remove(scene.children[i]);
@@ -279,7 +279,7 @@ function createGameScene() {
     LOADERS.objLoad ("models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
                     scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
                     camera.position.z - 5000, 200, 0);
-    landSpeeder = LOADERS.gltfLoad('models/landspeeder-gltf/export.gltf', scene, camera);        // TODO onload
+    landSpeeder = LOADERS.gltfLoad('models/landspeeder-gltf/landspeeder.gltf', scene, camera);        // TODO onload
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
         controls.autoForward = true;
