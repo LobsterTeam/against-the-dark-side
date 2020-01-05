@@ -39,19 +39,33 @@ function createSky (topColor, bottomColor) {
     scene.add( sky );
 }
 
-function createSun (color, inclination, azimuth) {
+function createSun (color, inclination, azimuth, x, y, z) {
     
-    var sunSphere = new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 10000, 16, 8 ),     // TODO 10000
+    var sun = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 2048;        // TODO
+    sun.shadow.mapSize.height = 2048;       // TODO
+
+    // TODO
+    var d = 50;
+    sun.shadow.camera.left = - d;
+    sun.shadow.camera.right = d;
+    sun.shadow.camera.top = d;
+    sun.shadow.camera.bottom = - d;
+    sun.shadow.camera.far = 3500;
+    sun.shadow.bias = - 0.0001;
+    
+    sun.add(new THREE.Mesh(
+            new THREE.SphereBufferGeometry( 20000, 16, 8 ),     // TODO 10000
             new THREE.MeshBasicMaterial( { color: color } )
-    );
+    ));
     
     var distance = 400000;      // TODO 400000
     var theta = Math.PI * ( inclination - 0.5 );
     var phi = 2 * Math.PI * ( azimuth - 0.5 );
-    sunSphere.position.x = distance * Math.cos( phi );
-    sunSphere.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-    sunSphere.position.z = distance * Math.sin( phi ) * Math.cos( theta );
-    sunPos = sunSphere.position;
-    scene.add( sunSphere );
+    sun.position.x = distance * Math.cos( phi );
+    sun.position.y = distance * Math.sin( phi ) * Math.sin( theta );
+    sun.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+    //sunPos = sun.position;
+    scene.add( sun );
 }

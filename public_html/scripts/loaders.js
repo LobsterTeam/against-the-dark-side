@@ -2,6 +2,8 @@ import { GLTFLoader } from '../three.js-dev/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from '../three.js-dev/examples/jsm/loaders/DRACOLoader.js';
 import { MTLLoader } from '../three.js-dev/examples/jsm/loaders/MTLLoader.js';
 import { OBJLoader } from '../three.js-dev/examples/jsm/loaders/OBJLoader.js';
+import { FBXLoader } from '../three.js-dev/examples/jsm/loaders/FBXLoader.js';
+import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
 
 export async function gltfLoad(path, scene, camera) {
     // Instantiate a loader
@@ -67,4 +69,22 @@ export async function objLoad (mtlPath, objPath, scene, camera, objName, x, y, z
     function onError() {
         console.log("Error while loading model");
     }
+}
+
+export async function fbxLoad (path, scene, camera, objName, x, y, z, scale, yRotation) {
+    
+    var loader = new FBXLoader();
+    await loader.load( path, function ( object ) {
+            mixer = new THREE.AnimationMixer( object );
+            var action = mixer.clipAction( object.animations[ 0 ] );
+            action.play();
+            object.traverse( function ( child ) {
+                if ( child.isMesh ) {
+                        childscale.set(scale, scale, scale);
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                }
+            } );
+            scene.add( object );
+    } );
 }
