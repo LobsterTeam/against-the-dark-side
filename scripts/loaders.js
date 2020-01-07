@@ -5,9 +5,9 @@ import { OBJLoader } from '../three.js-dev/examples/jsm/loaders/OBJLoader.js';
 import { FBXLoader } from '../three.js-dev/examples/jsm/loaders/FBXLoader.js';
 import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
 
-export async function gltfLoad(path, scene, camera) {
+export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     // Instantiate a loader
-    var loader = new GLTFLoader();
+    var loader = new GLTFLoader(manager);
     // Optional: Provide a DRACOLoader instance to decode compressed mesh data
     var dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath( '../three.js-dev/examples/js/libs/draco/' );
@@ -20,10 +20,10 @@ export async function gltfLoad(path, scene, camera) {
             // called when the resource is loaded
             function ( gltf ) {
 
-                    gltf.scene.scale.set(100, 100, 100); // THREE.Scene
-                    gltf.scene.rotation.set(0,Math.PI,0);
-                    gltf.scene.name = "OSG_Scene" ;
-                    gltf.scene.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+                    gltf.scene.scale.set(scale, scale, scale); // THREE.Scene
+                    gltf.scene.rotation.set(0, yRotation, 0);
+                    gltf.scene.name = objName ;
+                    gltf.scene.position.set(x, y, z);
                     scene.add( gltf.scene );
             },
             // called while loading is progressing
@@ -41,13 +41,13 @@ export async function gltfLoad(path, scene, camera) {
     );
 }
 
-export async function objLoad (mtlPath, objPath, scene, camera, objName, x, y, z, scale, yRotation) {
+export async function objLoad (manager, mtlPath, objPath, scene, camera, objName, x, y, z, scale, yRotation) {
     
     var mtlLoader = new MTLLoader();
     await mtlLoader.load(mtlPath, function(materials){
 
         materials.preload();
-        var objLoader = new OBJLoader();
+        var objLoader = new OBJLoader(manager);
         objLoader.setMaterials(materials);
         objLoader.load(objPath, function(obj){
             obj.name = objName;

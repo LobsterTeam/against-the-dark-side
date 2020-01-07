@@ -9,6 +9,7 @@ import {
 	Spherical,
 	Vector3
 } from "../../../build/three.module.js";
+import {fire} from '../../../../scripts/main.js';
 
 var FirstPersonControls = function ( object, domElement ) {
 
@@ -112,8 +113,14 @@ var FirstPersonControls = function ( object, domElement ) {
 
 			switch ( event.button ) {
 
-				case 0: this.moveForward = true; break;
-				case 2: this.moveBackward = true; break;
+				case 0:     // left click
+                                    this.moveForward = true;
+                                    console.log("button click");
+                                    console.log(this.mouseX);
+                                    console.log(this.mouseY);
+                                    fire(-this.mouseX, -this.mouseY, 0);
+                                    break;
+				case 2: this.moveBackward = true; console.log("ha"); break;
 
 			}
 
