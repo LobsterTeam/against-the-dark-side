@@ -1,9 +1,10 @@
 import { FirstPersonControls } from '../three.js-dev/examples/jsm/controls/FirstPersonControls.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as TERRAIN from './terrain.js';
-import * as SUN from './skyAndSun.js';
+import * as SKYANDSUN from './skyAndSun.js';
 import * as INTRO from './intro.js';
 import * as LOADERS from './loaders.js';
+
 
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
@@ -24,7 +25,6 @@ var windowHalfY = window.innerHeight / 2;
 var object;
 var i, j;       // loop identifiers
 
-var directionalLight;
 var gameNameAnimation = false, introAnimation = false;      // booleans to animate intro texts
 var audioLoader;
 var introSound;
@@ -43,6 +43,13 @@ var speedStep = 5;
 
 var landSpeeder;
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
+var laserContainer;
+var laserMesh;
+var loadingSprite;
+var modelsLoading = false;
+var manager;
+var sprite;
+
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
@@ -57,6 +64,10 @@ function init() {
     
     // scene
     scene = new THREE.Scene();
+    
+    var spriteMap = new THREE.TextureLoader().load( "img/loading.png" );
+    var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+    sprite = new THREE.Sprite( spriteMaterial );
     //var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
     //scene.add( ambientLight );
     //var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
@@ -73,11 +84,19 @@ function init() {
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
             clearScene();       // clear everything from the scene
-            createGameScene();
+            createSprite(createGameScene);
+            //createGameScene();
         }
     });
     
     window.addEventListener( 'resize', onWindowResize, false );
+}
+
+async function createSprite (callback) {
+    
+    sprite.scale.set(200, 200, 1)
+    scene.add( sprite );
+    callback();
 }
 
 function showClick() {
@@ -141,7 +160,9 @@ function render() {
     //}
     
     //camera.lookAt( scene.position );
-    renderer.render( scene, camera );
+    if (!modelsLoading) {
+        renderer.render( scene, camera );
+    }
     
     if (startTerrain && controls !== undefined) {
         controls.update( clock.getDelta() );
@@ -150,11 +171,13 @@ function render() {
     if (landSpeeder) {
         for (i = scene.children.length - 1; i >= 0; i--) {
             var child = scene.children[i];
-            if (child.name === "OSG_Scene"){
+            if (child.name === "landspeeder"){
                 child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
             } else if (child.name === "r2-d2") {
                 child.position.set(camera.position.x - 130, camera.position.y - 480, camera.position.z - 700);
                 r2d2Move(child);
+            } else if (child.name === "blaster") {
+                child.position.set(camera.position.x, camera.position.y - 5, camera.position.z - 10);
             }
         }
     }
@@ -176,7 +199,6 @@ function r2d2Move (r2d2) {
         r2d2.rotation.y -= r2d2MoveSpeed;
     }    
 }
-
 
 function showStarWarsEntry () {
     INTRO.createBackgroundWithStars();       // create background with stars
@@ -261,32 +283,16 @@ function muteAudioSlowly () {
 function createGameScene() {
     camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
-    //directionalLight.visible = false;    
-    
-    SUN.createTatooSuns(topSkyColor, bottomSkyColor,
+    modelsLoading = true;
+    SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor,
                     0xFDE585, tatooOneRayleigh, tatooOneMieCoefficient, tatooOneMieDirectionalG,
                     tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
                     0xF9FFEF, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
                     tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
     createTerrain();
     createTerrainSceneLights();
-    LOADERS.objLoad("models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
-                    scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
-                    camera.position.z - 700, 3, 2.5);         // TODO onload
-    LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
-                    scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
-                    camera.position.z - 5000, 200, 0);
-    LOADERS.objLoad ("models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
-                    scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
-                    camera.position.z - 5000, 200, 0);
-    landSpeeder = LOADERS.gltfLoad('models/landspeeder-gltf/landspeeder.gltf', scene, camera);        // TODO onload
-    if (landSpeeder) {      // when scene is loaded add controls
-        controls = new FirstPersonControls( camera );
-        controls.autoForward = true;
-        controls.speedStep = speedStep;
-        controls.movementSpeed = 500;
-        controls.lookSpeed = 0.1;
-    }
+    loadR2D2();
+    laser();
 }
 
 function createTerrainSceneLights () {
@@ -295,6 +301,67 @@ function createTerrainSceneLights () {
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
 }
+
+function loadR2D2 () {
+    
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            console.log( 'Loading complete!');
+            loadBlaster();
+    };
+    
+    LOADERS.objLoad(manager, "models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
+                    scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
+                    camera.position.z - 700, 3, 2.5);         // TODO onload
+}
+
+function loadStormtroopers () {
+    //LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
+    //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
+    //                camera.position.z - 5000, 200, 0);
+}
+
+function loadTieFighters () {
+    //LOADERS.objLoad ("models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
+    //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
+    //                camera.position.z - 5000, 200, 0);
+}
+
+function loadBlaster () {
+    
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            console.log( 'Loading complete! BLASTER');
+            loadLandspeeder();
+    };
+    
+    LOADERS.gltfLoad(manager, 'models/blaster-gltf/blaster.gltf', scene, camera, 
+                                "blaster", camera.position.x, camera.position.y - 5,
+                                camera.position.z - 10, 2, Math.PI / 2);        // TODO onload
+}
+
+function loadLandspeeder () {
+    
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            scene.remove(sprite);
+            modelsLoading = false;
+            console.log( 'Landspeeder loading complete!');
+    };
+
+    landSpeeder = LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
+                                "landspeeder", camera.position.x - 130, camera.position.y - 300,
+                                camera.position.z - 250, 100, Math.PI);        // TODO onload
+
+    if (landSpeeder) {      // when scene is loaded add controls
+        controls = new FirstPersonControls( camera );
+        controls.autoForward = true;
+        controls.speedStep = speedStep;
+        controls.movementSpeed = 500;
+        controls.lookSpeed = 0.1;
+    }    
+}
+
 
 function createTerrain1() {
     startTerrain = true;
@@ -348,6 +415,33 @@ function createTerrain() {
     camera.position.y = 1000;
 
     
+}
+
+function laser () {
+    laserContainer = new THREE.Object3D();
+    laserContainer.scale.set(0.8, 0.8, 0.8);
+    laserContainer.name = "laser";
+    scene.add(laserContainer);
+    var laser = new THREE.CubeGeometry(6, 800, 6);
+    var material = new THREE.MeshBasicMaterial({ color: 0xf43b3c, opacity: 0.5 });
+
+    laserMesh = new THREE.Mesh(laser, material);
+    laserMesh.rotation.set(Math.PI / 2, 0, 0);
+    laserContainer.add(laserMesh);
+    laserMesh.visible = false;
+}
+
+export function fire (x, y, z) {
+    laserContainer.position.set(x, camera.position.y - 5, camera.position.z - 10);
+    console.log(laserContainer.position);
+    //laserMesh.rotation.set(Math.PI / 2, 0, 0);        // must depend on mouse
+    laserMesh.visible = true;
+    var distance = 10000;
+    var tweentime = 300;
+    //var tween0 = new TWEEN.Tween(laserMesh.position)
+    //    .to({ x: distance }, tweentime)
+    //    .easing(TWEEN.Easing.Linear.EaseNone);
+    //tween0.start();
 }
 
 export function setGameNameAnimation (bool) {
