@@ -2,7 +2,7 @@ import { scene, camera, renderer} from './main.js';
 import { Sky } from '../three.js-dev/examples/jsm/objects/Sky.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 
-export var sunPos;
+export var sunPos, tatooOne, tatooTwo;
 
 var sky;
 
@@ -13,8 +13,10 @@ export function createTatooSuns(topSkyColor, bottomSkyColor,
                 tatooTwoMieDirectionalG, tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth) {
 
     createSky(topSkyColor, bottomSkyColor);
-    createSun(tatooOneColor, tatooOneInclination, tatooOneAzimuth);
-    createSun(tatooTwoColor, tatooTwoInclination, tatooTwoAzimuth);
+    tatooOne = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    createSun(tatooOne, tatooOneColor, 123000, 60000, -400000);
+    tatooTwo = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    createSun(tatooTwo, tatooTwoColor, 0, 123000, -400000);
 }
 
 function createSky (topColor, bottomColor) {
@@ -39,9 +41,9 @@ function createSky (topColor, bottomColor) {
     scene.add( sky );
 }
 
-function createSun (color, inclination, azimuth, x, y, z) {
-    
-    var sun = new THREE.DirectionalLight( 0xffffff, 0.5 );
+function createSun (sun, color, x, y, z) {
+
+    //sun = new THREE.DirectionalLight( 0xffffff, 0.5 );
     sun.castShadow = true;
     sun.shadow.mapSize.width = 2048;        // TODO
     sun.shadow.mapSize.height = 2048;       // TODO
@@ -60,12 +62,9 @@ function createSun (color, inclination, azimuth, x, y, z) {
             new THREE.MeshBasicMaterial( { color: color } )
     ));
     
-    var distance = 400000;      // TODO 400000
-    var theta = Math.PI * ( inclination - 0.5 );
-    var phi = 2 * Math.PI * ( azimuth - 0.5 );
-    sun.position.x = distance * Math.cos( phi );
-    sun.position.y = distance * Math.sin( phi ) * Math.sin( theta );
-    sun.position.z = distance * Math.sin( phi ) * Math.cos( theta );
+    sun.position.x = x;
+    sun.position.y = y;
+    sun.position.z = z;;
     //sunPos = sun.position;
     scene.add( sun );
 }
