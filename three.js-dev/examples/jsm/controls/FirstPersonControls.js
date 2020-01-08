@@ -118,7 +118,7 @@ var FirstPersonControls = function ( object, domElement ) {
                                     console.log("button click");
                                     console.log(this.mouseX);
                                     console.log(this.mouseY);
-                                    fire(-this.mouseX, -this.mouseY, 0);
+                                    //fire(-this.mouseX, -this.mouseY, 0);
                                     break;
 				case 2: this.moveBackward = true; console.log("ha"); break;
 

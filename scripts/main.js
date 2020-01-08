@@ -4,6 +4,8 @@ import * as TERRAIN from './terrain.js';
 import * as SKYANDSUN from './skyAndSun.js';
 import * as INTRO from './intro.js';
 import * as LOADERS from './loaders.js';
+import * as PANEL from './controlPanel.js';
+import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 
 
 var container;
@@ -59,7 +61,7 @@ function init() {
     container = document.createElement('div');
     document.body.appendChild(container);
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1e6);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1e9);
     camera.position.z = 100;
     
     // scene
@@ -83,7 +85,10 @@ function init() {
 
     document.addEventListener("mousedown", function() {
         if (onLevelMap) {
-            clearScene();       // clear everything from the scene
+                   // clear everything from the scene
+            clearScene();
+            modelsLoading = true;
+            renderer.render( scene, camera );
             createSprite(createGameScene);
             //createGameScene();
         }
@@ -94,8 +99,10 @@ function init() {
 
 async function createSprite (callback) {
     
-    sprite.scale.set(200, 200, 1)
+    
+    sprite.scale.set(10, 10, 1)
     scene.add( sprite );
+    await renderer.render( scene, camera );
     callback();
 }
 
@@ -293,6 +300,8 @@ function createGameScene() {
     createTerrainSceneLights();
     loadR2D2();
     laser();
+    PANEL.createGUI();
+
 }
 
 function createTerrainSceneLights () {
@@ -300,6 +309,29 @@ function createTerrainSceneLights () {
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
+}
+
+function createGUI () {
+    var gui = new DAT.GUI();
+    
+    var parameters = {
+        x: 0, y: 30, z: 0,
+        color: "#ff0000",
+        opacity: 1,
+        visible: true,
+        material: "Phong",
+    };
+    
+    var folder1 = gui.addFolder('Posizyon');
+    var cubeX = folder1.add( parameters, 'x' ).min(-200).max(200).step(1).listen();
+    var cubeY = folder1.add( parameters, 'y' ).min(0).max(100).step(1).listen();
+    var cubeZ = folder1.add( parameters, 'z' ).min(-200).max(200).step(1).listen();
+    folder1.open();
+    console.log(gui);
+    
+    //scene.add(gui);
+    
+    
 }
 
 function loadR2D2 () {
