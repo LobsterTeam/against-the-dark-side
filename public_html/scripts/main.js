@@ -300,8 +300,6 @@ function createGameScene() {
     createTerrainSceneLights();
     loadR2D2();
     laser();
-    PANEL.createGUI();
-
 }
 
 function createTerrainSceneLights () {
@@ -309,29 +307,6 @@ function createTerrainSceneLights () {
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
-}
-
-function createGUI () {
-    var gui = new DAT.GUI();
-    
-    var parameters = {
-        x: 0, y: 30, z: 0,
-        color: "#ff0000",
-        opacity: 1,
-        visible: true,
-        material: "Phong",
-    };
-    
-    var folder1 = gui.addFolder('Posizyon');
-    var cubeX = folder1.add( parameters, 'x' ).min(-200).max(200).step(1).listen();
-    var cubeY = folder1.add( parameters, 'y' ).min(0).max(100).step(1).listen();
-    var cubeZ = folder1.add( parameters, 'z' ).min(-200).max(200).step(1).listen();
-    folder1.open();
-    console.log(gui);
-    
-    //scene.add(gui);
-    
-    
 }
 
 function loadR2D2 () {
@@ -377,6 +352,7 @@ function loadLandspeeder () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             scene.remove(sprite);
+            PANEL.createGUI();
             modelsLoading = false;
             console.log( 'Landspeeder loading complete!');
     };
@@ -391,7 +367,7 @@ function loadLandspeeder () {
         controls.speedStep = speedStep;
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
-    }    
+    }
 }
 
 
