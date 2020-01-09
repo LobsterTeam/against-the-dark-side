@@ -1,17 +1,16 @@
 import { scene, camera, renderer} from './main.js';
 import { Sky } from '../three.js-dev/examples/jsm/objects/Sky.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
+import { Lensflare, LensflareElement } from '../three.js-dev/examples/jsm/objects/Lensflare.js';
 
 export var sunPos, tatooOne, tatooTwo;
 
-var sky;
+var sky, textureFlare;
 
-export function createTatooSuns(topSkyColor, bottomSkyColor,
-                tatooOneColor, tatooOneRayleigh, tatooOneMieCoefficient,
-                tatooOneMieDirectionalG, tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
-                tatooTwoColor, tatooTwoRayleigh, tatooTwoMieCoefficient,
-                tatooTwoMieDirectionalG, tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth) {
-
+export function createTatooSuns(topSkyColor, bottomSkyColor, tatooOneColor, tatooTwoColor) {
+                    
+    var textureLoader = new THREE.TextureLoader();
+    textureFlare = textureLoader.load( "textures/sunflare.png" );
     createSky(topSkyColor, bottomSkyColor);
     tatooOne = new THREE.DirectionalLight( 0xffffff, 0.5 );
     createSun(tatooOne, tatooOneColor, 123000, 60000, -400000);
@@ -67,4 +66,14 @@ function createSun (sun, color, x, y, z) {
     sun.position.z = z;;
     //sunPos = sun.position;
     scene.add( sun );
+    
+    var lensflare = new Lensflare();
+
+    lensflare.addElement( new LensflareElement( textureFlare, 300, 0, sun.color ) );
+    lensflare.addElement( new LensflareElement( textureFlare, 60, 0.6 ) );
+    lensflare.addElement( new LensflareElement( textureFlare, 70, 0.7 ) );
+    lensflare.addElement( new LensflareElement( textureFlare, 120, 0.9 ) );
+    lensflare.addElement( new LensflareElement( textureFlare, 70, 1 ) );
+
+    sun.add( lensflare );
 }

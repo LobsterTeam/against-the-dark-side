@@ -11,13 +11,6 @@ import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, gameNameAnimation, skewedIntroGroup, rotatedGroup;
-
-// tatoo one properties
-export var tatooOneAzimuth = 0.3, tatooOneInclination = 0.45, tatooOneLuminance = 1,
-        tatooOneMieDirectionalG = 0.8, tatooOneRayleigh = 2, tatooOneMieCoefficient = 0.005;
-// tatoo two properties
-export var tatooTwoAzimuth = 0.25, tatooTwoInclination = 0.4, tatooTwoLuminance = 1,
-        tatooTwoMieDirectionalG = 0.8, tatooTwoRayleigh = 2, tatooTwoMieCoefficient = 0.005;
 // terrain scene sky colors
 //export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xf8fcff;
 export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
@@ -41,16 +34,13 @@ var clock = new THREE.Clock();
 var hasInitialUserInput = false;
 var startTerrain = false;
 
-var speedStep = 5;
+var speedStep = 5;      // camera speed
 
 var landSpeeder;
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
-var laserContainer;
-var laserMesh;
-var loadingSprite;
-var modelsLoading = false;
-var manager;
-var sprite;
+var laserContainer, laserMesh;
+var loadingSprite, sprite;
+var modelsLoading = false, manager;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -136,6 +126,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
     if (startTerrain) {
+        // controls patliyor undefined da
         controls.handleResize();
     }
 }
@@ -291,11 +282,7 @@ function createGameScene() {
     camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
-    SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor,
-                    0xFDE585, tatooOneRayleigh, tatooOneMieCoefficient, tatooOneMieDirectionalG,
-                    tatooOneLuminance, tatooOneInclination, tatooOneAzimuth,
-                    0xF9FFEF, tatooTwoRayleigh, tatooTwoMieCoefficient, tatooTwoMieDirectionalG,
-                    tatooTwoLuminance, tatooTwoInclination, tatooTwoAzimuth);
+    SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor, 0xFDE585, 0xfdf2c2);
     createTerrain();
     createTerrainSceneLights();
     loadR2D2();
@@ -354,6 +341,7 @@ function loadLandspeeder () {
             scene.remove(sprite);
             PANEL.createGUI();
             modelsLoading = false;
+            scene.remove(sprite);
             console.log( 'Landspeeder loading complete!');
     };
 
@@ -363,7 +351,7 @@ function loadLandspeeder () {
 
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
-        controls.autoForward = true;
+        //controls.autoForward = true;
         controls.speedStep = speedStep;
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
