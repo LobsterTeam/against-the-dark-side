@@ -351,7 +351,7 @@ function loadLandspeeder () {
 
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
-        //controls.autoForward = true;
+        controls.autoForward = true;
         controls.speedStep = speedStep;
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
