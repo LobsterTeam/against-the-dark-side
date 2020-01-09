@@ -1,5 +1,7 @@
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import * as SKYANDSUN from './skyAndSun.js';
+import * as THREE from '../three.js-dev/build/three.module.js';
+
 
 export function createGUI () {
     
@@ -23,6 +25,8 @@ export function createGUI () {
         rotateZ: 0
     }
     
+    var a = 0;
+    
     var gui = new DAT.GUI();
     
     // Tatoo One
@@ -40,27 +44,29 @@ export function createGUI () {
         SKYANDSUN.tatooOne.position.z = value;
     });
     tatooOneFolder.add( tattooOneParameters, 'rotateX', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
-        //SKYANDSUN.tatooOne.position.x = 500 * Math.sin(value);
-        //SKYANDSUN.tatooOne.position.z = 500 * Math.cos(value);
-        //console.log(SKYANDSUN.tatooOne.target);
-        //SKYANDSUN.tatooOne.target.position.x = -4645456123586;
-        
-        //SKYANDSUN.tatooOne.target.position.y = 0;
-        
-        //SKYANDSUN.tatooOne.target.position.x = 500000 * Math.sin(value);
-        //console.log(SKYANDSUN.tatooOne.target.position.x);
-        //SKYANDSUN.tatooOne.target.position.z = 500000 * Math.cos(value);
-        //console.log(SKYANDSUN.tatooOne.target.position.y);
-        
-        //SKYANDSUN.tatooOne.target.updateMatrixWorld();
-        //SKYANDSUN.tatooOne.lookAt();
-        //SKYANDSUN.tatooOne.rotate.x = value;
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(1, 0, 0)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(value);
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
     tatooOneFolder.add( tattooOneParameters, 'rotateY', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
-        //SKYANDSUN.tatooOne.rotate.y = value;
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(0, 1, 0)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
     tatooOneFolder.add( tattooOneParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
-        //SKYANDSUN.tatooOne.rotate.z = value;
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(0, 0, 1)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
     tatooOneFolder.open();
     
@@ -79,10 +85,29 @@ export function createGUI () {
         SKYANDSUN.tatooTwo.position.z = value;
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(1, 0, 0)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(a);
+        console.log(SKYANDSUN.tatooTwo.target.position);
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateY', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(0, 1, 0)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooTwo.target.position);
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(0, 0, 1)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooTwo.target.position);
     });
     tatooTwoFolder.open();        
     
@@ -90,4 +115,22 @@ export function createGUI () {
     // R2D2 ?
     
     
+}
+
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
+    pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+
+    if(pointIsWorld){
+        obj.parent.localToWorld(obj.position); // compensate for world coordinate
+    }
+
+    obj.position.sub(point); // remove the offset
+    obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+    obj.position.add(point); // re-add the offset
+
+    if(pointIsWorld){
+        obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+    }
+
+    obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
