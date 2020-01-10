@@ -5,150 +5,167 @@ import { getPixelValues } from './helpers/ImageHelpers.js';
 import { HeightMapBufferGeometry } from './helpers/HeightMapGeometry.js';
 import { HeightMapMesh } from './helpers/HeightMapMesh.js';
 
-export function generateTerrainHeight( width, height ) {
-    var size = width * height, data = new Uint8Array( size ),
-        perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 1;
+function getHeightData(img) {
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = 40;
+        canvas.height = 55;
+        var context = canvas.getContext( '2d' );
 
-    for ( var j = 0; j < 4; j ++ ) {
+        var size = 40 * 50, data = new Float32Array( size );
+
+        context.drawImage(img,0,0);
+
         for ( var i = 0; i < size; i ++ ) {
-            
-            var k = ~ ~ (i / 256);
-            var x = i - (k * 256);
-            //console.log(i);
-            //console.log(k);
-            
-            if ((x < 106 || x > 156) || j < 2) {
-                var x = i % width;
-                var y = ~ ~ ( i / width );       // get floor
-                data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.5 );
-            }
-            if ((x < 86 || x > 176) || j < 2) {
-                var x = i % width;
-                var y = ~ ~ ( i / width );       // get floor
-                data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 2.0 );
-            }
-            
-            
+                data[i] = 0;
         }
-        quality *= 2;
-    }
-    return data;
+
+        var imgd = context.getImageData(0, 0, 40, 50);
+        var pix = imgd.data;
+
+        var j=0;
+        for (var i = 0, n = pix.length; i < n; i += (4)) {
+                var all = pix[i]+pix[i+1]+pix[i+2];
+                data[j++] = all*4;
+        }
+
+        return data;
+
 }
 
-export function generateTerrainTexture( data, width, height ) {
-    var canvas, canvasScaled, context, image, imageData, vector3, shade;
-    vector3 = new THREE.Vector3( 0, 0, 0 );
-    var sunDup = new THREE.Vector3(0, 0, 0);
-    sunDup.x = sunPos.x;
-    sunDup.y = sunPos.y;
-    sunDup.z = sunPos.z;
-    sunDup.normalize();
-    canvas = document.createElement( 'canvas' );
-    canvas.width = width;
-    canvas.height = height;
-    context = canvas.getContext( '2d' );
-    context.fillStyle = '#000';
-    context.fillRect( 0, 0, width, height );
-    image = context.getImageData( 0, 0, canvas.width, canvas.height );
-    imageData = image.data;
-    for ( var i = 0, j = 0, l = imageData.length; i < l; i += 4, j ++ ) {
-        vector3.x = data[ j - 2 ] - data[ j + 2 ];
-        vector3.y = 2;
-        vector3.z = data[ j - width * 2 ] - data[ j + width * 2 ];
-        vector3.normalize();
-        shade = vector3.dot( sunDup );
-        imageData[ i ] = ( 96 + shade * 128 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 1 ] = ( 32 + shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
-        imageData[ i + 2 ] = ( shade * 96 ) * ( 0.5 + data[ j ] * 0.007 );
+export function newTerrain(img, scene) {
+    var data = getHeightData(img);
+    // plane
+    var plane = new THREE.PlaneGeometry( 32000, 60000, 39, 49 );
+
+    for ( var i = 0, l = plane.vertices.length; i < l; i++ ) {
+            plane.vertices[i].z = data[i];
     }
-    context.putImageData( image, 0, 0 );
-    // Scaled 4x
-    canvasScaled = document.createElement( 'canvas' );
-    canvasScaled.width = width * 4;
-    canvasScaled.height = height * 4;
-    context = canvasScaled.getContext( '2d' );
-    context.scale( 4, 4 );
-    context.drawImage( canvas, 0, 0 );
-    image = context.getImageData( 0, 0, canvasScaled.width, canvasScaled.height );
-    imageData = image.data;
-    for ( var i = 0, l = imageData.length; i < l; i += 4 ) {
-        var v = ~ ~ ( Math.random() * 5 );
-        imageData[ i ] += v;
-        imageData[ i + 1 ] += v;
-        imageData[ i + 2 ] += v;
+
+
+    var planeleft = new THREE.PlaneGeometry( 64000, 60000, 1, 49 );
+
+    var h = 0;
+    var j = 0;
+    for ( var i = 0, l = planeleft.vertices.length; i < l; i++ ) {
+            var bb = i%2;
+            if (bb == 0) {
+                    h = data[j*40];
+                    ++j;
+            }
+            planeleft.vertices[i].z = h;
     }
-    context.putImageData( image, 0, 0 );
-    return canvasScaled;
+
+    var planeright = new THREE.PlaneGeometry( 64000, 60000, 1, 49 );
+
+    j = 0;
+    for ( var i = 0, l = planeright.vertices.length; i < l; i++ ) {
+            var bb = i%2;
+            if (bb == 0) {
+                    h = data[(j*40)+39];
+                    ++j;
+                    planeright.vertices[i].z = h;
+            } else {
+                    planeright.vertices[i].z = 0;
+            }
+    }
+
+
+    plane.computeFaceNormals();
+    plane.computeVertexNormals();
+
+    planeleft.computeFaceNormals();
+    planeleft.computeVertexNormals();
+    planeright.computeFaceNormals();
+    planeright.computeVertexNormals();
+
+
+
+    var texture = THREE.ImageUtils.loadTexture( "textures/sand4.jpg" );
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 3, 3 );
+    var material = new THREE.MeshPhongMaterial( { opacity:1, map: texture, color: 0x999999, specular: 0xfff9c2, shininess: 5 } );
+
+
+    var groundMesh1 = new THREE.Mesh( plane, material );
+    groundMesh1.rotation.set(-Math.PI/2,0,0);
+    groundMesh1.position.y = -300;
+    groundMesh1.position.z = 30000;
+    scene.add( groundMesh1 );
+
+    var groundMesh2 = new THREE.Mesh( plane, material );
+    groundMesh2.rotation.set(-Math.PI/2,0,0);
+    groundMesh2.position.y = -300;
+    groundMesh2.position.z = -30000;
+    scene.add( groundMesh2 );
+
+    var groundMesh3 = new THREE.Mesh( plane, material );
+    groundMesh3.rotation.set(-Math.PI/2,0,0);
+    groundMesh3.position.y = -300;
+    groundMesh3.position.z = -90000;
+    scene.add( groundMesh3 );
+
+    groundMesh1.castShadow = false;
+    groundMesh1.receiveShadow = true;
+
+    groundMesh2.castShadow = false;
+    groundMesh2.receiveShadow = true;
+
+
+    var groundMesh1Left = new THREE.Mesh( plane, material );
+    groundMesh1Left.rotation.set(-Math.PI/2,0,0);
+    groundMesh1Left.position.y = -300;
+    groundMesh1Left.position.z = 30000;
+    groundMesh1Left.position.x = -32000;
+    scene.add( groundMesh1Left );
+
+    var groundMesh2Left = new THREE.Mesh( plane, material );
+    groundMesh2Left.rotation.set(-Math.PI/2,0,0);
+    groundMesh2Left.position.y = -300;
+    groundMesh2Left.position.z = -30000;
+    groundMesh2Left.position.x = -32000;
+    scene.add( groundMesh2Left );
+
+    var groundMesh3Left = new THREE.Mesh( plane, material );
+    groundMesh3Left.rotation.set(-Math.PI/2,0,0);
+    groundMesh3Left.position.y = -300;
+    groundMesh3Left.position.z = -90000;
+    groundMesh3Left.position.x = -32000;
+    scene.add( groundMesh3Left );
+
+
+    var groundMesh1Right = new THREE.Mesh( plane, material );
+    groundMesh1Right.rotation.set(-Math.PI/2,0,0);
+    groundMesh1Right.position.y = -300;
+    groundMesh1Right.position.z = 30000;
+    groundMesh1Right.position.x = 32000;
+    scene.add( groundMesh1Right );
+
+    var groundMesh2Right = new THREE.Mesh( plane, material );
+    groundMesh2Right.rotation.set(-Math.PI/2,0,0);
+    groundMesh2Right.position.y = -300;
+    groundMesh2Right.position.z = -30000;
+    groundMesh2Right.position.x = 32000;
+    scene.add( groundMesh2Right );
+
+    var groundMesh3Right = new THREE.Mesh( plane, material );
+    groundMesh3Right.rotation.set(-Math.PI/2,0,0);
+    groundMesh3Right.position.y = -300;
+    groundMesh3Right.position.z = -90000;
+    groundMesh3Right.position.x = 32000;
+    scene.add( groundMesh3Right );
+
+    groundMesh1Left.castShadow = false;
+    groundMesh1Left.receiveShadow = true;
+
+    groundMesh2Left.castShadow = false;
+    groundMesh2Left.receiveShadow = true;
+
+    groundMesh1Right.castShadow = false;
+    groundMesh1Right.receiveShadow = true;
+
+    groundMesh2Right.castShadow = false;
+    groundMesh2Right.receiveShadow = true;
+
+
 }
 
-export function makeTile(size, res) {
-  var geometry = new THREE.Geometry();
-  for (var i = 0; i <= res; i++) {
-    for (var j = 0; j <= res; j++) {
-      var z = j * size;
-      var x = i * size;
-      var position = new THREE.Vector3(x, 0, z);
-      var addFace = (i > 0) && (j > 0);
-      makeQuad(geometry, position, addFace, res + 1);
-    }
-  }
-  geometry.computeFaceNormals();
-  geometry.normalsNeedUpdate = true;
-          
-  return geometry;
-};
-
-function makeQuad(geometry, position, addFace, verts) {
-  geometry.vertices.push(position);
-    
-  if (addFace) {
-    var index1 = geometry.vertices.length - 1;
-    var index2 = index1 - 1;
-    var index3 = index1 - verts;
-    var index4 = index1 - verts - 1;
-    
-    geometry.faces.push(new THREE.Face3(index2, index3, index1));
-    geometry.faces.push(new THREE.Face3(index2, index4, index3));
-  }
-};
-
-export class Terrain {
-
-    // Constructs the Terrain with the height map file, width and depth
-    constructor() {
-        this.heightMapImage = document.getElementById('heightmap');
-        this.terrainData = getPixelValues(this.heightMapImage, 'r');
-        this.heightMapWidth = this.heightMapImage.width;
-        this.heightMapDepth = this.heightMapImage.height;
-    }
-
-    // Initializes the terrain mesh
-    init(worldMapWidth, worldMapMaxHeight, worldMapDepth) {
-        var heightMapGeometry = new HeightMapBufferGeometry(this.terrainData, this.heightMapWidth, this.heightMapDepth);
-        heightMapGeometry.scale(worldMapWidth, worldMapMaxHeight, worldMapDepth);
-
-        var sandTexture = this.wrapTexture('textures/sand4.jpg');
-        var terrainMaterialImp = this.terrainMaterial(sandTexture);
-
-        var terrainMesh = new HeightMapMesh(heightMapGeometry, terrainMaterialImp);
-        terrainMesh.receiveShadow = true;
-
-        return terrainMesh;
-    }
-
-    // Wraps the texture and returns it
-    wrapTexture(textureString) {
-        var objectTexture = new THREE.TextureLoader().load(textureString);
-        objectTexture.wrapS = THREE.RepeatWrapping;
-        objectTexture.wrapT = THREE.RepeatWrapping;
-        return objectTexture;
-    }
-
-    // Creates the terrain material as a MeshPhongMaterial to apply reflection
-    terrainMaterial(sandtexture) {
-        var tmi = new THREE.MeshPhongMaterial({
-            map: sandtexture
-        });
-        return tmi;
-    }
-}

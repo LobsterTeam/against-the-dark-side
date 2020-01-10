@@ -411,56 +411,16 @@ function loadLandspeeder () {
 }
 
 
-function createTerrain1() {
-    startTerrain = true;
-    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
-    //scene.background = texture;
-    var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
-    //camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-    var geometry = TERRAIN.makeTile(0.1, 40);
-    var terrain_material = new THREE.MeshLambertMaterial({color: new THREE.Color(0.9, 0.55, 0.4)});
-    var terrain = new THREE.Mesh(geometry, terrain_material);
-    terrain.position.x = -2;
-    terrain.position.z = -2;
-    terrain.updateMatrixWorld(true);
-    console.log(terrain.position.x);
-    scene.add(terrain);
-    
-    controls = new FirstPersonControls( camera );
-    //controls.autoForward = true;
-    controls.speedStep = speedStep;
-    controls.movementSpeed = 500;
-    controls.lookSpeed = 0.1;
-}
-
 function createTerrain() {
     startTerrain = true;
     //var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
     //scene.background = texture;
-    //var data = TERRAIN.generateTerrainHeight( worldWidth, worldDepth );
-    //camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-    //var geometry = new THREE.PlaneBufferGeometry( 7500, 30000, worldWidth - 1, worldDepth - 1 );
-    //geometry.rotateX( - Math.PI / 2 );
-    //var vertices = geometry.attributes.position.array;
-    //for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-    //    vertices[ j + 1 ] = data[ i ] * 10;
-    //}
-    //texture = new THREE.CanvasTexture( TERRAIN.generateTerrainTexture( data, worldWidth, worldDepth ) );
-    //texture.wrapS = THREE.ClampToEdgeWrapping;
-    //texture.wrapT = THREE.ClampToEdgeWrapping;
-    //mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
-    //scene.add( mesh );
-    
-    var heightMapWidth = 512;
-    var heightMapDepth = 512;
-    var worldMapWidth = 100 * 0.3 * heightMapWidth;
-    var worldMapDepth = 100 * 0.3 * heightMapDepth;
-    var worldMapMaxHeight = 1000;
-    var terrain = new TERRAIN.Terrain();
-    var terrainMesh = terrain.init(worldMapWidth, worldMapMaxHeight, worldMapDepth);
-    scene.add(terrainMesh);
+
+
     camera.position.z = 6000;
     camera.position.y = 1000;
+    var img = document.getElementById('hm');
+    TERRAIN.newTerrain(img, scene);
 
     
 }
