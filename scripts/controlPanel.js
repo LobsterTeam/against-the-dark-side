@@ -1,8 +1,6 @@
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import * as SKYANDSUN from './skyAndSun.js';
-
-
-
+import * as THREE from '../three.js-dev/build/three.module.js';
 
 
 export function createGUI () {
@@ -27,79 +25,112 @@ export function createGUI () {
         rotateZ: 0
     }
     
+    var a = 0;
+    
     var gui = new DAT.GUI();
     
     // Tatoo One
     var tatooOneFolder = gui.addFolder('Tatoo I');
-    var tatooOneIntensity = tatooOneFolder.add( tattooOneParameters, 'intensity' ).min(0).max(1).step(0.1).listen();
-    var tatooOneTransX = tatooOneFolder.add( tattooOneParameters, 'translateX' ).min(-1230000).max(1230000).step(100).listen();
-    var tatooOneTransY = tatooOneFolder.add( tattooOneParameters, 'translateY' ).min(-600000).max(600000).step(100).listen();
-    var tatooOneTransZ = tatooOneFolder.add( tattooOneParameters, 'translateZ' ).min(-600000).max(-200000).step(100).listen();
-    var tatooOneRotX = tatooOneFolder.add( tattooOneParameters, 'rotateX' ).min(0).max(2*Math.PI).step(0.001).listen();
-    var tatooOneRotY = tatooOneFolder.add( tattooOneParameters, 'rotateY' ).min(0).max(2*Math.PI).step(0.001).listen();
-    var tatooOneRotZ = tatooOneFolder.add( tattooOneParameters, 'rotateZ' ).min(0).max(2*Math.PI).step(0.001).listen();
-    tatooOneFolder.open();
-    
-    tatooOneIntensity.onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'intensity', 0, 1, 0.1 ).onChange (function(value) {
         SKYANDSUN.tatooOne.intensity = value;
     });
-    
-    tatooOneTransX.onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateX', -1230000, 1230000, 100 ).onChange(function(value) {
         SKYANDSUN.tatooOne.position.x = value;
     });
-    
-    tatooOneTransY.onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateY', -600000, 600000, 100 ).onChange(function(value) {
         SKYANDSUN.tatooOne.position.y = value;
     });
-    
-    tatooOneTransZ.onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateZ', -600000, -200000, 100).onChange(function(value) {
         SKYANDSUN.tatooOne.position.z = value;
     });
-    
-    tatooOneRotX.onChange(function(value) {
-        SKYANDSUN.tatooOne.rotate.x = value;
+    tatooOneFolder.add( tattooOneParameters, 'rotateX', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(1, 0, 0)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(value);
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
-    
-    tatooOneRotX.onChange(function(value) {
-        SKYANDSUN.tatooOne.rotate.y = value;
+    tatooOneFolder.add( tattooOneParameters, 'rotateY', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(0, 1, 0)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
-    
-    tatooOneRotX.onChange(function(value) {
-        SKYANDSUN.tatooOne.rotate.z = value;
+    tatooOneFolder.add( tattooOneParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
+        var axis = new THREE.Vector3(0, 0, 1)
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooOne.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooOne.target.position);
     });
-
-    
+    tatooOneFolder.open();
     
     // Tatoo Two
     var tatooTwoFolder = gui.addFolder('Tatoo II');
-    var tatooTwoIntensity = tatooTwoFolder.add( tattooTwoParameters, 'intensity' ).min(0).max(1).step(0.1).listen();
-    var tatooTwoTransX = tatooTwoFolder.add( tattooTwoParameters, 'translateX' ).min(-1230000).max(1230000).step(100).listen();
-    var tatooTwoTransY = tatooTwoFolder.add( tattooTwoParameters, 'translateY' ).min(-600000).max(600000).step(100).listen();
-    var tatooTwoTransZ = tatooTwoFolder.add( tattooTwoParameters, 'translateZ' ).min(-600000).max(-200000).step(100).listen();
-    var tatooTwoRotX = tatooTwoFolder.add( tattooOneParameters, 'rotateX' ).min(0).max(2*Math.PI).step(0.001).listen();
-    var tatooTwoRotY = tatooTwoFolder.add( tattooOneParameters, 'rotateY' ).min(0).max(2*Math.PI).step(0.001).listen();
-    var tatooTwoRotZ = tatooTwoFolder.add( tattooOneParameters, 'rotateZ' ).min(0).max(2*Math.PI).step(0.001).listen();
-    tatooTwoFolder.open();
-    
-    tatooTwoIntensity.onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'intensity', 0, 1, 0.1).onChange(function(value) {
         SKYANDSUN.tatooTwo.intensity = value;
     });
-    
-    tatooTwoTransX.onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateX', -1230000, 1230000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.x = value;
     });
-    
-    tatooTwoTransY.onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateY', -600000, 600000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.y = value;
     });
-    
-    tatooTwoTransZ.onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateZ', -600000, -200000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.z = value;
     });
-    
+    tatooTwoFolder.add( tattooTwoParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(1, 0, 0)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(a);
+        console.log(SKYANDSUN.tatooTwo.target.position);
+    });
+    tatooTwoFolder.add( tattooTwoParameters, 'rotateY', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(0, 1, 0)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooTwo.target.position);
+    });
+    tatooTwoFolder.add( tattooTwoParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
+        var axis = new THREE.Vector3(0, 0, 1)
+        rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
+        SKYANDSUN.tatooTwo.target.updateMatrixWorld();
+        a = value - a;
+        console.log(SKYANDSUN.tatooTwo.target.position);
+    });
+    tatooTwoFolder.open();        
     
     
     // R2D2 ?
     
     
+}
+
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
+    pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+
+    if(pointIsWorld){
+        obj.parent.localToWorld(obj.position); // compensate for world coordinate
+    }
+
+    obj.position.sub(point); // remove the offset
+    obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+    obj.position.add(point); // re-add the offset
+
+    if(pointIsWorld){
+        obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+    }
+
+    obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
