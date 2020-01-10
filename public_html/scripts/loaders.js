@@ -27,7 +27,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     gltf.scene.rotation.set(0, yRotation, 0);
                     gltf.scene.name = objName ;
                     gltf.scene.position.set(x, y, z);
-                    //scene.add( gltf.scene );
+                    scene.add( gltf.scene );
             },
             // called while loading is progressing
             function ( xhr ) {
@@ -101,7 +101,7 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.scale.set(scale, scale, scale);
             obj.rotation.y += yRotation;
             obj.castShadow = true;
-            //scene.add(obj);
+            scene.add(obj);
         }, onProgress, onError);
     });
     
