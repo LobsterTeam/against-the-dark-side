@@ -6,6 +6,7 @@ import * as INTRO from './intro.js';
 import * as LOADERS from './loaders.js';
 import * as PANEL from './controlPanel.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
+import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
 
 
 var container;
@@ -66,6 +67,7 @@ function init() {
     
     // scene
     scene = new THREE.Scene();
+    
     
     var spriteMap = new THREE.TextureLoader().load( "img/loading.png" );
     var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
@@ -187,6 +189,10 @@ function render() {
                 child.position.set(camera.position.x, camera.position.y - 5, camera.position.z - 10);
             }
         }
+    }
+    
+    if(LOADERS.mixer){
+        LOADERS.mixer.update( clock.getDelta() * 100 );
     }
     
     requestAnimationFrame(render);
@@ -339,7 +345,7 @@ function loadR2D2 () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             console.log( 'Loading complete!');
-            loadBlaster();
+            loadStormtroopers();
     };
     
     LOADERS.objLoad(manager, "models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
@@ -351,6 +357,15 @@ function loadStormtroopers () {
     //LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
     //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
     //                camera.position.z - 5000, 200, 0);
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            console.log( 'Stormtrooper loading complete!');
+            loadBlaster();
+    };
+    
+    LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/untitled.glb", 
+                    scene, camera, "stormtrooper", camera.position.x - 130, camera.position.y - 480,
+                    camera.position.z - 700, 2500, 0);         // TODO onload
 }
 
 function loadTieFighters () {
@@ -371,6 +386,7 @@ function loadBlaster () {
                                 "blaster", camera.position.x, camera.position.y - 5,
                                 camera.position.z - 10, 2, Math.PI / 2);        // TODO onload
 }
+
 
 function loadLandspeeder () {
     
