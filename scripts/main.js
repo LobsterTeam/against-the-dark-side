@@ -40,7 +40,7 @@ var speedStep = 5;      // camera speed
 var landSpeeder;
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var laserContainer, laserMesh;
-var loadingSprite, sprite;
+var loadingSprite;
 var modelsLoading = false, manager;
 
 window.createLevelMap = createLevelMap;
@@ -59,9 +59,7 @@ function init() {
     scene = new THREE.Scene();
     
     
-    var spriteMap = new THREE.TextureLoader().load( "img/loading.png" );
-    var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-    sprite = new THREE.Sprite( spriteMaterial );
+
     //var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
     //scene.add( ambientLight );
     //var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
@@ -71,6 +69,8 @@ function init() {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
     
     showClick();
@@ -80,23 +80,84 @@ function init() {
                    // clear everything from the scene
             clearScene();
             modelsLoading = true;
-            renderer.render( scene, camera );
-            createSprite(createGameScene);
-            //createGameScene();
+            createLoadingText(createGameScene);
         }
     });
     
     window.addEventListener( 'resize', onWindowResize, false );
 }
 
-async function createSprite (callback) {
+function createLoadingText (callback) {    
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+        console.log( 'Text loading complete!');
+        loadBB8(callback);
+
+    };
     
+    manager.onError = function(error) {
+        console.log(error);
+    };
     
-    sprite.scale.set(10, 10, 1)
-    scene.add( sprite );
-    await renderer.render( scene, camera );
-    callback();
+    var material = new THREE.MeshPhongMaterial( { color: 0xd6835b, dithering: true } );
+
+    var geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
+
+    var mesh = new THREE.Mesh( geometry, material );
+    mesh.position.set( 0, - 100, -300 );
+    mesh.receiveShadow = true;
+    scene.add( mesh );
+    
+    camera.position.set(0.0, 0.0, 0.0);
+    
+    var loadingGroup =  new THREE.Group();
+    loadingGroup.position.x = 130;
+    loadingGroup.position.y = 0;
+    loadingGroup.position.z = -230;
+    loadingGroup.rotation.y = -Math.PI / 6;
+    loadingGroup.name = "loading";
+    INTRO.loadLoadingTextFont(manager, loadingGroup, "LOADING...", "fonts/arial.json", 10, 0xFFFFFF, 0, 0);
+    scene.add(loadingGroup);
+    
+    createLoadingSpotlight(100, 0, 0, camera.position.x - 120, camera.position.y, camera.position.z - 300, Math.PI/10);
+    createLoadingSpotlight(-100, 0, 0, camera.position.x + 150, camera.position.y, camera.position.z - 300, Math.PI/14);
+
 }
+
+function createLoadingSpotlight(posX, posY, posZ, tarX, tarY, tarZ, angle){
+    var pl = new THREE.SpotLight( 0xffffff, 1.0 );
+    pl.position.set(posX, posY, posZ );
+    pl.target.position.set(tarX, tarY, tarZ);
+    pl.angle = angle;
+    pl.penumbra = 0.05;
+    pl.decay = 1;
+    pl.distance = 2000;
+
+    pl.castShadow = true;
+    pl.shadow.mapSize.width = 1024;
+    pl.shadow.mapSize.height = 1024;
+    pl.shadow.camera.near = 1;
+    pl.shadow.camera.far = 2000;
+    scene.add(pl);
+    scene.add(pl.target);
+}
+
+function loadBB8(callback) {
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function() {
+        console.log( 'BB8 loading complete!');
+        renderer.render( scene, camera );
+        console.log(scene);
+        callback();
+    }
+    manager.onError = function(error) {
+        console.log(error);
+    };
+    LOADERS.fbxLoad(manager, "models/animated/bb8/forceawakenslopo.blend.fbx", 
+           scene, camera, "bb8-running", camera.position.x - 150, camera.position.y - 30,
+            camera.position.z - 300, 50, 0);         // TODO onload
+}
+
 
 function showClick() {
     const skipclickbox = document.getElementById('skipclickbox');
@@ -328,7 +389,11 @@ function loadStormtroopers () {
             loadBlaster();
     };
     
-    LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/untitled.glb", 
+    manager.onError = function(error) {
+        console.log(error);
+    }
+    
+    LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-pull-out-animated.glb", 
                     scene, camera, "stormtrooper", camera.position.x - 130, camera.position.y - 480,
                     camera.position.z - 700, 2500, 0);         // TODO onload
 }
@@ -361,10 +426,12 @@ function loadLandspeeder () {
     
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            scene.remove(sprite);
             PANEL.createGUI();
             modelsLoading = false;
-            scene.remove(sprite);
+            for(i = 0; i < 7; i++ ){
+                scene.remove(scene.children[0]);
+            }
+            console.log(scene);
             console.log( 'Landspeeder loading complete!');
     };
 
@@ -374,7 +441,7 @@ function loadLandspeeder () {
 
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
-        controls.autoForward = true;
+        //controls.autoForward = true;
         controls.speedStep = speedStep;
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
