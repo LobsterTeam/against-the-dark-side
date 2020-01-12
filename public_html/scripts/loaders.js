@@ -60,7 +60,6 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
             function ( gltf ) {
 
                     mixer = new AnimationMixer( gltf.scene );
-                    console.log(gltf);
                     var action = mixer.clipAction( gltf.animations[ 0 ] );
                     action.play();
 
@@ -117,20 +116,82 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
     }
 }
 
-export async function fbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
+export async function animatedFbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     
     var loader = new FBXLoader(manager);
     await loader.load( path, function ( object ) {
-            mixer = new THREE.AnimationMixer( object );
+            object.name = objName;
+            mixer = new AnimationMixer( object );
             var action = mixer.clipAction( object.animations[ 0 ] );
             action.play();
             object.traverse( function ( child ) {
                 if ( child.isMesh ) {
+                    if (child.name === "bb8-body") {
+                                                child.scale.set(scale, scale, scale);
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.position.set(x, y + 15, z);
+                    } else {
+
                         child.scale.set(scale, scale, scale);
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        child.position.set(x - 2, y, z);
+                    }
+                    child.rotation.z += Math.PI/2;
                 }
             } );
             scene.add( object );
-    } );
+    },
+                // called while loading is progressing
+            function ( xhr ) {
+
+                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+            },
+            // called when loading has errors
+            function ( error ) {
+                    console.log(error);
+                    console.log( 'An error happened' );
+
+            });
+}
+
+export async function fbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
+    
+    var loader = new FBXLoader(manager);
+    await loader.load( path, function ( object ) {
+            object.name = objName;
+            
+            object.traverse( function ( child ) {
+                if ( child.isMesh ) {
+                    if (child.name === "bb8-body") {
+                                                child.scale.set(scale, scale, scale);
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.position.set(x, y + 15, z);
+                    } else if (child.name === "bb8-head"){
+
+                        child.scale.set(scale, scale, scale);
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        child.position.set(x - 2, y - 7, z);
+                    }
+                    child.rotation.z += Math.PI/2;
+                }
+            } );
+            scene.add( object );
+    },
+                // called while loading is progressing
+            function ( xhr ) {
+
+                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+            },
+            // called when loading has errors
+            function ( error ) {
+                    console.log(error);
+                    console.log( 'An error happened' );
+
+            });
 }
