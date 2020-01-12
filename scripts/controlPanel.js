@@ -31,7 +31,18 @@ export function createGUI () {
     
     // Tatoo One
     var tatooOneFolder = gui.addFolder('Tatoo I');
-    tatooOneFolder.add( tattooOneParameters, 'intensity', 0, 1, 0.1 ).onChange (function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'intensity', 0, 2, 0.1 ).onChange (function(value) {
+        console.log(SKYANDSUN.tatooOne.children[1]);
+        
+        if (value === 0.0) {        // if intensity is 0 then no suj flares
+            SKYANDSUN.tatooOne.children[1].visible = false;
+        } else {
+            if (SKYANDSUN.tatooOne.children[1].visible === false) {
+                SKYANDSUN.tatooOne.children[1].visible = true;
+            }
+            SKYANDSUN.tatooOne.children[1].opacity = value;     // TODO opacity?
+        }
+        
         SKYANDSUN.tatooOne.intensity = value;
     });
     tatooOneFolder.add( tattooOneParameters, 'translateX', -1230000, 1230000, 100 ).onChange(function(value) {
@@ -55,9 +66,10 @@ export function createGUI () {
     tatooOneFolder.add( tattooOneParameters, 'rotateY', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
         var pivot = new THREE.Vector3(SKYANDSUN.tatooOne.position.x, SKYANDSUN.tatooOne.position.y, SKYANDSUN.tatooOne.position.z);
         var axis = new THREE.Vector3(0, 1, 0)
-        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, value - a, false);
+        rotateAboutPoint(SKYANDSUN.tatooOne.target, pivot, axis, a, false);
+        a = a + Math.PI / 4;
         SKYANDSUN.tatooOne.target.updateMatrixWorld();
-        a = value - a;
+        //a = value - a;
         console.log(SKYANDSUN.tatooOne.target.position);
     });
     tatooOneFolder.add( tattooOneParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
@@ -72,7 +84,17 @@ export function createGUI () {
     
     // Tatoo Two
     var tatooTwoFolder = gui.addFolder('Tatoo II');
-    tatooTwoFolder.add( tattooTwoParameters, 'intensity', 0, 1, 0.1).onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'intensity', 0, 2, 0.1).onChange(function(value) {
+        
+        if (value === 0.0) {        // if intensity is 0 then no suj flares
+            SKYANDSUN.tatooTwo.children[1].visible = false;
+        } else {
+            if (SKYANDSUN.tatooTwo.children[1].visible === false) {
+                SKYANDSUN.tatooTwo.children[1].visible = true;
+            }
+            SKYANDSUN.tatooTwo.children[1].opacity = value;     // TODO opacity works?
+        }
+        
         SKYANDSUN.tatooTwo.intensity = value;
     });
     tatooTwoFolder.add( tattooTwoParameters, 'translateX', -1230000, 1230000, 100).onChange(function(value) {
@@ -86,7 +108,8 @@ export function createGUI () {
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
         var pivot = new THREE.Vector3(SKYANDSUN.tatooTwo.position.x, SKYANDSUN.tatooTwo.position.y, SKYANDSUN.tatooTwo.position.z);
-        var axis = new THREE.Vector3(1, 0, 0)
+        var axis = new THREE.Vector3(1, 0, 0);
+        SKYANDSUN.tatooTwo.target.set(0.0, 0.0, 0.0);
         rotateAboutPoint(SKYANDSUN.tatooTwo.target, pivot, axis, value - a, false);
         SKYANDSUN.tatooTwo.target.updateMatrixWorld();
         a = value - a;
@@ -123,8 +146,9 @@ function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
     if(pointIsWorld){
         obj.parent.localToWorld(obj.position); // compensate for world coordinate
     }
-
+    
     obj.position.sub(point); // remove the offset
+    console.log(obj.position);
     obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
     obj.position.add(point); // re-add the offset
 
