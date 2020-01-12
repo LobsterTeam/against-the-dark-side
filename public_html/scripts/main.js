@@ -285,12 +285,15 @@ function muteAudioSlowly () {
 }
 
 function createGameScene() {
+    camera.position.x = 0;
+    camera.position.y = 300;
     camera.position.z = 0;
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
     SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor, 0xFDE585, 0xfdf2c2);
     createTerrain();
     createTerrainSceneLights();
+    createTieFighters(10);
     loadR2D2();
     laser();
 }
@@ -330,10 +333,14 @@ function loadStormtroopers () {
                     camera.position.z - 700, 2500, 0);         // TODO onload
 }
 
-function loadTieFighters () {
-    //LOADERS.objLoad ("models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
-    //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
-    //                camera.position.z - 5000, 200, 0);
+function loadTieFighters (z) {
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            console.log( 'Tiefighter loading complete!');
+    };
+    LOADERS.objLoad (manager, "models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
+                    scene, camera, "objName",camera.position.x - 130, camera.position.y + 480,
+                    z, 20, 0);
 }
 
 function loadBlaster () {
@@ -374,19 +381,12 @@ function loadLandspeeder () {
     }
 }
 
-
 function createTerrain() {
     startTerrain = true;
     //var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
     //scene.background = texture;
-
-
-    camera.position.z = 6000;
-    camera.position.y = 1000;
-    var img = document.getElementById('hm');
-    TERRAIN.newTerrain(img, scene);
-
-    
+    var desertHeightMap = document.getElementById('heightMap');
+    TERRAIN.generateDesertTerrain(desertHeightMap, scene);
 }
 
 function laser () {
@@ -414,6 +414,13 @@ export function fire (x, y, z) {
     //    .to({ x: distance }, tweentime)
     //    .easing(TWEEN.Easing.Linear.EaseNone);
     //tween0.start();
+}
+
+function createTieFighters (density) {
+    
+    for (i = 0; i < density; i++) {
+        loadTieFighters(camera.position.z - (i+1)*10000);        
+    }
 }
 
 export function setGameNameAnimation (bool) {
