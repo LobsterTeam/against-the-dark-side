@@ -114,14 +114,21 @@ function createIntroText () {
     setIntroAnimation(true);
 }
 
-function loadFont(groupName, text, font, textSize, colorHex, y, z) {
+export function loadFont(groupName, text, font, textSize, colorHex, y, z) {
     var loader = new THREE.FontLoader();
     loader.load(font, function (response) {
-        createText(groupName, text, response, textSize, colorHex, y, z);
+        createText(groupName, text, response, textSize, colorHex, true, y, z);
     });
 }
 
-function createText(groupName, text, font, textSize, colorHex, y, z) {
+export function loadLoadingTextFont(manager, groupName, text, font, textSize, colorHex, y, z) {
+    var loader = new THREE.FontLoader(manager);
+    loader.load(font, function (response) {
+        createText(groupName, text, response, textSize, colorHex, false, y, z);
+    });
+}
+
+function createText(groupName, text, font, textSize, colorHex, bevel, y, z) {
     directionalLight.color.setHex(colorHex);
     var materials = [
             new THREE.MeshPhongMaterial({color: colorHex, flatShading: true, transparent: true}), // front
@@ -135,7 +142,7 @@ function createText(groupName, text, font, textSize, colorHex, y, z) {
             curveSegments: 12,
             bevelThickness: 5,
             bevelSize: 2,
-            bevelEnabled: true
+            bevelEnabled: bevel
     });
     textGeo.computeBoundingBox();
     textGeo.computeVertexNormals();
