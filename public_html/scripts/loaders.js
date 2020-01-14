@@ -5,6 +5,8 @@ import { OBJLoader } from '../three.js-dev/examples/jsm/loaders/OBJLoader.js';
 import { FBXLoader } from '../three.js-dev/examples/jsm/loaders/FBXLoader.js';
 import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
 import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js';
+import * as THREE from '../three.js-dev/build/three.module.js';
+import { terrainMeshes } from './terrain.js';
 
 export var mixer;
 
@@ -44,6 +46,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
     );
 }
 
+
 export async function animatedGltfLoad(manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     // Instantiate a loader
     var loader = new GLTFLoader(manager);
@@ -58,18 +61,23 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
             path,
             // called when the resource is loaded
             function ( gltf ) {
+                mixer = new AnimationMixer(gltf.scene);
+                var action = mixer.clipAction(gltf.animations[0]);
+                action.play();
+                
+                gltf.scene.scale.set(scale, scale, scale); // THREE.Scene
+                gltf.scene.rotation.set(0, yRotation, 0);
+                gltf.scene.name = objName ;
+                gltf.scene.position.set(x, y, z);
+                var raycaster = new THREE.Raycaster();
+                raycaster.set(gltf.scene.position, new THREE.Vector3(0, -1, 0));
+                var intersects = raycaster.intersectObject(terrainMeshes[1]);
+                if (intersects.length !== 0){
+                    console.log("intersect at", intersects[0].point);
+                    gltf.scene.position.y = intersects[0].point.y;
+                }
 
-                    mixer = new AnimationMixer( gltf.scene );
-                    var action = mixer.clipAction( gltf.animations[ 0 ] );
-                    action.play();
-
- 
-                    gltf.scene.scale.set(scale, scale, scale); // THREE.Scene
-                    gltf.scene.rotation.set(0, yRotation, 0);
-                    gltf.scene.name = objName ;
-                    gltf.scene.position.set(x, y, z);
-                    scene.add( gltf.scene );
-
+                scene.add( gltf.scene );
             },
             // called while loading is progressing
             function ( xhr ) {
