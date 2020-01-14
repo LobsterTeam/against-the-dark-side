@@ -108,7 +108,19 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.scale.set(scale, scale, scale);
             obj.rotation.y += yRotation;
             obj.castShadow = true;
-            scene.add(obj);
+
+            if (obj.name === "tie-fighter-1"){
+                console.log(obj);
+                for (var i=0; i<10; ++i ) {
+                    var obj2 = obj.clone();
+                    obj2.position.set(x, y, z - (i * 1000));
+                    scene.add(obj2);
+                }
+                
+            } else {
+                scene.add(obj);
+            }
+            
         }, onProgress, onError);
     });
     
