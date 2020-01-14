@@ -7,6 +7,7 @@ import * as LOADERS from './loaders.js';
 import * as PANEL from './controlPanel.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
+import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js';
 
 
 var container;
@@ -239,6 +240,8 @@ function render() {
                 r2d2Move(child);
             } else if (child.name === "blaster") {
                 child.position.set(camera.position.x, camera.position.y - 5, camera.position.z - 10);
+            } else if (child.name === "stormtrooper"){
+                child.lookAt(camera.position);
             }
         }
     }
@@ -354,7 +357,7 @@ function createGameScene() {
     SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor, 0xFDE585, 0xfdf2c2);
     createTerrain();
     createTerrainSceneLights();
-    createTieFighters(10);
+    loadTieFighters();
     loadR2D2();
     laser();
 }
@@ -370,7 +373,7 @@ function loadR2D2 () {
     
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            console.log( 'Loading complete!');
+            console.log( 'R2D2 Loading complete!');
             loadStormtroopers();
     };
     
@@ -383,29 +386,47 @@ function loadStormtroopers () {
     //LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
     //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
     //                camera.position.z - 5000, 200, 0);
+
+
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            console.log( 'Stormtrooper loading complete!');
-            loadBlaster();
+        console.log( 'Stormtrooper loading complete!');
+        loadBlaster();
+
     };
     
     manager.onError = function(error) {
         console.log(error);
+    };
+
+    
+    for (var j = 1; j < 13; j++){
+        var randomInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
+        var posX;
+        if(randomInt % 2){
+            posX = 4000;
+        } else {
+            posX = -4000;
+        }
+        LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-merged.glb", 
+        scene, camera, "stormtrooper", posX, camera.position.y,
+        camera.position.z - (j * 1000), 100, 0);         // TODO onload
     }
     
-    LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-pull-out-animated.glb", 
-                    scene, camera, "stormtrooper", camera.position.x - 130, camera.position.y - 480,
-                    camera.position.z - 700, 2500, 0);         // TODO onload
+
+
+    
+
 }
 
-function loadTieFighters (z) {
+function loadTieFighters () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             console.log( 'Tiefighter loading complete!');
     };
     LOADERS.objLoad (manager, "models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
-                    scene, camera, "objName",camera.position.x - 130, camera.position.y + 480,
-                    z, 20, 0);
+                    scene, camera, "tie-fighter-1",camera.position.x - 130, camera.position.y + 480,
+                    -10000, 20, 0);
 }
 
 function loadBlaster () {
@@ -431,7 +452,6 @@ function loadLandspeeder () {
             for(i = 0; i < 7; i++ ){
                 scene.remove(scene.children[0]);
             }
-            console.log(scene);
             console.log( 'Landspeeder loading complete!');
     };
 
