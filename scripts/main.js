@@ -193,7 +193,7 @@ function onWindowResize() {
     }
 }
 
-function render() {
+export function render() {
     //camera.position.x += ( mouseX - camera.position.x ) * .05;
     //camera.position.y += ( - mouseY - camera.position.y ) * .05;
     
@@ -252,7 +252,7 @@ function render() {
                 child.rotateZ(blasterRotZ);
                 child.updateMatrix();
             } else if (child.name === "bottle") {
-                child.position.set(camera.position.x - 1.25, camera.position.y - 1.5, camera.position.z);
+                child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
             }
         }
     }
@@ -444,7 +444,7 @@ function loadBottle () {
         console.log( 'Bottle loading complete!');
     };
     LOADERS.objLoad (manager, "models/bottle-obj/bottle.mtl", "models/bottle-obj/bottle.obj", scene, camera,
-                    "bottle", camera.position.x - 1.25, camera.position.y - 1.5, camera.position.z , 1, 0);
+                    "bottle", camera.position.x - 1.25, camera.position.y - 1.5, camera.position.z , 5, 0);
 }
 
 function loadLandspeeder () {
