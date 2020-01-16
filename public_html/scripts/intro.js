@@ -1,6 +1,7 @@
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { scene, camera, renderer, onLevelMap, listener, directionalLight, perpIntroGroup,
-    audioLoader, introSound, gameNameAnimation, setGameNameAnimation, setIntroAnimation, skewedIntroGroup, rotatedGroup, createLevelMap} from './main.js';
+    audioLoader, introSound, gameNameAnimation, setGameNameAnimation, setIntroAnimation,
+    skewedIntroGroup, rotatedGroup, createLevelMap} from './main.js';
 
 var gameName = ["AGAINST THE", "DARK SIDE"];
 var longTimeAgoText = "A long time ago, in a galaxy far,\nfar away....";

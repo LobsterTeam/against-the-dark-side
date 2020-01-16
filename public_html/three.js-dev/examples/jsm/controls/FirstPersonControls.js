@@ -7,9 +7,13 @@
 import {
 	Math as _Math,
 	Spherical,
-	Vector3
+	Vector3,
+        Raycaster,
+        Vector2
 } from "../../../build/three.module.js";
-import {fire} from '../../../../scripts/main.js';
+import { TransformControls } from './TransformControls.js';
+import {fire, toggleSound, camera, scene, renderer, render } from '../../../../scripts/main.js';
+import {explode} from '../../../../scripts/explosion.js';
 
 var FirstPersonControls = function ( object, domElement ) {
 
@@ -57,6 +61,7 @@ var FirstPersonControls = function ( object, domElement ) {
 	this.moveBackward = false;
 	this.moveLeft = false;
 	this.moveRight = false;
+        this.gameMode = true;
 
 	this.viewHalfX = 0;
 	this.viewHalfY = 0;
@@ -71,6 +76,22 @@ var FirstPersonControls = function ( object, domElement ) {
 	var lookDirection = new Vector3();
 	var spherical = new Spherical();
 	var target = new Vector3();
+        
+        var INTERSECTED;
+        var control = new TransformControls( camera, renderer.domElement );
+        scene.add( control );
+        control.setMode("rotate");
+        var raycaster =  new Raycaster();
+        control.addEventListener( 'change', render);
+
+        control.addEventListener( 'dragging-changed', function ( event ) {
+
+                console.log("bu ne");
+
+        } );
+        var objects = [scene.getObjectByName( "r2-d2" ), scene.getObjectByName( "blaster" ),
+                        scene.getObjectByName( "bottle" )];
+        var mouse = new Vector2();
 
 	//
 
@@ -114,11 +135,13 @@ var FirstPersonControls = function ( object, domElement ) {
 			switch ( event.button ) {
 
 				case 0:     // left click
-                                    this.moveForward = true;
+                                    //this.moveForward = true;
                                     console.log("button click");
                                     console.log(this.mouseX);
                                     console.log(this.mouseY);
-                                    //fire(-this.mouseX, -this.mouseY, 0);
+                                    fire(this.mouseX, this.mouseY, 0);
+                                    //explode();
+                                    //this.activeLook = false;
                                     break;
 				case 2: this.moveBackward = true; console.log("ha"); break;
 
@@ -156,6 +179,8 @@ var FirstPersonControls = function ( object, domElement ) {
 
 			this.mouseX = event.pageX - this.viewHalfX;
 			this.mouseY = event.pageY - this.viewHalfY;
+                        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 		} else {
 
@@ -163,7 +188,26 @@ var FirstPersonControls = function ( object, domElement ) {
 			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
 
 		}
+                
+                if (!this.gameMode) {
+                    
+                    //camera.updateMatrixWorld();
+                    raycaster.setFromCamera( mouse, camera );
+                    var intersects = raycaster.intersectObjects( objects, true );
+                    
+                    if ( intersects.length > 0 ) {
 
+                        if ( INTERSECTED != intersects[0].object ) {
+
+                            if (INTERSECTED) {
+                                control.detach(INTERSECTED);
+                            }
+                            INTERSECTED = intersects[0].object;
+                            control.attach( INTERSECTED );
+                        }
+
+                    }
+                }
 	};
 
 	this.onKeyDown = function ( event ) {
@@ -186,7 +230,23 @@ var FirstPersonControls = function ( object, domElement ) {
 
 			case 33: /*PgUp*/ this.moveUp = true; break;
 			case 34: /*PgDn*/ this.moveDown = true; break;
-
+                            
+                        case 77:        // M key
+                            toggleSound();
+                            break;
+                            
+                        case 80:        // P key
+                            // change shading
+                            break;
+                        case 76:        // L key
+                            if (this.gameMode) {
+                                this.gameMode = false;
+                                this.activeLook = false;
+                            } else {
+                                this.gameMode = true;
+                                this.activeLook = true;
+                            }
+                            break;
 		}
 
 	};
@@ -258,30 +318,35 @@ var FirstPersonControls = function ( object, domElement ) {
 			var actualMoveSpeed = delta * this.movementSpeed;
 
 			
-                        if ( this.moveForward && ( this.autoForward && ! this.moveBackward)) {
+                        if ( this.moveForward && ( this.autoForward && ! this.moveBackward) && this.gameMode) {
                             if (this.movementSpeed < 1500) {
                                 this.movementSpeed += this.speedStep;
                             }
                         }
-                        if ( this.moveForward || this.autoForward ) {
+                        if ( (this.moveForward || this.autoForward) && this.gameMode ) {
                             this.object.position.z -= actualMoveSpeed;
                         }
-			if ( this.moveBackward ) {
-                            if (this.movementSpeed > 200) {
+                        // S
+			if ( this.moveBackward && this.gameMode ) {       // if it is game mode
+                            // position i kontrol et eger sinira ulastiysa game over
+                            if (this.movementSpeed > -1500) {
                                 this.movementSpeed -= this.speedStep;
                             }
                         }
-			if ( this.moveLeft ) {
+                        // A
+			if ( this.moveLeft && this.gameMode) {
                             this.object.position.x -= actualMoveSpeed;
                         }
-			if ( this.moveRight ) {
+                        // D
+			if ( this.moveRight && this.gameMode) {    // if it is game mode
                             this.object.position.x += actualMoveSpeed;
                         }
-
-			if ( this.moveUp ) {
+                        // PgUp
+			if ( this.moveUp && this.gameMode ) {    // if it is game mode
                             this.object.position.y += actualMoveSpeed;
                         }
-			if ( this.moveDown ) {
+                        // PgDn
+			if ( this.moveDown && this.gameMode ) {  // if it is game mode
                             this.object.position.y -= actualMoveSpeed;
                         }
 
