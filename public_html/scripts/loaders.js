@@ -5,6 +5,9 @@ import { OBJLoader } from '../three.js-dev/examples/jsm/loaders/OBJLoader.js';
 import { FBXLoader } from '../three.js-dev/examples/jsm/loaders/FBXLoader.js';
 import { TGALoader } from '../three.js-dev/examples/jsm/loaders/TGALoader.js';
 import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js';
+import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
+import { scene, camera, renderer, render} from './main.js';
+
 
 export var mixer;
 
@@ -28,6 +31,10 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     gltf.scene.name = objName ;
                     gltf.scene.position.set(x, y, z);
                     scene.add( gltf.scene );
+                    //var control = new TransformControls( camera, renderer.domElement );
+                   // scene.add( control );
+                    //control.setMode("rotate");
+                    //control.attach( gltf.scene );
             },
             // called while loading is progressing
             function ( xhr ) {
@@ -37,7 +44,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
             },
             // called when loading has errors
             function ( error ) {
-
+                    console.log(error);
                     console.log( 'An error happened' );
 
             }
@@ -100,7 +107,14 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.scale.set(scale, scale, scale);
             obj.rotation.y += yRotation;
             obj.castShadow = true;
+            obj.verticesNeedUpdate = true;
+            obj.updateMatrixWorld();
             scene.add(obj);
+            //var control = new TransformControls( camera, renderer.domElement );
+            //control.addEventListener('change', render);
+            //scene.add( control );
+            //control.setMode("rotate");
+            //control.attach( obj );
         }, onProgress, onError);
     });
     
@@ -157,7 +171,7 @@ export async function animatedFbxLoad (manager, path, scene, camera, objName, x,
             });
 }
 
-export async function fbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
+export async function bb8FbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     
     var loader = new FBXLoader(manager);
     await loader.load( path, function ( object ) {
@@ -182,16 +196,16 @@ export async function fbxLoad (manager, path, scene, camera, objName, x, y, z, s
             } );
             scene.add( object );
     },
-                // called while loading is progressing
-            function ( xhr ) {
+        // called while loading is progressing
+    function ( xhr ) {
 
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
-            },
-            // called when loading has errors
-            function ( error ) {
-                    console.log(error);
-                    console.log( 'An error happened' );
+    },
+    // called when loading has errors
+    function ( error ) {
+            console.log(error);
+            console.log( 'An error happened' );
 
-            });
+    });
 }
