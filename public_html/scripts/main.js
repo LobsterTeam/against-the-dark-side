@@ -333,10 +333,9 @@ export function createLevelMap () {
         introSound.pause();
         //muteAudioSlowly();
         // TODO LIGHT DURUYOR
-    } else {
-        clearScene();   // remove everything from the scene
-        INTRO.createBackgroundWithStars();        // create space in the background
     }
+    clearScene();   // remove everything from the scene
+    
     // create map
 }
 
