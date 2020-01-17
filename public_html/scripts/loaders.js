@@ -42,7 +42,8 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         }
                     }
                     scene.add( gltf.scene );
-                    
+                    gltf.scene.castShadow = true;
+                    gltf.scene.receiveShadow = true;
                     //var control = new TransformControls( camera, renderer.domElement );
                    // scene.add( control );
                     //control.setMode("rotate");
@@ -125,6 +126,7 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.scale.set(scale, scale, scale);
             obj.rotation.y += yRotation;
             obj.castShadow = true;
+            obj.receiveShadow = true;
 
             if (obj.name === "tie-fighter-1"){
                 for (var i = 0; i < enemyDensity; ++i ) {

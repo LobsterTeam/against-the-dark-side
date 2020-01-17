@@ -55,17 +55,17 @@ export function createGUI () {
         
         SKYANDSUN.tatooOne.intensity = value;
     });
-    tatooOneFolder.add( tattooOneParameters, 'translateX', -1230000, 1230000, 100 ).onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateX', -123000, 123000, 100 ).onChange(function(value) {
         SKYANDSUN.tatooOne.position.x = value;
         SKYANDSUN.tatooOneMesh.position.x = value;
     });
-    tatooOneFolder.add( tattooOneParameters, 'translateY', -600000, 600000, 100 ).onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateY', -150000, 150000, 100 ).onChange(function(value) {
         SKYANDSUN.tatooOne.position.y = value;
         SKYANDSUN.tatooOneMesh.position.y = value;
     });
-    tatooOneFolder.add( tattooOneParameters, 'translateZ', -600000, -200000, 100).onChange(function(value) {
+    tatooOneFolder.add( tattooOneParameters, 'translateZ', -200000, -120000, 100).onChange(function(value) {
         SKYANDSUN.tatooOne.position.z = value;
-        SKYANDSUN.tatooOneMesh.position.z = value - 20500;
+        SKYANDSUN.tatooOneMesh.position.z = value - 11000;
     });
     tatooOneFolder.add( tattooOneParameters, 'rotateX', 0, 2*Math.PI, 0.001 ).onChange(function(value) {
         var axis = new THREE.Vector3(1, 0, 0);
@@ -96,17 +96,17 @@ export function createGUI () {
         
         SKYANDSUN.tatooTwo.intensity = value;
     });
-    tatooTwoFolder.add( tattooTwoParameters, 'translateX', -1230000, 1230000, 100).onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateX', -123000, 123000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.x = value;
         SKYANDSUN.tatooTwoMesh.position.x = value;
     });
-    tatooTwoFolder.add( tattooTwoParameters, 'translateY', -600000, 600000, 100).onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateY', -150000, 150000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.y = value;
         SKYANDSUN.tatooTwoMesh.position.y = value;
     });
-    tatooTwoFolder.add( tattooTwoParameters, 'translateZ', -600000, -200000, 100).onChange(function(value) {
+    tatooTwoFolder.add( tattooTwoParameters, 'translateZ', -200000, -120000, 100).onChange(function(value) {
         SKYANDSUN.tatooTwo.position.z = value;
-        SKYANDSUN.tatooTwoMesh.position.z = value - 20500;
+        SKYANDSUN.tatooTwoMesh.position.z = value - 11000;
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
         var axis = new THREE.Vector3(1, 0, 0);
