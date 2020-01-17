@@ -78,3 +78,45 @@ canvas { pointer-events:none; z-index:0; position:relative; }
 }
 h10 {font-size:22px;}
 h20 {font-size:12px;}
+
+#levels {
+    left: -10%;
+}
+
+
+#dots {
+    display: flex;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.dot {
+    padding: 50px;
+    width: 50px;
+    height: 50px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.dot-divider {
+    height: 10px;
+    flex: 1;
+    background: #bbb;
+    margin: 0 0px;
+    padding: 0 70px;
+}
+
+#text {
+    margin-top: 150px;
+    background-color: #1F1F1F;
+    text-align:center;
+    font: 18px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
+    opacity: 0.8;
+    border-radius: 20px;
+    padding: 48px;
+    width: 650px;
+}
