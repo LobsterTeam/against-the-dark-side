@@ -15,16 +15,16 @@ export function createTatooSuns(topSkyColor, bottomSkyColor, tatooOneColor, tato
     createSky(topSkyColor, bottomSkyColor);
     tatooOne = new THREE.DirectionalLight( 0xffffff, 0.5 );
     tatooOneMesh =  new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 20000, 16, 8 ),     // TODO 10000
-            new THREE.MeshBasicMaterial( { color: tatooOneColor } )
+            new THREE.SphereBufferGeometry( 7000, 16, 8 ),
+            new THREE.MeshBasicMaterial( { color: tatooOneColor, fog: false } )
     );
-    createSun(tatooOne, tatooOneMesh, 123000, 60000, -400000);
+    createSun(tatooOne, tatooOneMesh, 50000, 30000, -150000);
     tatooTwo = new THREE.DirectionalLight( 0xffffff, 0.5 );
     tatooTwoMesh =  new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 20000, 16, 8 ),     // TODO 10000
-            new THREE.MeshBasicMaterial( { color: tatooTwoColor } )
+            new THREE.SphereBufferGeometry( 7000, 16, 8 ),
+            new THREE.MeshBasicMaterial( { color: tatooTwoColor, fog: false } )
     );
-    createSun(tatooTwo, tatooTwoMesh, 0, 123000, -400000);
+    createSun(tatooTwo, tatooTwoMesh, 0, 60000, -150000);
 }
 
 function createSky (topColor, bottomColor) {
@@ -55,16 +55,22 @@ function createSky (topColor, bottomColor) {
 function createSun (sun, mesh, x, y, z) {
 
     sun.castShadow = true;
-    sun.shadow.mapSize.width = 2048;        // TODO
-    sun.shadow.mapSize.height = 2048;       // TODO
+    sun.shadow.mapSize.width = 4096;        // TODO
+    sun.shadow.mapSize.height = 4096;       // TODO
 
     // TODO
-    var d = 50;
-    //sun.shadow.bias = - 0.0001;
+    var d = 150000;
+    
+    sun.shadow.camera.left = - d;
+    sun.shadow.camera.right = d;
+    sun.shadow.camera.top = d;
+    sun.shadow.camera.bottom = - d;
+    sun.shadow.camera.far = 400000;
+    sun.shadow.bias = - 1;
     sun.position.set(x, y, z);
     scene.add( sun );
     
-    mesh.position.set(x, y, z - 20500);
+    mesh.position.set(x, y, z - 11000);
     scene.add(mesh);
     
     var lensflare = new Lensflare();
