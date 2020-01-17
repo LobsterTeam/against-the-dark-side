@@ -8,7 +8,7 @@ import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js'
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { terrainMeshes } from './terrain.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
-import { scene, camera, renderer, render} from './main.js';
+import { scene, camera, renderer, render, enemyDensity, finishLine} from './main.js';
 
 
 export var mixer;
@@ -32,7 +32,17 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     gltf.scene.rotation.set(0, yRotation, 0);
                     gltf.scene.name = objName ;
                     gltf.scene.position.set(x, y, z);
+                    if (objName === "stormtrooper"){
+                        var raycaster = new THREE.Raycaster();
+                        raycaster.set(gltf.scene.position, new THREE.Vector3(0, -1, 0));
+                        var intersects = raycaster.intersectObject(terrainMeshes[1]);
+                        if (intersects.length !== 0){
+                            console.log("intersect at", intersects[0].point);
+                            gltf.scene.position.y = intersects[0].point.y;
+                        }
+                    }
                     scene.add( gltf.scene );
+                    
                     //var control = new TransformControls( camera, renderer.domElement );
                    // scene.add( control );
                     //control.setMode("rotate");
@@ -76,13 +86,13 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
                 gltf.scene.rotation.set(0, yRotation, 0);
                 gltf.scene.name = objName ;
                 gltf.scene.position.set(x, y, z);
-                var raycaster = new THREE.Raycaster();
-                raycaster.set(gltf.scene.position, new THREE.Vector3(0, -1, 0));
-                var intersects = raycaster.intersectObject(terrainMeshes[1]);
-                if (intersects.length !== 0){
-                    console.log("intersect at", intersects[0].point);
-                    gltf.scene.position.y = intersects[0].point.y;
+                if(objName === "stormtrooper-level"){
+                    var material = gltf.scene.children[0].children[1].material;
+                    material.needsUpdate = true;
+                    material.map.minFilter =  THREE.LinearFilter;
+                    material.side = THREE.DoubleSide;
                 }
+
 
                 scene.add( gltf.scene );
             },
@@ -117,10 +127,9 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.castShadow = true;
 
             if (obj.name === "tie-fighter-1"){
-                console.log(obj);
-                for (var i=0; i<10; ++i ) {
+                for (var i = 0; i < enemyDensity; ++i ) {
                     var obj2 = obj.clone();
-                    obj2.position.set(x, y, z - (i * 1000));
+                    obj2.position.set(x, y, z - (i * (-finishLine / enemyDensity)));
                     scene.add(obj2);
                 }
                 

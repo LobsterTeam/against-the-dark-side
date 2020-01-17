@@ -8,12 +8,14 @@ import * as PANEL from './controlPanel.js';
 import * as EXPLOSION from './explosion.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
+import { CSS2DRenderer, CSS2DObject } from '../three.js-dev/examples/jsm/renderers/CSS2DRenderer.js';
 
 
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
-        perpIntroGroup, audioLoader, introSound, gameNameAnimation, skewedIntroGroup,
-        rotatedGroup, particleArray = [];
+        perpIntroGroup, audioLoader, introSound, levelSound, gameNameAnimation, skewedIntroGroup,
+        rotatedGroup, particleArray = [], finishLine = -60000, enemyDensity;
+var labelRenderer;
 // terrain scene sky colors
 //export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xf8fcff;
 export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
@@ -52,6 +54,8 @@ var modelsLoading = false, manager;
 var tween;
 var transformControls;
 
+var levels = [1, 1, 0];
+
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
@@ -80,14 +84,7 @@ function init() {
     showClick();
     EXPLOSION.addParticles();
 
-    document.addEventListener("mousedown", function() {
-        if (onLevelMap) {
-                   // clear everything from the scene
-            clearScene();
-            modelsLoading = true;
-            createLoadingText(createGameScene);
-        }
-    });
+
     
     window.addEventListener( 'resize', onWindowResize, false );
 }
@@ -224,6 +221,10 @@ export function render() {
         renderer.render( scene, camera );
     }
     
+    if (onLevelMap) {
+        labelRenderer.render(scene, camera);
+    }
+    
     if (startTerrain && controls !== undefined) {
         controls.update( clock.getDelta() );
     }
@@ -251,16 +252,16 @@ export function render() {
                 child.rotateY(Math.PI / 2 + blasterRotY);
                 child.rotateZ(blasterRotZ);
                 child.updateMatrix();
-            } else if (child.name === "stormtrooper"){
+            } else if (child.name === "stormtrooper") {
                 child.lookAt(camera.position);                
             } else if (child.name === "bottle") {
                 child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
-            }
+            } 
         }
     }
     
     if(LOADERS.mixer){
-        LOADERS.mixer.update( clock.getDelta() * 100 );
+        LOADERS.mixer.update( clock.getDelta() );
     }
     
     TWEEN.update();
@@ -303,6 +304,7 @@ function showStarWarsEntry () {
     // create a global audio source
     var listener = new THREE.AudioListener();
     introSound = new THREE.Audio(listener);
+    levelSound = new THREE.Audio(listener);
     audioLoader = new THREE.AudioLoader();
     INTRO.createLongTimeAgoText();
 }
@@ -325,10 +327,13 @@ function clearScene () {
         scene.remove(scene.children[i]);
     }
     introAnimation = false;
+        //muteAudioSlowly();
 }
 
 export function createLevelMap () {
     console.log("level map");
+    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    scene.background = texture;
     gameNameAnimation = false;
     introAnimation = false;
     onLevelMap = true;
@@ -338,8 +343,8 @@ export function createLevelMap () {
         $('#skipButton').hide();
         
         for(i = scene.children.length - 1; i >= 0; i--) {
-            if (scene.children[i].name == "perpIntroObjects" 
-                    || scene.children[i].name == "rotatedGroup") {
+            if (scene.children[i].name === "perpIntroObjects" 
+                    || scene.children[i].name === "rotatedGroup") {
                 console.log(scene.children[i].name);
                 scene.remove(scene.children[i]);
             }
@@ -351,7 +356,105 @@ export function createLevelMap () {
     }
     clearScene();   // remove everything from the scene
     
+    
+    
+    var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+    levelMapLight.position.set(0, 0, 0);
+    scene.add(levelMapLight);
+    //scene.add(levelMapLight.target);
+
+    
+    
+    manager = new THREE.LoadingManager();
+    manager.onLoad = function ( ) {
+            //levelMapLight.target.position.set(scene.getObjectByName("stormtrooper-level").position);
+
+            levelSound.play();
+            console.log( 'Level map stormtrooper Loading complete!');
+    };
+    
+    loadLevelModel();
+    
+    var levelMapDiv = document.getElementById("levels");
+    var levelMapObject = new CSS2DObject(levelMapDiv);
+    scene.add(levelMapObject);
+    
+    labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize( window.innerWidth, window.innerHeight );
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = 0;
+    document.body.appendChild( labelRenderer.domElement );
+    
+    var levelItems = document.getElementsByClassName("dot");
+    
+    for (i = 0; i < levelItems.length; i++){
+        switch(levelItems[i].innerText){
+            case "1":
+                levelItems[i].addEventListener("mousedown", function() {
+                    if(levels[0]){
+                        enemyDensity = 10;
+                        generateLevelInit();
+                    }
+                });
+                break;
+            case "2":
+                levelItems[i].addEventListener("mousedown", function() {
+                    if (levels[1]){
+                        enemyDensity = 17;
+                        generateLevelInit();
+                    }
+                });
+                break;
+            case "3":
+                levelItems[i].addEventListener("mousedown", function() {
+                    if (levels[2]){
+                        enemyDensity = 30;
+                        generateLevelInit();
+                    }
+                });
+                break;
+        }
+    }
+
+    
     // create map
+}
+
+function generateLevelInit() {
+    clearScene();
+    modelsLoading = true;
+    createLoadingText(createGameScene);
+
+}
+
+function loadLevelModel() {
+    var rand = Math.floor(Math.random() * 3) + 1;
+    if (rand === 1) {
+        camera.add(levelSound);
+        audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
+            levelSound.setBuffer(buffer);
+            levelSound.setLoop(true);
+            levelSound.setVolume(1.0);
+        });
+        LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/chicken.glb", 
+        scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
+        camera.position.z - 5, 1, -Math.PI/6);
+    } else if (rand === 2) {
+        camera.add(levelSound);
+        audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
+            levelSound.setBuffer(buffer);
+            levelSound.setLoop(true);
+            levelSound.setVolume(1.0);
+        });
+        LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/twist-dance.glb", 
+        scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
+        camera.position.z - 5, 0.9, -Math.PI/6);
+    } else {
+        LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-moonwalk.glb", 
+        scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
+        camera.position.z - 5, 0.8, -Math.PI/2);
+    }
+
 }
 
 function muteAudioSlowly () {
@@ -414,7 +517,7 @@ function loadStormtroopers () {
     };
 
     
-    for (var j = 1; j < 13; j++){
+    for (var j = 1; j < enemyDensity + 1; j++){
         var randomInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
         var posX;
         if(randomInt % 2){
@@ -422,9 +525,9 @@ function loadStormtroopers () {
         } else {
             posX = -4000;
         }
-        LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-merged.glb", 
+        LOADERS.gltfLoad(manager, "models/animated/stormtrooper/test.glb", 
         scene, camera, "stormtrooper", posX, camera.position.y,
-        camera.position.z - (j * 1000), 100, 0);         // TODO onload
+        camera.position.z - (j * (-finishLine / enemyDensity)), 100, 0);         // TODO onload
     }
     
 
@@ -478,6 +581,7 @@ function loadLandspeeder () {
             PANEL.createGUI();
             console.log(scene);
             console.log( 'Landspeeder loading complete!');
+            camera.position.set(0.0, 0.0, 0.0);
     };
 
     landSpeeder = LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
