@@ -46,11 +46,11 @@ var speedStep = 5;      // camera speed
 
 var landSpeeder;
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
-var laserContainer, laserMesh;
 var loadingSprite;
 var modelsLoading = false, manager;
 var tween;
 var transformControls;
+var lasers = [], laserSpeed = 100000, delta = 0;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -221,7 +221,7 @@ export function render() {
     //else if (onLevelMap) {            //MAYBE
     //    camera.position.z -= 100;
     //}
-    
+
     //camera.lookAt( scene.position );
     if (!modelsLoading) {
         renderer.render( scene, camera );
@@ -249,18 +249,23 @@ export function render() {
                 child.rotation.copy(camera.rotation);
                 child.translateX(2 + blasterTransX);
                 child.translateY(-2.3 + blasterTransY);
-                child.translateZ(-5 + blasterTransZ);
+                child.translateZ(-3.5 + blasterTransZ);
                 child.rotateX(blasterRotX);
                 child.rotateY(Math.PI / 2 + blasterRotY);
                 child.rotateZ(blasterRotZ);
                 child.updateMatrix();
             } else if (child.name === "stormtrooper"){
-                child.lookAt(camera.position);                
+                child.lookAt(camera.position);
             } else if (child.name === "bottle") {
                 child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
             }
         }
     }
+    
+    delta = clock.getDelta();
+    lasers.forEach(b => 
+        b.translateX(laserSpeed * delta) // move along the local z-axis
+    );
     
     if(LOADERS.mixer){
         LOADERS.mixer.update( clock.getDelta() * 100 );
@@ -376,7 +381,6 @@ function createGameScene() {
     createTerrain();
     createTerrainSceneLights();
     loadTieFighters();
-    laser();
     loadR2D2();
 }
 
@@ -405,18 +409,15 @@ function loadStormtroopers () {
     //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
     //                camera.position.z - 5000, 200, 0);
 
-
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
         console.log( 'Stormtrooper loading complete!');
         loadBlaster();
-
     };
     
     manager.onError = function(error) {
         console.log(error);
     };
-
     
     for (var j = 1; j < 13; j++){
         var randomInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
@@ -430,11 +431,6 @@ function loadStormtroopers () {
         scene, camera, "stormtrooper", posX, camera.position.y,
         camera.position.z - (j * 1000), 100, 0);         // TODO onload
     }
-    
-
-
-    
-
 }
 
 function loadTieFighters () {
@@ -491,7 +487,7 @@ function loadLandspeeder () {
 
     if (landSpeeder) {      // when scene is loaded add controls
         controls = new FirstPersonControls( camera );
-        controls.autoForward = true;
+        //controls.autoForward = true;
         controls.speedStep = speedStep;
         controls.movementSpeed = 500;
         controls.lookSpeed = 0.1;
@@ -506,47 +502,18 @@ function createTerrain() {
     TERRAIN.generateDesertTerrain(desertHeightMap, scene);
 }
 
-function laser () {
-    laserContainer = new THREE.Object3D();
-    laserContainer.scale.set(0.8, 0.8, 0.8);
-    laserContainer.name = "laser";
-    //scene.add(laserContainer);
-    var laser = new THREE.CubeGeometry(6, 800, 6);
-    var material = new THREE.MeshBasicMaterial({ color: 0xf43b3c, opacity: 0.5 });
-
-    laserMesh = new THREE.Mesh(laser, material);
-    laserMesh.rotation.set(Math.PI / 2, 0, 0);
-    scene.add(laserMesh);
-    //laserContainer.add(laserMesh);
-    laserMesh.visible = false;
-}
-
 export function fire (x, y, z) {
-    var blaster = scene.getObjectByName("blaster").position;
-    laserContainer.position.set(blaster.x - 5, blaster.y - 200, blaster.z - 370);
-    //laserMesh.rotation.set(Math.PI / 2, 0, 0);        // must depend on mouse
-    laserMesh.visible = true;
-    var distance = -1000000;
-    var tweentime = 30000;
-    laserMesh.position.set(blaster.x, blaster.y - 10, blaster.z );
-    console.log(laserMesh.position);
-    console.log(x, y);
-    var tween = new TWEEN.Tween(laserMesh.position)     // birden fazla?
-        .to({
-            z: z -70000}, tweentime)
-        .easing(TWEEN.Easing.Linear.EaseNone);
-    tween.start();
-}
-
-
-
-function createTieFighters (density) {
     
-    for (i = 0; i < density; i++) {
-        loadTieFighters(camera.position.z - (i+1)*10000);        
-    }
+    var laser = new THREE.CubeGeometry(10, 0.2, 0.2);
+    var material = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
+    var laserMesh = new THREE.Mesh(laser, material);
+    var blaster = scene.getObjectByName("blaster");
+    
+    laserMesh.position.set(blaster.position.x - 0.2, blaster.position.y + 0.7, blaster.position.z);
+    laserMesh.quaternion.copy(blaster.quaternion);
+    lasers.push(laserMesh);
+    scene.add(laserMesh);
 }
-
 
 // SETTERS
 export function setGameNameAnimation (bool) {
