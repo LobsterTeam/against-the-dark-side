@@ -12,6 +12,7 @@ import {
         Vector2
 } from "../../../build/three.module.js";
 import { TransformControls } from './TransformControls.js';
+import { OrbitControls } from './OrbitControls.js';
 import {fire, toggleSound, camera, scene, renderer, render } from '../../../../scripts/main.js';
 import {explode} from '../../../../scripts/explosion.js';
 
@@ -77,7 +78,7 @@ var FirstPersonControls = function ( object, domElement ) {
 	var spherical = new Spherical();
 	var target = new Vector3();
         
-        var INTERSECTED;
+        var INTERSECTED, PARENT;
         var control = new TransformControls( camera, renderer.domElement );
         scene.add( control );
         control.setMode("rotate");
@@ -86,12 +87,20 @@ var FirstPersonControls = function ( object, domElement ) {
 
         control.addEventListener( 'dragging-changed', function ( event ) {
 
+                orbit.enabled = ! event.value;
                 console.log("bu ne");
 
         } );
-        var objects = [scene.getObjectByName( "r2-d2" ), scene.getObjectByName( "blaster" ),
-                        scene.getObjectByName( "bottle" )];
+        var b = scene.getObjectByName( "blaster" ).children[0].children[0].children[0].children;
+        console.log(scene.getObjectByName( "blaster" ));
+        var c = [b[0].children[0], b[1].children[0], b[2].children[0], b[3].children[0]];
+        var a = scene.getObjectByName( "bottle" ).children;
+        var objects = scene.getObjectByName( "r2-d2" ).children.concat(a);
+        console.log(objects);
+                    
+        
         var mouse = new Vector2();
+        var orbit;
 
 	//
 
@@ -155,8 +164,8 @@ var FirstPersonControls = function ( object, domElement ) {
 
 	this.onMouseUp = function ( event ) {
 
-		event.preventDefault();
-		event.stopPropagation();
+		//event.preventDefault();
+		//event.stopPropagation();
 
 		if ( this.activeLook ) {
 
@@ -193,17 +202,19 @@ var FirstPersonControls = function ( object, domElement ) {
                     
                     //camera.updateMatrixWorld();
                     raycaster.setFromCamera( mouse, camera );
-                    var intersects = raycaster.intersectObjects( objects, true );
+                    var intersects = raycaster.intersectObjects( objects );
                     
                     if ( intersects.length > 0 ) {
-
-                        if ( INTERSECTED != intersects[0].object ) {
+                        
+                        if ( INTERSECTED != intersects[0].object && PARENT != intersects[0].object.parent ) {
 
                             if (INTERSECTED) {
                                 control.detach(INTERSECTED);
                             }
                             INTERSECTED = intersects[0].object;
+                            PARENT = intersects[0].object.parent;
                             control.attach( INTERSECTED );
+                            console.log("a");
                         }
 
                     }
@@ -242,7 +253,11 @@ var FirstPersonControls = function ( object, domElement ) {
                             if (this.gameMode) {
                                 this.gameMode = false;
                                 this.activeLook = false;
+                                //orbit = new OrbitControls( camera, renderer.domElement );
+				//orbit.update();
+				//orbit.addEventListener( 'change', render );
                             } else {
+                                control.detach(INTERSECTED);
                                 this.gameMode = true;
                                 this.activeLook = true;
                             }
