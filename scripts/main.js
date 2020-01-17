@@ -9,14 +9,14 @@ import * as EXPLOSION from './explosion.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 
-
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, gameNameAnimation, skewedIntroGroup,
-        rotatedGroup, particleArray = [];
+        rotatedGroup, particleArray = [], finishLine = -60000;
 // terrain scene sky colors
-//export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xf8fcff;
-export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
+//export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xdcdbdf;
+//export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
+export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xdcdbdf;
 
 // blaster values
 export var blasterTransX;
@@ -196,6 +196,9 @@ function onWindowResize() {
 export function render() {
     //camera.position.x += ( mouseX - camera.position.x ) * .05;
     //camera.position.y += ( - mouseY - camera.position.y ) * .05;
+    if (camera.position.z <= finishLine) {
+        console.log("Game ended");
+    }
     
     // INTRO CHECKS
     if (gameNameAnimation) {
@@ -366,6 +369,7 @@ function createGameScene() {
     camera.position.x = 0;
     camera.position.y = 300;
     camera.position.z = 0;
+    scene.fog = new THREE.Fog( bottomSkyColor, 5000, 80000 );
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
     SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor, 0xFDE585, 0xfdf2c2);
@@ -476,6 +480,7 @@ function loadLandspeeder () {
             }
             EXPLOSION.explode();
             PANEL.createGUI();
+            //SKYANDSUN.tatooOne.target = scene.getObjectByName( "landspeeder" );
             console.log(scene);
             console.log( 'Landspeeder loading complete!');
     };
