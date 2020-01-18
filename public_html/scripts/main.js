@@ -51,11 +51,12 @@ var loadingSprite;
 var modelsLoading = false, manager;
 var tween;
 var transformControls;
-var lasers = [], laserSpeed = 100, delta = 0;
+var lasers = [], laserSpeed = 10, delta = 0;
 var emitter;
 var levels = [1, 1, 0];
-var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
+var cameraSpeed = new THREE.Vector3(0.0, 300.0, 0.0), speedStep = 20;
 var backwardFinishLine = 50000;
+var currentDelta;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -73,7 +74,9 @@ function init() {
     // scene
     scene = new THREE.Scene();
 
-    renderer = new THREE.WebGLRenderer();
+    var canvas = document.createElement( 'canvas' );
+    var context = canvas.getContext( 'webgl2', { alpha: false } );
+    renderer = new THREE.WebGLRenderer({canvas: canvas, context: context});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
@@ -84,8 +87,6 @@ function init() {
     showClick();
     EXPLOSION.addParticles();
 
-
-    
     window.addEventListener( 'resize', onWindowResize, false );
     document.addEventListener( 'keydown', USERINPUTS.onKeyDown, false );
     document.addEventListener( 'keyup', USERINPUTS.onKeyUp, false );
@@ -225,9 +226,10 @@ export function render() {
                 
         if (camera.position.z < backwardFinishLine && camera.position.z > finishLine) {
             
+            currentDelta = clock.getDelta();
             camera.position.x = cameraSpeed.x;
             camera.position.y = cameraSpeed.y;
-            camera.position.z += clock.getDelta() * cameraSpeed.z;
+            camera.position.z += currentDelta * cameraSpeed.z;
         
             for (i = scene.children.length - 1; i >= 0; i--) {
                 var child = scene.children[i];
@@ -245,7 +247,7 @@ export function render() {
 
             delta = clock.getDelta();
             lasers.forEach(b => 
-                b.translateZ(-laserSpeed * delta) // move along the local z-axis
+                b.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
             );
 
         } else if (camera.position.z >= backwardFinishLine) {
@@ -586,10 +588,11 @@ export function fire (x, y, z) {
     
     var wpVector = new THREE.Vector3();
     emitter.getWorldPosition(wpVector);
+    console.log(wpVector);
     
     laserMesh.position.copy(wpVector);
-    //laserMesh.quaternion.copy(camera.quaternion);
-    //laserMesh.updateWorldMatrix();
+    laserMesh.quaternion.copy(camera.quaternion);
+    laserMesh.updateWorldMatrix();
     lasers.push(laserMesh);
     scene.add(laserMesh);
 }
