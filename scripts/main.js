@@ -54,7 +54,7 @@ var transformControls;
 var lasers = [], laserSpeed = 10, delta = 0;
 var emitter;
 var levels = [1, 1, 0];
-var cameraSpeed = new THREE.Vector3(0.0, 300.0, 0.0), speedStep = 20;
+var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
 var backwardFinishLine = 50000;
 var currentDelta;
 
@@ -224,7 +224,7 @@ export function render() {
     
     if (landSpeeder) {      // TODO game sahnesi olunce landspeeder i false la
                 
-        if (camera.position.z < backwardFinishLine && camera.position.z > finishLine) {
+        if (camera.position.z < backwardFinishLine && camera.position.z > finishLine && gameMode) {
             
             currentDelta = clock.getDelta();
             camera.position.x = cameraSpeed.x;

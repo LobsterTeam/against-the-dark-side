@@ -44,37 +44,44 @@ export function onKeyDown ( event ) {
 
         case 38: // up
         case 87: // w
+            if (gameMode) {
                 moveForward();
-                break;
+            }
+            break;
 
         case 37: // left
         case 65: // a
+            if (gameMode) {
                 moveLeft();
-                break;
+            }
+            break;
 
         case 40: // down
         case 83: // s
+            if (gameMode) {
                 moveBackward();
-                break;
+            }
+            break;
 
         case 39: // right
         case 68: // d
+            if (gameMode) {
                 moveRight();
-                break;
+            } 
+            break;
                 
         case 34:    // pgdown
+            if (gameMode) {
                 moveDown();
-                break;
+            }
+            break;
                 
         case 33:    // pgup
+            if (gameMode) {
                 moveUp();
-                break;
-
-        case 32: // space
-                if ( canJump === true ) velocity.y += 350;
-                canJump = false;
-                break;
-
+            }
+            break;
+                
         case 76:        // L key
                 if (gameMode) {
                     setGameMode(false);
@@ -101,12 +108,10 @@ export function mouseMove ( event ) {
     
     if (!landSpeeder) return;
     
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    
     if (!gameMode) {
-                    
-        //camera.updateMatrixWorld();
+        
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         raycaster.setFromCamera( mouse, camera );
         var intersects = raycaster.intersectObjects( objects );
 
@@ -120,16 +125,14 @@ export function mouseMove ( event ) {
                 INTERSECTED = intersects[0].object;
                 PARENT = intersects[0].object.parent;
                 control.attach( INTERSECTED );
-                console.log("a");
             }
-
         }
     }
 }
 
 export function mouseDown () {
     
-    if (!landSpeeder) return;
+    if (!landSpeeder || !gameMode) return;
     
     switch ( event.button ) {
 
