@@ -54,6 +54,8 @@ var tween;
 var transformControls;
 var lasers = [], laserSpeed = 100, delta = 0;
 
+var listener;
+
 var levels = [1, 1, 0];
 
 window.createLevelMap = createLevelMap;
@@ -312,10 +314,12 @@ function showStarWarsEntry () {
     rotatedGroup.name = "rotatedGroup";
     
     // create a global audio source
-    var listener = new THREE.AudioListener();
-    introSound = new THREE.Audio(listener);
-    levelSound = new THREE.Audio(listener);
     audioLoader = new THREE.AudioLoader();
+    listener = new THREE.AudioListener();
+    camera.add(listener);
+    
+    introSound = new THREE.Audio(listener);
+
     INTRO.createLongTimeAgoText();
 }
 
@@ -379,7 +383,7 @@ export function createLevelMap () {
     manager.onLoad = function ( ) {
             //levelMapLight.target.position.set(scene.getObjectByName("stormtrooper-level").position);
 
-            levelSound.play();
+            
             console.log( 'Level map stormtrooper Loading complete!');
     };
     
@@ -440,22 +444,27 @@ function generateLevelInit() {
 function loadLevelModel() {
     var rand = Math.floor(Math.random() * 3) + 1;
     if (rand === 1) {
-        camera.add(levelSound);
         audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
+            levelSound = new THREE.Audio(listener);
             levelSound.setBuffer(buffer);
             levelSound.setLoop(true);
             levelSound.setVolume(1.0);
+            camera.add(levelSound);
+            levelSound.play();
+
         });
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/chicken.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 1, -Math.PI/6);
     } else if (rand === 2) {
-        camera.add(levelSound);
         audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
+            levelSound = new THREE.Audio(listener);
             levelSound.setBuffer(buffer);
             levelSound.setLoop(true);
             levelSound.setVolume(1.0);
+            levelSound.play();
         });
+        camera.add(levelSound);
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/twist-dance.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.9, -Math.PI/6);
