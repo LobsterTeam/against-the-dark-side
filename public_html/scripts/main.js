@@ -1,4 +1,5 @@
 import { FirstPersonControls } from '../three.js-dev/examples/jsm/controls/FirstPersonControls.js';
+import { PointerLockControls } from '../three.js-dev/examples/jsm/controls/PointerLockControls.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as TERRAIN from './terrain.js';
 import * as SKYANDSUN from './skyAndSun.js';
@@ -9,6 +10,7 @@ import * as EXPLOSION from './explosion.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { CSS2DRenderer, CSS2DObject } from '../three.js-dev/examples/jsm/renderers/CSS2DRenderer.js';
+import * as USERINPUTS from './userInputs.js';
 
 var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
@@ -35,7 +37,7 @@ var audioLoader;
 var introSound;
 var fromIntro = true, onLevelMap = false;       // to avoid recreate of the space background
 
-var controls;
+export var controls, gameMode = true, landSpeeder;
 var mesh, texture;
 var worldWidth = 256, worldDepth = 1024,
         worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -44,17 +46,16 @@ var clock = new THREE.Clock();
 var hasInitialUserInput = false;
 var startTerrain = false;
 
-var speedStep = 5;      // camera speed
-
-var landSpeeder;
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var loadingSprite;
 var modelsLoading = false, manager;
 var tween;
 var transformControls;
 var lasers = [], laserSpeed = 100, delta = 0;
-
+var emitter;
 var levels = [1, 1, 0];
+var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
+var backwardFinishLine = 50000;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -71,7 +72,6 @@ function init() {
     
     // scene
     scene = new THREE.Scene();
-    //scene.add( camera );
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -87,6 +87,10 @@ function init() {
 
     
     window.addEventListener( 'resize', onWindowResize, false );
+    document.addEventListener( 'keydown', USERINPUTS.onKeyDown, false );
+    document.addEventListener( 'keyup', USERINPUTS.onKeyUp, false );
+    document.addEventListener( 'mousemove', USERINPUTS.mouseMove, false );
+    document.addEventListener( 'mousedown', USERINPUTS.mouseDown, false );
 }
 
 function createLoadingText (callback) {    
@@ -175,6 +179,8 @@ function skipClick() {
         document.getElementById("skipclickbox").style.display = 'none';
         document.getElementById("soundbutton").style.display = 'block';
         document.getElementById("skipButton").style.display = 'block';
+        document.removeEventListener('click', skipClick);
+        document.removeEventListener('keydown', skipClick);
     }
 }
 
@@ -184,18 +190,9 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    if (startTerrain) {
-        // controls patliyor undefined da
-        controls.handleResize();
-    }
 }
 
 export function render() {
-    //camera.position.x += ( mouseX - camera.position.x ) * .05;
-    //camera.position.y += ( - mouseY - camera.position.y ) * .05;
-    if (camera.position.z <= finishLine) {
-        console.log("Game ended");
-    }
     
     // INTRO CHECKS
     if (gameNameAnimation) {
@@ -215,11 +212,7 @@ export function render() {
             createLevelMap();
         }
     }
-    //else if (onLevelMap) {            //MAYBE
-    //    camera.position.z -= 100;
-    //}
 
-    //camera.lookAt( scene.position );
     if (!modelsLoading) {
         renderer.render( scene, camera );
     }
@@ -228,54 +221,44 @@ export function render() {
         labelRenderer.render(scene, camera);
     }
     
-    if (startTerrain && controls !== undefined) {
-        controls.update( clock.getDelta() );
-    }
-    
-    if (landSpeeder) {
+    if (landSpeeder) {      // TODO game sahnesi olunce landspeeder i false la
                 
-        if (camera.position.z >= 50000) {
-            // game over
-        }
+        if (camera.position.z < backwardFinishLine && camera.position.z > finishLine) {
+            
+            camera.position.x = cameraSpeed.x;
+            camera.position.y = cameraSpeed.y;
+            camera.position.z += clock.getDelta() * cameraSpeed.z;
         
-        for (i = scene.children.length - 1; i >= 0; i--) {
-            var child = scene.children[i];
-            if (child.name === "landspeeder"){
-                child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
-            } else if (child.name === "r2-d2") {
-                child.position.set(camera.position.x - 130, camera.position.y - 480, camera.position.z - 700);
-                r2d2Move(child);
-            } else if (child.name === "blaster") {
-                child.position.copy( camera.position );
-                child.rotation.copy(camera.rotation);
-                child.translateX(2 + blasterTransX);
-                child.translateY(-2.3 + blasterTransY);
-                child.translateZ(-3.5 + blasterTransZ);
-                child.rotateX(blasterRotX);
-                child.rotateY(Math.PI / 2 + blasterRotY);
-                child.rotateZ(blasterRotZ);
-                child.updateMatrix();
-            } else if (child.name === "stormtrooper"){
-                child.lookAt(camera.position);
-            } else if (child.name === "bottle") {
-                child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
-            } 
-        }
-        
-         delta = clock.getDelta();
-        lasers.forEach(b => 
-            b.translateX(laserSpeed * delta) // move along the local z-axis
-        );
-    }
-   
+            for (i = scene.children.length - 1; i >= 0; i--) {
+                var child = scene.children[i];
+                if (child.name === "landspeeder"){
+                    child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+                } else if (child.name === "r2-d2") {
+                    child.position.set(camera.position.x - 130, camera.position.y - 480, camera.position.z - 700);
+                    r2d2Move(child);
+                } else if (child.name === "stormtrooper"){
+                    child.lookAt(camera.position);
+                } else if (child.name === "bottle") {
+                    child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
+                } 
+            }
 
-    
+            delta = clock.getDelta();
+            lasers.forEach(b => 
+                b.translateZ(-laserSpeed * delta) // move along the local z-axis
+            );
+
+        } else if (camera.position.z >= backwardFinishLine) {
+            // game over
+        } else {
+            // won
+        }
+    }
+
     if(LOADERS.mixer){
         LOADERS.mixer.update( clock.getDelta() );
     }
-    
-    TWEEN.update();
-    
+        
     requestAnimationFrame(render);
 }
 
@@ -336,8 +319,6 @@ function clearScene () {
     for(i = scene.children.length - 1; i >= 0; i--) {
         scene.remove(scene.children[i]);
     }
-    introAnimation = false;
-        //muteAudioSlowly();
 }
 
 export function createLevelMap () {
@@ -348,7 +329,7 @@ export function createLevelMap () {
     introAnimation = false;
     onLevelMap = true;
 
-    if (fromIntro) {        // no need to create space background again
+    if (fromIntro) {
         //scene.remove("introObjects");
         $('#skipButton').hide();
         
@@ -361,24 +342,16 @@ export function createLevelMap () {
         }
         fromIntro = false;
         introSound.pause();
-        //muteAudioSlowly();
-        // TODO LIGHT DURUYOR
+        introAnimation = false;
     }
     clearScene();   // remove everything from the scene
-    
-    
-    
+
     var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
     levelMapLight.position.set(0, 0, 0);
     scene.add(levelMapLight);
-    //scene.add(levelMapLight.target);
 
-    
-    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            //levelMapLight.target.position.set(scene.getObjectByName("stormtrooper-level").position);
-
             levelSound.play();
             console.log( 'Level map stormtrooper Loading complete!');
     };
@@ -425,16 +398,12 @@ export function createLevelMap () {
                 break;
         }
     }
-
-    
-    // create map
 }
 
 function generateLevelInit() {
     clearScene();
     modelsLoading = true;
     createLoadingText(createGameScene);
-
 }
 
 function loadLevelModel() {
@@ -479,6 +448,7 @@ function createGameScene() {
     camera.position.x = 0;
     camera.position.y = 300;
     camera.position.z = 0;
+    scene.add( camera );
     scene.fog = new THREE.Fog( bottomSkyColor, 5000, 80000 );
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
@@ -553,12 +523,14 @@ function loadBlaster () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             console.log( 'Loading complete! BLASTER');
+            emitter = new THREE.Object3D();
+            emitter.position.set(2, -1.8, -11.5);
+            camera.add(emitter);
             loadBottle();
     };
     
     LOADERS.gltfLoad(manager, 'models/blaster-gltf/blaster.gltf', scene, camera, 
-                                "blaster", camera.position.x, camera.position.y - 5,
-                                camera.position.z - 10, 2, Math.PI / 2);        // TODO onload
+                                "blaster", 2, -2.3, -3.5, 2, Math.PI / 2);        // TODO onload
 }
 function loadBottle () {
     
@@ -592,11 +564,9 @@ function loadLandspeeder () {
                                 camera.position.z - 250, 100, Math.PI);        // TODO onload
 
     if (landSpeeder) {      // when scene is loaded add controls
-        controls = new FirstPersonControls( camera );
-        controls.autoForward = true;
-        controls.speedStep = speedStep;
-        controls.movementSpeed = 500;
-        controls.lookSpeed = 0.1;
+        controls = new PointerLockControls( camera );
+        controls.lock();
+        USERINPUTS.initUserInputs();
     }
 }
 
@@ -610,15 +580,59 @@ function createTerrain() {
 
 export function fire (x, y, z) {
     
-    var laser = new THREE.CubeGeometry(10, 0.2, 0.2);
+    var laser = new THREE.CubeGeometry(0.2, 0.2, 10);
     var material = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
     var laserMesh = new THREE.Mesh(laser, material);
-    var blaster = scene.getObjectByName("blaster");
     
-    laserMesh.position.set(blaster.position.x - 0.2, blaster.position.y + 0.7, blaster.position.z);
-    laserMesh.quaternion.copy(blaster.quaternion);
+    var wpVector = new THREE.Vector3();
+    emitter.getWorldPosition(wpVector);
+    
+    laserMesh.position.copy(wpVector);
+    //laserMesh.quaternion.copy(camera.quaternion);
+    //laserMesh.updateWorldMatrix();
     lasers.push(laserMesh);
     scene.add(laserMesh);
+}
+
+// HELPERS
+export function moveForward () {
+    if (cameraSpeed.z > -2000) {
+        cameraSpeed.z -= speedStep;
+    }
+}
+
+export function moveBackward () {
+    if (cameraSpeed.z < 2000) {
+        cameraSpeed.z += speedStep;
+    }
+}
+
+export function moveRight () {
+    if (cameraSpeed.x < 2480) {
+        cameraSpeed.x += speedStep;
+        console.log(cameraSpeed.x);
+    }
+}
+
+export function moveLeft () {
+    if (cameraSpeed.x > -2050) {
+        cameraSpeed.x -= speedStep;
+        console.log(cameraSpeed.x);
+    }
+}
+
+export function moveUp () {
+    if (cameraSpeed.y < 750) {
+        cameraSpeed.y += speedStep;
+        console.log(cameraSpeed.y);
+    }
+}
+
+export function moveDown () {
+    if (cameraSpeed.y > 130) {
+        cameraSpeed.y -= speedStep;
+        console.log(cameraSpeed.y);
+    }
 }
 
 // SETTERS
@@ -652,6 +666,10 @@ export function setBlasterRotY (value) {
 
 export function setBlasterRotZ (value) {
     blasterRotZ = value;
+}
+
+export function setGameMode (value) {
+    gameMode = value;
 }
 
 init();
