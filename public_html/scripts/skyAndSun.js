@@ -15,13 +15,13 @@ export function createTatooSuns(topSkyColor, bottomSkyColor, tatooOneColor, tato
     createSky(topSkyColor, bottomSkyColor);
     tatooOne = new THREE.DirectionalLight( 0xffffff, 0.5 );
     tatooOneMesh =  new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 7000, 16, 8 ),
+            new THREE.SphereBufferGeometry( 7000, 32, 32 ),
             new THREE.MeshBasicMaterial( { color: tatooOneColor, fog: false } )
     );
     createSun(tatooOne, tatooOneMesh, 50000, 30000, -150000);
     tatooTwo = new THREE.DirectionalLight( 0xffffff, 0.5 );
     tatooTwoMesh =  new THREE.Mesh(
-            new THREE.SphereBufferGeometry( 7000, 16, 8 ),
+            new THREE.SphereBufferGeometry( 7000, 32, 32 ),
             new THREE.MeshBasicMaterial( { color: tatooTwoColor, fog: false } )
     );
     createSun(tatooTwo, tatooTwoMesh, 0, 60000, -150000);
