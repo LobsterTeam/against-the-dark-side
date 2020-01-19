@@ -94,20 +94,23 @@ h20 {font-size:12px;}
     padding: 50px;
     width: 50px;
     height: 50px;
-    background-color: #bbb;
+    background-color: #1F1F1F;
     border-radius: 50%;
     display: inline-block;
     font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
     font-size: 50px;
     font-weight: bold;
+    opacity: 0.8;
+    color: #FFFFFF;
 }
 
 .dot-divider {
     height: 10px;
     flex: 1;
-    background: #bbb;
+    background: #1F1F1F;
     margin: 0 0px;
     padding: 0 70px;
+    opacity: 0.8;
 }
 
 #text {
@@ -119,4 +122,5 @@ h20 {font-size:12px;}
     border-radius: 20px;
     padding: 48px;
     width: 650px;
+    color: #FFFFFF;
 }
