@@ -14,7 +14,7 @@ var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, levelSound, gameNameAnimation, skewedIntroGroup,
         rotatedGroup, particleArray = [], finishLine = -60000, enemyDensity;
-var labelRenderer;
+var labelRenderer, gameOverRenderer;
 // terrain scene sky colors
 //export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xdcdbdf;
 //export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
@@ -279,6 +279,18 @@ export function render() {
     TWEEN.update();
     
     requestAnimationFrame(render);
+}
+
+function gameOver() {
+    var gameOverDiv = document.getElementById("game-over");
+    var gameOverObject = new CSS2DObject(gameOverDiv);
+    scene.add(gameOverObject);
+    
+    gameOverRenderer = new CSS2DRenderer();
+    gameOverRenderer.setSize( window.innerWidth, window.innerHeight );
+    gameOverRenderer.domElement.style.position = 'absolute';
+    gameOverRenderer.domElement.style.top = 0;
+    document.body.appendChild( gameOverRenderer.domElement );
 }
 
 function r2d2Move (r2d2) {
