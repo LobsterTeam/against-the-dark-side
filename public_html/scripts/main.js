@@ -364,6 +364,7 @@ export function createLevelMap () {
             }
         }
         fromIntro = false;
+        introSound.setVolume(0.0);
         introSound.pause();
         //muteAudioSlowly();
         // TODO LIGHT DURUYOR
@@ -407,6 +408,9 @@ export function createLevelMap () {
                 levelItems[i].addEventListener("mousedown", function() {
                     if(levels[0]){
                         enemyDensity = 10;
+                        if (levelSound){
+                            levelSound.pause();
+                        }
                         generateLevelInit();
                     }
                 });
@@ -415,6 +419,9 @@ export function createLevelMap () {
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[1]){
                         enemyDensity = 17;
+                        if (levelSound){
+                            levelSound.pause();
+                        }
                         generateLevelInit();
                     }
                 });
@@ -423,6 +430,9 @@ export function createLevelMap () {
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[2]){
                         enemyDensity = 30;
+                        if (levelSound){
+                            levelSound.pause();
+                        }
                         generateLevelInit();
                     }
                 });
