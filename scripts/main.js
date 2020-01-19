@@ -58,6 +58,8 @@ var levels = [1, 1, 0];
 var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
 var backwardFinishLine = 3000;
 var currentDelta;
+var material;
+var cubeCamera;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -243,9 +245,13 @@ export function render() {
                     child.lookAt(camera.position);
                 } else if (child.name === "bottle") {
                     child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
-                } 
+                } else if (child.name === "mirror") {
+                    child.position.set(camera.position.x - 130, camera.position.y - 135, camera.position.z - 350);
+                }
             }
 
+            cubeCamera.update( renderer, scene );
+            material.envMap = cubeCamera.renderTarget.texture;
             delta = clock.getDelta();
             lasers.forEach(b => 
                 b.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
@@ -253,9 +259,13 @@ export function render() {
 
         } else if (camera.position.z >= backwardFinishLine) {
             landSpeeder = false;
+            controls.unlock();
+            controls = undefined;
             gameOver();
         } else {
             landSpeeder = false;
+            controls.unlock();
+            controls = undefined;
             finishedLevel();
             // won
         }
@@ -453,6 +463,7 @@ export function createLevelMap () {
 
 function generateLevelInit() {
     clearScene();
+    scene.background = new THREE.Color( 0x000000 );
     modelsLoading = true;
     createLoadingText(createGameScene);
 }
@@ -512,6 +523,7 @@ function createGameScene() {
     createTerrain();
     createTerrainSceneLights();
     loadTieFighters();
+    loadSphereMirror();
     loadR2D2();
 }
 
@@ -520,6 +532,21 @@ function createTerrainSceneLights () {
     //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
+}
+
+function loadSphereMirror () {
+    cubeCamera = new THREE.CubeCamera( 1, 1000000000, 256 );
+    cubeCamera.renderTarget.texture.generateMipmaps = true;
+    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
+    
+    material = new THREE.MeshBasicMaterial({
+            envMap: cubeCamera.renderTarget.texture
+    });
+    
+    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry( 50, 16, 16 ), material );
+    sphereMirror.name = "mirror";
+    scene.add(sphereMirror);
+    sphereMirror.add(cubeCamera);
 }
 
 function loadR2D2 () {
