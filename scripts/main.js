@@ -16,7 +16,7 @@ var container;
 export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, levelSound, gameNameAnimation, skewedIntroGroup,
         rotatedGroup, particleArray = [], finishLine = -60000, enemyDensity;
-var labelRenderer, gameOverRenderer;
+var labelRenderer, gameOverRenderer, finishedRenderer;
 // terrain scene sky colors
 //export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xdcdbdf;
 //export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
@@ -56,7 +56,7 @@ var lasers = [], laserSpeed = 10, delta = 0;
 var emitter;
 var levels = [1, 1, 0];
 var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
-var backwardFinishLine = 50000;
+var backwardFinishLine = 3000;
 var currentDelta;
 
 window.createLevelMap = createLevelMap;
@@ -253,10 +253,10 @@ export function render() {
 
         } else if (camera.position.z >= backwardFinishLine) {
             landSpeeder = false;
-            console.log("hede");
             gameOver();
         } else {
             landSpeeder = false;
+            finishedLevel();
             // won
         }
     }
@@ -269,7 +269,10 @@ export function render() {
 }
 
 function gameOver() {
+    document.body.removeChild(labelRenderer.domElement);
     var gameOverDiv = document.getElementById("game-over");
+    gameOverDiv.style.display = "block";
+    gameOverDiv.style.zIndex = 100;
     var gameOverObject = new CSS2DObject(gameOverDiv);
     scene.add(gameOverObject);
     
@@ -278,7 +281,25 @@ function gameOver() {
     gameOverRenderer.domElement.style.position = 'absolute';
     gameOverRenderer.domElement.style.top = 0;
     document.body.appendChild( gameOverRenderer.domElement );
+    gameOverRenderer.render(scene, camera);
 }
+
+function finishedLevel() {
+    document.body.removeChild(labelRenderer.domElement);
+    var gameOverDiv = document.getElementById("finish");
+    gameOverDiv.style.display = "block";
+    gameOverDiv.style.zIndex = 100;
+    var gameOverObject = new CSS2DObject(gameOverDiv);
+    scene.add(gameOverObject);
+    
+    finishedRenderer = new CSS2DRenderer();
+    finishedRenderer.setSize( window.innerWidth, window.innerHeight );
+    finishedRenderer.domElement.style.position = 'absolute';
+    finishedRenderer.domElement.style.top = 0;
+    document.body.appendChild( finishedRenderer.domElement );
+    finishedRenderer.render(scene, camera);
+}
+
 
 function r2d2Move (r2d2) {
     
@@ -428,6 +449,7 @@ export function createLevelMap () {
         }
     }
 }
+
 
 function generateLevelInit() {
     clearScene();
