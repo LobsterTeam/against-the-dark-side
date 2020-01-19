@@ -58,8 +58,8 @@ var levels = [1, 1, 0];
 var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
 var backwardFinishLine = 3000;
 var currentDelta;
-var material;
-var cubeCamera;
+var sphereMirrorMaterial;
+var cubeCamera, cubeCamera2, cubeCameraCount = 0;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -250,8 +250,16 @@ export function render() {
                 }
             }
 
-            cubeCamera.update( renderer, scene );
-            material.envMap = cubeCamera.renderTarget.texture;
+            // pingpong
+            if ( cubeCameraCount % 2 === 0 ) {
+                cubeCamera.update( renderer, scene );
+                sphereMirrorMaterial.envMap = cubeCamera.renderTarget.texture;
+            } else {
+                cubeCamera2.update( renderer, scene );
+                sphereMirrorMaterial.envMap = cubeCamera2.renderTarget.texture;
+            }
+            cubeCameraCount++;
+            
             delta = clock.getDelta();
             lasers.forEach(b => 
                 b.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
@@ -529,24 +537,27 @@ function createGameScene() {
 
 function createTerrainSceneLights () {
     var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    //hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
 }
 
 function loadSphereMirror () {
-    cubeCamera = new THREE.CubeCamera( 1, 1000000000, 256 );
+    // cubecameras
+    cubeCamera = new THREE.CubeCamera(1, 1000000000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
+    cubeCamera2 = new THREE.CubeCamera(1, 1000000000, 256);
+    cubeCamera2.renderTarget.texture.generateMipmaps = true;
+    cubeCamera2.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
     
-    material = new THREE.MeshBasicMaterial({
-            envMap: cubeCamera.renderTarget.texture
+    sphereMirrorMaterial = new THREE.MeshBasicMaterial({
+        envMap: cubeCamera.renderTarget.texture
     });
-    
-    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry( 50, 16, 16 ), material );
+    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(50, 16, 16), sphereMirrorMaterial );
     sphereMirror.name = "mirror";
     scene.add(sphereMirror);
     sphereMirror.add(cubeCamera);
+    sphereMirror.add(cubeCamera2);
 }
 
 function loadR2D2 () {
@@ -636,7 +647,6 @@ function loadLandspeeder () {
             }
             EXPLOSION.explode();
             PANEL.createGUI();
-            //SKYANDSUN.tatooOne.target = scene.getObjectByName( "landspeeder" );
             console.log(scene);
             console.log( 'Landspeeder loading complete!');
             clock = new THREE.Clock();
@@ -647,7 +657,7 @@ function loadLandspeeder () {
                                 camera.position.z - 250, 100, Math.PI);        // TODO onload
 
     if (landSpeeder) {      // when scene is loaded add controls
-        controls = new PointerLockControls( camera );
+        controls = new PointerLockControls( camera, document.body );
         controls.lock();
         USERINPUTS.initUserInputs();
     }
