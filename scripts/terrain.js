@@ -41,9 +41,9 @@ export function generateDesertTerrain(img, scene) {
     plane.computeVertexNormals();
 
     var textureLoader = new THREE.TextureLoader();
-    var texture = textureLoader.load( "textures/sand4.jpg" );       // TODO
+    var texture = textureLoader.load( "textures/sand.jpg" );       // TODO
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set( 9,9 );
+    texture.repeat.set( 25, 25 );
     var material = new THREE.MeshPhongMaterial( { map: texture } );
 
     createGroundMesh (scene, plane, material, 0, 30000);

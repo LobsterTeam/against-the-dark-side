@@ -62,31 +62,70 @@ and open the template in the editor.
                 </table>
             </div>
         </div>
+        <div id="game-over" style="display: none;">
+            <div id="dots">
+                <span class="dot">1</span>
+                <div class="dot-divider"></div>
+                <span class="dot">2</span>
+                <div class="dot-divider"></div>
+                <span class="dot">3</span>
+            </div>
+            <div id="text">
+                <table style="width: 100%; color: #FFF;">
+                    <tr>
+                        <td>[MOUSE]</td>
+                        <td>Look around/Aim</td>
+                    </tr>
+                    <tr>
+                        <td>[LEFT MOUSE]</td>
+                        <td>Fire</td>
+                    </tr>
+                    <tr>
+                        <td>[W A S D]</td>
+                        <td>Move Landspeeder</td>
+                    </tr>
+                    <tr>
+                        <td>[L]</td>
+                        <td>Enable magic wand</td>
+                    </tr>
+                    <tr>
+                        <td>[S]</td>
+                        <td>Change shader</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
         
         <script type="module" src="scripts/main.js"></script>
         <script src="scripts/jquery.min.js"></script>
         <script src="scripts/tween.js"></script>
-        <script type="x-shader/x-vertex" id="skyVertexShader">
-                varying vec3 vWorldPosition;
+        <script type="x-shader/x-vertex" id="skyVertexShader">#version 300 es
+            
+        out vec3 vWorldPosition;
 
-                void main() {
-                        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-                        vWorldPosition = worldPosition.xyz;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-                }
+        void main() {
+                vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                vWorldPosition = worldPosition.xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
         </script>
-        <script type="x-shader/x-fragment" id="skyFragmentShader">
-                uniform vec3 topColor;
-                uniform vec3 bottomColor;
-                uniform float offset;
-                uniform float exponent;
+        <script type="x-shader/x-fragment" id="skyFragmentShader">#version 300 es
 
-                varying vec3 vWorldPosition;
+        precision highp float;
+        precision highp int;
 
-                void main() {
-                        float h = normalize( vWorldPosition + offset ).y;
-                        gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
-                }
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+
+        in vec3 vWorldPosition;
+        out vec4 out_FragColor;
+
+        void main() {
+                float h = normalize( vWorldPosition + offset ).y;
+                out_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+        }
         </script>
         <img src="maps/heightmap.png" id="heightMap" hidden/>
     </body>

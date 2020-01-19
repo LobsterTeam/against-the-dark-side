@@ -41,7 +41,12 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                             gltf.scene.position.y = intersects[0].point.y;
                         }
                     }
-                    scene.add( gltf.scene );
+                    if (objName == "blaster") {
+                        camera.add(gltf.scene);
+                    } else {
+                        scene.add( gltf.scene );
+                    }
+                    
                     gltf.scene.castShadow = true;
                     gltf.scene.receiveShadow = true;
                     //var control = new TransformControls( camera, renderer.domElement );
