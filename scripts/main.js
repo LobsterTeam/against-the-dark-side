@@ -7,6 +7,7 @@ import * as INTRO from './intro.js';
 import * as LOADERS from './loaders.js';
 import * as PANEL from './controlPanel.js';
 import * as EXPLOSION from './explosion.js';
+import * as FLAG from './flag.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { CSS2DRenderer, CSS2DObject } from '../three.js-dev/examples/jsm/renderers/CSS2DRenderer.js';
@@ -244,7 +245,9 @@ export function render() {
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
                 } else if (child.name === "bottle") {
-                    child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z);
+                    child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z + 25);
+                } else if (child.name === "box") {
+                    child.position.set(camera.position.x - 290, camera.position.y - 330, camera.position.z - 100);
                 } else if (child.name === "mirror") {
                     child.position.set(camera.position.x - 130, camera.position.y - 135, camera.position.z - 350);
                 }
@@ -533,6 +536,8 @@ function createGameScene() {
     createTerrain();
     createTerrainSceneLights();
     loadTieFighters();
+    //loadFlag();
+    loadBox();
     loadSphereMirror();
     loadR2D2();
 }
@@ -541,6 +546,62 @@ function createTerrainSceneLights () {
     var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
     hemiLight.position.set( 0, 50, 0 );
     scene.add( hemiLight );   
+}
+
+function loadBox () {
+    var textureLoader = new THREE.TextureLoader();
+    var boxTexture = textureLoader.load("textures/box_diffuse.png");
+    var boxBumpMap = textureLoader.load("textures/box_bump.png");
+    var boxNormalMap = textureLoader.load("textures/box_normal.png");
+
+    var bumpCube = new THREE.Mesh(
+        new THREE.BoxGeometry(100, 100, 100),
+        new THREE.MeshPhongMaterial({
+            color:0xffffff,
+            map: boxTexture,
+            bumpMap: boxBumpMap,
+            normalMap: boxNormalMap
+        })
+    );
+    bumpCube.name = 'box';
+    bumpCube.position.set(camera.position.x - 290, camera.position.y - 330, camera.position.z - 100);
+    scene.add(bumpCube);
+}
+
+function loadFlag () {
+    var clothTexture = THREE.ImageUtils.loadTexture( 'textures/osgrid_flag.png' );
+    clothTexture.wrapS = clothTexture.wrapT = THREE.RepeatWrapping;
+    clothTexture.anisotropy = 16;
+
+    var materials = [
+            new THREE.MeshPhongMaterial( { alphaTest: 0.5, ambient: 0xffffff, color: 0xffffff, specular: 0x030303, emissive: 0x111111, shiness: 10, perPixel: true, metal: false, map: clothTexture, doubleSided: true } ),
+            new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true, opacity: 0.9 } )
+    ];
+
+    // cloth geometry
+
+    clothGeometry = new THREE.ParametricGeometry( FLAG.clothFunction, FLAG.cloth.w, FLAG.cloth.h, true );
+    clothGeometry.dynamic = true;
+    clothGeometry.computeFaceNormals();
+
+    var uniforms = { texture:  { type: "t", value: 0, texture: clothTexture } };
+    var vertexShader = document.getElementById( 'vertexShaderDepth' ).textContent;
+    var fragmentShader = document.getElementById( 'fragmentShaderDepth' ).textContent;
+
+    // cloth mesh
+
+    object = new THREE.Mesh( clothGeometry, materials[ 0 ] );
+    object.position.set( 0, 0, 0 );
+    object.castShadow = true;
+    object.receiveShadow = true;
+    scene.add( object );
+
+    object.customDepthMaterial = new THREE.ShaderMaterial( {
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+    } );
+
 }
 
 function loadSphereMirror () {
