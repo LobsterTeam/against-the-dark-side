@@ -55,7 +55,7 @@ var listener;
 var lasers = [], laserSpeed = 5000, delta = 0;
 var emitter;
 var levels = [1, 1, 0];
-var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
+var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 1;
 var backwardFinishLine = 3000;
 var currentDelta;
 var sphereMirrorMaterial;
@@ -440,6 +440,7 @@ export function createLevelMap () {
         levelMapObject = new CSS2DObject(levelMapDiv);
         
     }
+    
 
     var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
     levelMapLight.position.set(0, 0, 0);
@@ -499,6 +500,41 @@ export function createLevelMap () {
                 break;
         }
     }
+}
+
+function createCrosshair() {
+    var crosshairMaterial = new THREE.LineBasicMaterial({
+    color: 0xAAFFAA
+    });
+
+    // crosshair size
+    var x = 0.5,
+    y = 0.5;
+
+    var crosshairGeometry = new THREE.Geometry();
+
+    // crosshair
+    crosshairGeometry.vertices.push(new THREE.Vector3(0, y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(0, -y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(x, 0, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(-x, 0, 0));
+
+    var crosshair = new THREE.Line(crosshairGeometry, crosshairMaterial);
+
+    // place it in the center
+    var crosshairPercentX = 50;
+    var crosshairPercentY = 50;
+    var crosshairPositionX = (crosshairPercentX / 100) * 2 - 1;
+    var crosshairPositionY = (crosshairPercentY / 100) * 2 - 1;
+
+    crosshair.position.x = crosshairPositionX * camera.aspect;
+    crosshair.position.y = crosshairPositionY;
+    crosshair.position.z = -10;
+    
+    console.log("crosshair added");
+
+    camera.add(crosshair);
 }
 
 
@@ -567,6 +603,7 @@ function createGameScene() {
     loadTieFighters();
     loadSphereMirror();
     loadR2D2();
+    createCrosshair();
 }
 
 function createTerrainSceneLights () {
@@ -725,41 +762,37 @@ export function fire (x, y, z) {
 // HELPERS
 export function moveForward () {
     if (cameraSpeed.z > -2000) {
-        cameraSpeed.z -= speedStep;
+        cameraSpeed.z -= speedStep * 20;
     }
 }
 
 export function moveBackward () {
     if (cameraSpeed.z < 2000) {
-        cameraSpeed.z += speedStep;
+        cameraSpeed.z += speedStep * 20;
     }
 }
 
 export function moveRight () {
     if (cameraSpeed.x < 2480) {
-        cameraSpeed.x += speedStep;
-        console.log(cameraSpeed.x);
+        cameraSpeed.x += speedStep * 20;
     }
 }
 
 export function moveLeft () {
     if (cameraSpeed.x > -2050) {
-        cameraSpeed.x -= speedStep;
-        console.log(cameraSpeed.x);
+        cameraSpeed.x -= speedStep * 20;
     }
 }
 
 export function moveUp () {
     if (cameraSpeed.y < 750) {
-        cameraSpeed.y += speedStep;
-        console.log(cameraSpeed.y);
+        cameraSpeed.y += speedStep * 20;
     }
 }
 
 export function moveDown () {
     if (cameraSpeed.y > 130) {
-        cameraSpeed.y -= speedStep;
-        console.log(cameraSpeed.y);
+        cameraSpeed.y -= speedStep * 20;
     }
 }
 
