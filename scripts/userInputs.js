@@ -1,6 +1,7 @@
-import { gameMode, controls, setGameMode, scene, camera, renderer, render, fire,
+import { gameMode, controls, setGameMode, scene, camera, renderer, render,
     landSpeeder, moveForward, moveBackward, moveRight, moveLeft, 
     moveUp, moveDown } from './main.js';
+import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import {
         Raycaster,
@@ -138,7 +139,7 @@ export function mouseDown () {
 
             case 0:     // left click
                 console.log("button click");
-                fire(mouse.x, mouse.y, 0);
+                userFire();
                 break;
             case 2:
                 break;

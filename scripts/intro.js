@@ -1,5 +1,5 @@
 import * as THREE from '../three.js-dev/build/three.module.js';
-import { scene, camera, renderer, onLevelMap, listener, directionalLight, perpIntroGroup,
+import { scene, camera, renderer, onLevelMap, audioListener, directionalLight, perpIntroGroup,
     audioLoader, introSound, gameNameAnimation, setGameNameAnimation, setIntroAnimation,
     skewedIntroGroup, rotatedGroup, createLevelMap} from './main.js';
 
@@ -102,7 +102,10 @@ function createGameNameText () {
             150, 0xfcdf00, 30, -300);       // TODO y ve z
     loadFont(perpIntroGroup, gameName[1], 'fonts/star_wars_entry/logo_font.json', 
             150, 0xfcdf00, -120, -299);       // TODO y ve z
-    introSound.play();      // add star wars intro sound
+    if (!onLevelMap) {
+        introSound.play();      // add star wars intro sound
+    }
+    
     setGameNameAnimation(true);
 }
 

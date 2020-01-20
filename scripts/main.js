@@ -9,62 +9,39 @@ import * as PANEL from './controlPanel.js';
 import * as EXPLOSION from './explosion.js';
 import * as FLAG from './flag.js';
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
-import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { CSS2DRenderer, CSS2DObject } from '../three.js-dev/examples/jsm/renderers/CSS2DRenderer.js';
 import * as USERINPUTS from './userInputs.js';
+import * as LASER from './laser.js';
 
-var container;
-export var camera, scene, renderer, onLevelMap, listener, directionalLight, 
+export var camera, scene, renderer, onLevelMap, audioListener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, levelSound, gameNameAnimation, skewedIntroGroup,
         rotatedGroup, particleArray = [], finishLine = -60000, enemyDensity;
-var labelRenderer, gameOverRenderer, finishedRenderer;
 // terrain scene sky colors
-//export var topSkyColor = 0xbfe5fc, bottomSkyColor = 0xdcdbdf;
-//export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xd2edfd;
 export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xdcdbdf;
-
 // blaster values
-export var blasterTransX;
-export var blasterTransY = 0, blasterTransZ = 0,
+export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
         blasterRotX = 0, blasterRotY = 0, blasterRotZ = 0;
-var mouseX = 0, mouseY = 0;     // mouse movement variables
+export var controls, gameMode = true, landSpeeder, emitter, userLasers = [], 
+        enemyLasers = [], currentDelta;
+export var cameraSpeed;
+
+var container;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
-var object;
+var flagObject;
 var i, j;       // loop identifiers
-
+var labelRenderer, gameOverRenderer, finishedRenderer;
 var gameNameAnimation = false, introAnimation = false;      // booleans to animate intro texts
-var audioLoader;
-var introSound;
+var audioLoader, introSound;
 var fromIntro = true, onLevelMap = false;       // to avoid recreate of the space background
-
-export var controls, gameMode = true, landSpeeder;
-var mesh, texture;
-var worldWidth = 256, worldDepth = 1024,
-        worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 var clock = new THREE.Clock();
-
-var hasInitialUserInput = false;
-var startTerrain = false;
-
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
-var loadingSprite;
-var modelsLoading = false, manager;
-var tween;
-var transformControls;
-var listener;
-var lasers = [], laserSpeed = 5000, delta = 0;
-var emitter;
-var levels = [1, 1, 0];
-var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 1;
-var backwardFinishLine = 3000;
-var currentDelta;
-var sphereMirrorMaterial;
-var cubeCamera, cubeCamera2, cubeCameraCount = 0;
+var modelsLoading = false, manager, loadingPlaneMesh;
+var speedStep = 1, backwardFinishLine = 3000;
+var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
-var densityList = [10, 17, 30];
-var densityIndex = 0;
+var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -90,7 +67,6 @@ function init() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
-    transformControls = new TransformControls( camera, renderer.domElement );
     
     showClick();
     EXPLOSION.addParticles();
@@ -116,10 +92,10 @@ function createLoadingText (callback) {
     
     var material = new THREE.MeshPhongMaterial( { color: 0xd6835b, dithering: true } );
     var geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
-    var mesh = new THREE.Mesh( geometry, material );
-    mesh.position.set( 0, - 100, -300 );
-    mesh.receiveShadow = true;
-    scene.add( mesh );
+    var loadingPlaneMesh = new THREE.Mesh( geometry, material );
+    loadingPlaneMesh.position.set( 0, - 100, -300 );
+    loadingPlaneMesh.receiveShadow = true;
+    scene.add( loadingPlaneMesh );
     camera.position.set(0.0, 0.0, 0.0);
     
     var loadingGroup =  new THREE.Group();
@@ -267,7 +243,8 @@ export function render() {
             }
             cubeCameraCount++;
             
-            lasers.forEach(laserTranslate);
+            userLasers.forEach(LASER.userLaserTranslate);
+            enemyLasers.forEach(LASER.enemyLaserTranslate);
 
         } else if (camera.position.z >= backwardFinishLine) {
             landSpeeder = false;
@@ -288,11 +265,6 @@ export function render() {
     }
     
     requestAnimationFrame(render);
-}
-
-function laserTranslate (item) {
-    delta = clock.getDelta();
-    item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
 }
 
 function gameOver() {
@@ -395,10 +367,10 @@ function showStarWarsEntry () {
     
     // create a global audio source
     audioLoader = new THREE.AudioLoader();
-    listener = new THREE.AudioListener();
-    camera.add(listener);
+    audioListener = new THREE.AudioListener();
+    camera.add(audioListener);
     
-    introSound = new THREE.Audio(listener);
+    introSound = new THREE.Audio(audioListener);
 
     INTRO.createLongTimeAgoText();
 }
@@ -424,6 +396,7 @@ function clearScene () {
 
 export function createLevelMap () {
     console.log("level map");
+    PANEL.clearGUI();       // if there is already gui delete
     var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
     scene.background = texture;
     gameNameAnimation = false;
@@ -441,10 +414,8 @@ export function createLevelMap () {
         
         levelMapDiv = document.getElementById("levels");
         levelMapObject = new CSS2DObject(levelMapDiv);
-        
     }
     
-
     var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
     levelMapLight.position.set(0, 0, 0);
     scene.add(levelMapLight);
@@ -455,9 +426,7 @@ export function createLevelMap () {
     };
     
     loadLevelModel();
-    
     scene.add(levelMapObject);
-    
     labelRenderer = new CSS2DRenderer();
     labelRenderer.setSize( window.innerWidth, window.innerHeight );
     labelRenderer.domElement.style.position = 'absolute';
@@ -530,16 +499,12 @@ function createCrosshair() {
     var crosshairPercentY = 50;
     var crosshairPositionX = (crosshairPercentX / 100) * 2 - 1;
     var crosshairPositionY = (crosshairPercentY / 100) * 2 - 1;
-
     crosshair.position.x = crosshairPositionX * camera.aspect;
     crosshair.position.y = crosshairPositionY;
     crosshair.position.z = -10;
-    
     console.log("crosshair added");
-
     camera.add(crosshair);
 }
-
 
 function generateLevelInit() {
     clearScene();
@@ -552,7 +517,7 @@ function loadLevelModel() {
     var rand = Math.floor(Math.random() * 3) + 1;
     if (rand === 1) {
         audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
-            levelSound = new THREE.Audio(listener);
+            levelSound = new THREE.Audio(audioListener);
             levelSound.setBuffer(buffer);
             levelSound.setLoop(true);
             levelSound.setVolume(1.0);
@@ -565,7 +530,7 @@ function loadLevelModel() {
         camera.position.z - 5, 1, -Math.PI/6);
     } else if (rand === 2) {
         audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
-            levelSound = new THREE.Audio(listener);
+            levelSound = new THREE.Audio(audioListener);
             levelSound.setBuffer(buffer);
             levelSound.setLoop(true);
             levelSound.setVolume(1.0);
@@ -593,10 +558,9 @@ function muteAudioSlowly () {
 }
 
 function createGameScene() {
-    camera.position.x = 0;
-    camera.position.y = 300;
-    camera.position.z = 0;
+    camera.position.set(0, 300, 0);
     scene.add( camera );
+    cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0);        // initial camera speed
     scene.fog = new THREE.Fog( bottomSkyColor, 5000, 80000 );
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
@@ -659,13 +623,13 @@ function loadFlag () {
 
     // cloth mesh
 
-    object = new THREE.Mesh( clothGeometry, materials[ 0 ] );
-    object.position.set( 0, 0, 0 );
-    object.castShadow = true;
-    object.receiveShadow = true;
-    scene.add( object );
+    flagObject = new THREE.Mesh( clothGeometry, materials[ 0 ] );
+    flagObject.position.set( 0, 0, 0 );
+    flagObject.castShadow = true;
+    flagObject.receiveShadow = true;
+    scene.add( flagObject );
 
-    object.customDepthMaterial = new THREE.ShaderMaterial( {
+    flagObject.customDepthMaterial = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader
@@ -706,10 +670,6 @@ function loadR2D2 () {
 }
 
 function loadStormtroopers () {
-    //LOADERS.objLoad ("models/stormtrooper-obj/stormtrooper.mtl", "models/stormtrooper-obj/stormtrooper.obj",
-    //                scene, camera, "objName",camera.position.x - 130, camera.position.y - 480,
-    //                camera.position.z - 5000, 200, 0);
-
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
         console.log( 'Stormtrooper loading complete!');
@@ -745,7 +705,6 @@ function loadTieFighters () {
 }
 
 function loadBlaster () {
-    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             console.log( 'Loading complete! BLASTER');
@@ -758,8 +717,8 @@ function loadBlaster () {
     LOADERS.gltfLoad(manager, 'models/blaster-gltf/blaster.gltf', scene, camera, 
                                 "blaster", 2, -2.3, -3.5, 2, Math.PI / 2);        // TODO onload
 }
+
 function loadBottle () {
-    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
         loadLandspeeder();
@@ -770,7 +729,6 @@ function loadBottle () {
 }
 
 function loadLandspeeder () {
-    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
             modelsLoading = false;
@@ -796,28 +754,8 @@ function loadLandspeeder () {
 }
 
 function createTerrain() {
-    startTerrain = true;
-    //var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
-    //scene.background = texture;
     var desertHeightMap = document.getElementById('heightMap');
     TERRAIN.generateDesertTerrain(desertHeightMap, scene);
-}
-
-export function fire (x, y, z) {
-    
-    var laser = new THREE.CubeGeometry(0.2, 0.2, 10);
-    var material = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
-    var laserMesh = new THREE.Mesh(laser, material);
-    
-    var wpVector = new THREE.Vector3();
-    emitter.getWorldPosition(wpVector);
-    console.log(wpVector);
-    
-    laserMesh.position.copy(wpVector);
-    laserMesh.quaternion.copy(camera.quaternion);
-    laserMesh.updateWorldMatrix();
-    lasers.push(laserMesh);
-    scene.add(laserMesh);
 }
 
 // HELPERS

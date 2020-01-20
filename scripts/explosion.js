@@ -3,6 +3,7 @@ import { scene, camera, particleArray} from './main.js';
 
 var i;
 
+// called in main
 export function addParticles() {
     // Particles (explosion)
     var geometry = new THREE.Geometry();
