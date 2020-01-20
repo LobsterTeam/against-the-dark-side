@@ -4,6 +4,8 @@ import * as THREE from '../three.js-dev/build/three.module.js';
 import {setBlasterTransX, setBlasterTransY, setBlasterTransZ, setBlasterRotX,
         setBlasterRotY, setBlasterRotZ} from './main.js';
 
+var gui;
+
 export function createGUI () {
     
     var tattooOneParameters = {
@@ -37,7 +39,7 @@ export function createGUI () {
     
     var a = 0;
     
-    var gui = new DAT.GUI();
+    gui = new DAT.GUI();
     
     // Tatoo One
     var tatooOneFolder = gui.addFolder('Tatoo I');
@@ -146,6 +148,12 @@ export function createGUI () {
     // R2D2 ?
     
     
+}
+
+export function clearGUI () {
+    if (gui != undefined) {
+        gui.destroy();
+    }
 }
 
 function rotateAboutPoint(obj, point, axis, theta) {

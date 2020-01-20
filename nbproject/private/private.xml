@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+        <file>
+            <url>public_html/scripts/main.js</url>
+            <bookmark id="1">
+                <name/>
+                <line>568</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/scripts/skyAndSun.js</file>
             <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/scripts/main.js</file>
-            <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/three.js-dev/examples/webgl_materials_cubemap_dynamic.html</file>
-            <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/three.js-dev/examples/webgl_mirror.html</file>
-            <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/three.js-dev/examples/jsm/controls/PointerLockControls.js</file>
             <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/scripts/userInputs.js</file>
-            <file>file:/home/fidan/Desktop/FALL2019/BBM412/Project/public_html/scripts/loaders.js</file>
         </group>
     </open-files>
 </project-private>
