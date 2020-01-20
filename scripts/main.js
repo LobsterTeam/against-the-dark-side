@@ -61,6 +61,10 @@ var backwardFinishLine = 3000;
 var currentDelta;
 var sphereMirrorMaterial;
 var cubeCamera, cubeCamera2, cubeCameraCount = 0;
+var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
+var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
+var densityList = [10, 17, 30];
+var densityIndex = 0;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -292,19 +296,52 @@ function laserTranslate (item) {
 }
 
 function gameOver() {
+    if (gameOverDiv === undefined && gameOverObject === undefined){
+        gameOverDiv = document.getElementById("game-over");
+        gameOverObject = new CSS2DObject(gameOverDiv);
+    }
     document.body.removeChild(labelRenderer.domElement);
-    var gameOverDiv = document.getElementById("game-over");
     gameOverDiv.style.display = "block";
     gameOverDiv.style.zIndex = 100;
-    var gameOverObject = new CSS2DObject(gameOverDiv);
     scene.add(gameOverObject);
     
+    if (gameOverHomeButton === undefined && gameOverRestartButton === undefined
+            && finishHomeButton === undefined && finishNextButton === undefined){
+        gameOverHomeButton = document.getElementById("game-over-home-button");
+        gameOverRestartButton = document.getElementById("game-over-restart-button");
+        finishHomeButton = document.getElementById("finish-home-button");
+        finishNextButton = document.getElementById("finish-next-button");
+    }
+    
+    if (densityIndex === 2) {
+        finishNextButton.style.display = "none";    //TODO: Home button ortada?
+    }
+
     gameOverRenderer = new CSS2DRenderer();
     gameOverRenderer.setSize( window.innerWidth, window.innerHeight );
     gameOverRenderer.domElement.style.position = 'absolute';
     gameOverRenderer.domElement.style.top = 0;
     document.body.appendChild( gameOverRenderer.domElement );
     gameOverRenderer.render(scene, camera);
+    
+    gameOverHomeButton.addEventListener("mousedown", function() {
+            createLevelMap();
+        });
+    
+    gameOverRestartButton.addEventListener("mousedown", function() {
+            generateLevelInit();
+        });
+        
+    finishHomeButton.addEventListener("mousedown", function() {
+            createLevelMap();
+        });
+        
+    finishNextButton.addEventListener("mousedown", function() {
+            if (densityIndex !== 2) {
+                densityIndex++;
+            }
+            generateLevelInit();   // TODO: handle next level
+        });
 }
 
 function finishedLevel() {
@@ -392,24 +429,20 @@ export function createLevelMap () {
     gameNameAnimation = false;
     introAnimation = false;
     onLevelMap = true;
+    clearScene();   // remove everything from the scene
 
     if (fromIntro) {
         //scene.remove("introObjects");
         $('#skipButton').hide();
-        
-        for(i = scene.children.length - 1; i >= 0; i--) {
-            if (scene.children[i].name === "perpIntroObjects" 
-                    || scene.children[i].name === "rotatedGroup") {
-                console.log(scene.children[i].name);
-                scene.remove(scene.children[i]);
-            }
-        }
         fromIntro = false;
         introSound.setVolume(0.0);
         introSound.pause();
         introAnimation = false;
+        
+        levelMapDiv = document.getElementById("levels");
+        levelMapObject = new CSS2DObject(levelMapDiv);
+        
     }
-    clearScene();   // remove everything from the scene
 
     var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
     levelMapLight.position.set(0, 0, 0);
@@ -422,8 +455,6 @@ export function createLevelMap () {
     
     loadLevelModel();
     
-    var levelMapDiv = document.getElementById("levels");
-    var levelMapObject = new CSS2DObject(levelMapDiv);
     scene.add(levelMapObject);
     
     labelRenderer = new CSS2DRenderer();
@@ -439,7 +470,7 @@ export function createLevelMap () {
             case "1":
                 levelItems[i].addEventListener("mousedown", function() {
                     if(levels[0]){
-                        enemyDensity = 10;
+                        densityIndex++;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -450,7 +481,7 @@ export function createLevelMap () {
             case "2":
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[1]){
-                        enemyDensity = 17;
+                        densityIndex++;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -461,7 +492,7 @@ export function createLevelMap () {
             case "3":
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[2]){
-                        enemyDensity = 30;
+                        densityIndex++;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -502,9 +533,10 @@ function loadLevelModel() {
             levelSound.setBuffer(buffer);
             levelSound.setLoop(true);
             levelSound.setVolume(1.0);
+            camera.add(levelSound);
             levelSound.play();
         });
-        camera.add(levelSound);
+        
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/twist-dance.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.9, -Math.PI/6);
@@ -651,7 +683,7 @@ function loadStormtroopers () {
         console.log(error);
     };
     
-    for (var j = 1; j < enemyDensity + 1; j++){
+    for (var j = 1; j < densityList[densityIndex] + 1; j++){
         var randomInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
         var posX;
         if(randomInt % 2){
@@ -661,7 +693,7 @@ function loadStormtroopers () {
         }
         LOADERS.gltfLoad(manager, "models/animated/stormtrooper/test.glb", 
         scene, camera, "stormtrooper", posX, camera.position.y,
-        camera.position.z - (j * (-finishLine / enemyDensity)), 100, 0);         // TODO onload
+        camera.position.z - (j * (-finishLine / densityList[densityIndex])), 100, 0);         // TODO onload
     }
 }
 
