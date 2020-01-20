@@ -52,7 +52,7 @@ var modelsLoading = false, manager;
 var tween;
 var transformControls;
 var listener;
-var lasers = [], laserSpeed = 10, delta = 0;
+var lasers = [], laserSpeed = 5000, delta = 0;
 var emitter;
 var levels = [1, 1, 0];
 var cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0), speedStep = 20;
@@ -260,10 +260,7 @@ export function render() {
             }
             cubeCameraCount++;
             
-            delta = clock.getDelta();
-            lasers.forEach(b => 
-                b.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
-            );
+            lasers.forEach(laserTranslate);
 
         } else if (camera.position.z >= backwardFinishLine) {
             landSpeeder = false;
@@ -280,10 +277,15 @@ export function render() {
     }
 
     if(LOADERS.mixer){
-        LOADERS.mixer.update( clock.getDelta() );
+        LOADERS.mixer.update(clock.getDelta());
     }
-        
+    
     requestAnimationFrame(render);
+}
+
+function laserTranslate (item) {
+    delta = clock.getDelta();
+    item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
 }
 
 function gameOver() {
