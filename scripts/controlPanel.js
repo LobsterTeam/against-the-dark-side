@@ -37,6 +37,33 @@ export function createGUI () {
         rotateZ: 0
     }
     
+    var mirrorParameters = {
+        translateX: 0,
+        translateY: 0,
+        translateZ: 0,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0
+    }
+    
+    var boxParameters = {
+        translateX: 0,
+        translateY: 0,
+        translateZ: 0,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0
+    }
+    
+    var r2d2Parameters = {
+        translateX: 0,
+        translateY: 0,
+        translateZ: 0,
+        rotateX: 0,
+        rotateY: 0,
+        rotateZ: 0
+    }
+    
     var a = 0;
     
     gui = new DAT.GUI();
@@ -144,6 +171,69 @@ export function createGUI () {
         setBlasterRotZ(value);
     });
     blasterFolder.open();
+    
+    var mirrorFolder = gui.addFolder('Mirror');
+    mirrorFolder.add( mirrorParameters, 'translateX', -20, 20, 1).onChange(function(value) {
+        setBlasterTransX(value);
+    });
+    mirrorFolder.add( mirrorParameters, 'translateY', -20, 20, 1).onChange(function(value) {
+        setBlasterTransY(value);
+    });
+    mirrorFolder.add( mirrorParameters, 'translateZ', -20, 20, 1).onChange(function(value) {
+        setBlasterTransZ(value);
+    });
+    mirrorFolder.add( mirrorParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotX(value);
+    });
+    mirrorFolder.add( mirrorParameters, 'rotateY', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotY(value);
+    });
+    mirrorFolder.add( mirrorParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotZ(value);
+    });
+    mirrorFolder.open();
+    
+    var boxFolder = gui.addFolder('Box');
+    boxFolder.add( boxParameters, 'translateX', -20, 20, 1).onChange(function(value) {
+        setBlasterTransX(value);
+    });
+    boxFolder.add( boxParameters, 'translateY', -20, 20, 1).onChange(function(value) {
+        setBlasterTransY(value);
+    });
+    boxFolder.add( boxParameters, 'translateZ', -20, 20, 1).onChange(function(value) {
+        setBlasterTransZ(value);
+    });
+    boxFolder.add( boxParameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotX(value);
+    });
+    boxFolder.add( boxParameters, 'rotateY', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotY(value);
+    });
+    boxFolder.add( boxParameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotZ(value);
+    });
+    boxFolder.open();
+    
+    var r2d2Folder = gui.addFolder('R2D2');
+    r2d2Folder.add( r2d2Parameters, 'translateX', -20, 20, 1).onChange(function(value) {
+        setBlasterTransX(value);
+    });
+    r2d2Folder.add( r2d2Parameters, 'translateY', -20, 20, 1).onChange(function(value) {
+        setBlasterTransY(value);
+    });
+    r2d2Folder.add( r2d2Parameters, 'translateZ', -20, 20, 1).onChange(function(value) {
+        setBlasterTransZ(value);
+    });
+    r2d2Folder.add( r2d2Parameters, 'rotateX', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotX(value);
+    });
+    r2d2Folder.add( r2d2Parameters, 'rotateY', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotY(value);
+    });
+    r2d2Folder.add( r2d2Parameters, 'rotateZ', 0, 2*Math.PI, 0.001).onChange(function(value) {
+        setBlasterRotZ(value);
+    });
+    r2d2Folder.open();
     
     // R2D2 ?
     
