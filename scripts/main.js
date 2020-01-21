@@ -486,11 +486,15 @@ function createCrosshair() {
     var crosshairGeometry = new THREE.Geometry();
 
     // crosshair
-    crosshairGeometry.vertices.push(new THREE.Vector3(0, y, 0));
-    crosshairGeometry.vertices.push(new THREE.Vector3(0, -y, 0));
-    crosshairGeometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(x, y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(-x, y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(-x, -y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(x, -y, 0));
+    crosshairGeometry.vertices.push(new THREE.Vector3(x, y, 0));
+    
     crosshairGeometry.vertices.push(new THREE.Vector3(x, 0, 0));
     crosshairGeometry.vertices.push(new THREE.Vector3(-x, 0, 0));
+    
 
     var crosshair = new THREE.Line(crosshairGeometry, crosshairMaterial);
 
