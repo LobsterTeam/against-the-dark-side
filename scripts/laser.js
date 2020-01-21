@@ -42,19 +42,19 @@ export function userLaserTranslate (item, index, object) {
         object.splice(index, 1);
         scene.remove(item);
     } else {
-        item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
+        item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
         console.log(item.position.z);
     }
 }
 
 export function enemyLaserTranslate (item) {
     // Hit test for user
-    item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + laserSpeed))   // move along the local z-axis
+    item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
 }
 
 function testHit () {
     
     // if hit
-    EXPLODE.explode();      // fonksiyonlara bak ne durumda hatirlamiyorum ornekten aldim
+    EXPLOSION.explode();      // fonksiyonlara bak ne durumda hatirlamiyorum ornekten aldim
     
 }
