@@ -3,6 +3,7 @@ import { gameMode, controls, setGameMode, scene, camera, renderer, render,
     moveUp, moveDown } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
+import { OrbitControls } from '../three.js-dev/examples/jsm/controls/OrbitControls.js';
 import {
         Raycaster,
         Vector2
@@ -18,21 +19,27 @@ var orbit;
 
 export function initUserInputs () {
     control = new TransformControls( camera, renderer.domElement );
-    scene.add( control );
     control.setMode("rotate");
-    control.addEventListener( 'change', render);
+    scene.add( control );
+    control.addEventListener( 'change', function ( event ) {
 
-    control.addEventListener( 'dragging-changed', function ( event ) {
+            console.log("bu ne2");
 
-            orbit.enabled = ! event.value;
+            } );
+
+    control.addEventListener( 'mouseDown', function ( event ) {
+
             console.log("bu ne");
 
-    } );
+            } );
     var b = scene.getObjectByName( "blaster" ).children[0].children[0].children[0].children;
     console.log(scene.getObjectByName( "blaster" ));
     var c = [b[0].children[0], b[1].children[0], b[2].children[0], b[3].children[0]];
     var a = scene.getObjectByName( "bottle" ).children;
-    objects = scene.getObjectByName( "r2-d2" ).children.concat(a);
+    //objects = scene.getObjectByName( "r2-d2" ).children.concat(a);
+    var d = [scene.getObjectByName("mirror"), scene.getObjectByName("box")];
+    objects = scene.getObjectByName( "r2-d2" ).children.concat(d).concat(a);
+
     console.log(objects);
 }
 
@@ -87,8 +94,10 @@ export function onKeyDown ( event ) {
                 if (gameMode) {
                     setGameMode(false);
                     controls.unlock();
+
                 } else {
                     control.detach(INTERSECTED);
+                    INTERSECTED = undefined;
                     setGameMode(true);
                     controls.lock();
                 }
@@ -106,11 +115,9 @@ export function onKeyDown ( event ) {
 
 // TODO sadece lock tayken yapabilirsin
 export function mouseMove ( event ) {
-    
     if (!landSpeeder) return;
-    
+
     if (!gameMode) {
-        
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         raycaster.setFromCamera( mouse, camera );
@@ -118,14 +125,14 @@ export function mouseMove ( event ) {
 
         if ( intersects.length > 0 ) {
 
-            if ( INTERSECTED != intersects[0].object && PARENT != intersects[0].object.parent ) {
+            if ( INTERSECTED != intersects[0].object) {
 
                 if (INTERSECTED) {
                     control.detach(INTERSECTED);
                 }
                 INTERSECTED = intersects[0].object;
-                PARENT = intersects[0].object.parent;
                 control.attach( INTERSECTED );
+                console.log("girdi");
             }
         }
     }
