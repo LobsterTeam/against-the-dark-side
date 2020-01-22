@@ -23,7 +23,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
         blasterRotX = 0, blasterRotY = 0, blasterRotZ = 0;
 export var controls, gameMode = true, landSpeeder, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
-export var cameraSpeed;
+export var cameraSpeed, flagGeometry;
 
 var container;
 var windowHalfX = window.innerWidth / 2;
@@ -66,6 +66,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({canvas: canvas, context: context});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
@@ -240,8 +241,23 @@ export function render() {
                     child.position.set(camera.position.x - 130, camera.position.y - 135, camera.position.z - 350);
                 }
             }
-
-            // pingpong
+            
+            // FLAG WIND
+            var time = Date.now();
+            var windStrength = Math.cos( time / 7000 ) * 20 + 40;
+            FLAG.windForce.set( Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ) );
+            FLAG.windForce.normalize();
+            FLAG.windForce.multiplyScalar( windStrength );
+            FLAG.simulate( time );
+            var p = FLAG.flag.particles;
+            for ( var i = 0, il = p.length; i < il; i ++ ) {
+                var v = p[ i ].position;
+                flagGeometry.attributes.position.setXYZ( i, v.x, v.y, v.z );
+            }
+            flagGeometry.attributes.position.needsUpdate = true;
+            flagGeometry.computeVertexNormals();
+            
+            // cubecamera pingpong
             if ( cubeCameraCount % 2 === 0 ) {
                 cubeCamera.update( renderer, scene );
                 sphereMirrorMaterial.envMap = cubeCamera.renderTarget.texture;
@@ -259,7 +275,7 @@ export function render() {
             controls.unlock();
             controls = undefined;
             gameOver();
-        } else {
+        } else if (camera.position.z <= finishLine) {
             landSpeeder = false;
             controls.unlock();
             controls = undefined;
@@ -580,7 +596,7 @@ function createGameScene() {
     createTerrain();
     createTerrainSceneLights();
     loadTieFighters();
-    //loadFlag();
+    loadFlag();
     loadBox();
     loadSphereMirror();
     loadR2D2();
@@ -608,45 +624,42 @@ function loadBox () {
             normalMap: boxNormalMap
         })
     );
+    bumpCube.castShadow = true;
+    bumpCube.receiveShadow = true;
     bumpCube.name = 'box';
     bumpCube.position.set(camera.position.x - 290, camera.position.y - 330, camera.position.z - 100);
     scene.add(bumpCube);
 }
 
 function loadFlag () {
-    var clothTexture = THREE.ImageUtils.loadTexture( 'textures/osgrid_flag.png' );
-    clothTexture.wrapS = clothTexture.wrapT = THREE.RepeatWrapping;
-    clothTexture.anisotropy = 16;
+    var textureLoader = new THREE.TextureLoader();
+    var flagTexture = textureLoader.load( 'textures/stormtrooper_flag.jpg' );
+    flagTexture.anisotropy = 16;
 
-    var materials = [
-            new THREE.MeshPhongMaterial( { alphaTest: 0.5, ambient: 0xffffff, color: 0xffffff, specular: 0x030303, emissive: 0x111111, shiness: 10, perPixel: true, metal: false, map: clothTexture, doubleSided: true } ),
-            new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true, transparent: true, opacity: 0.9 } )
-    ];
-
-    // cloth geometry
-
-    clothGeometry = new THREE.ParametricGeometry( FLAG.clothFunction, FLAG.cloth.w, FLAG.cloth.h, true );
-    clothGeometry.dynamic = true;
-    clothGeometry.computeFaceNormals();
-
-    var uniforms = { texture:  { type: "t", value: 0, texture: clothTexture } };
-    var vertexShader = document.getElementById( 'vertexShaderDepth' ).textContent;
-    var fragmentShader = document.getElementById( 'fragmentShaderDepth' ).textContent;
-
-    // cloth mesh
-
-    flagObject = new THREE.Mesh( clothGeometry, materials[ 0 ] );
-    flagObject.position.set( 0, 0, 0 );
-    flagObject.castShadow = true;
-    flagObject.receiveShadow = true;
-    scene.add( flagObject );
-
-    flagObject.customDepthMaterial = new THREE.ShaderMaterial( {
-        uniforms: uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader
+    var flagMaterial = new THREE.MeshLambertMaterial( {
+            map: flagTexture,
+            side: THREE.DoubleSide,
+            alphaTest: 0.5
     } );
 
+    flagGeometry = new THREE.ParametricBufferGeometry( FLAG.flagFunction, FLAG.flag.w, FLAG.flag.h );
+    var flagObject = new THREE.Mesh( flagGeometry, flagMaterial );
+    flagObject.position.set( 4250, 800, -6000 );     // TODO flag position
+    flagObject.castShadow = true;
+    scene.add( flagObject );
+    flagObject.customDepthMaterial = new THREE.MeshDepthMaterial( {
+            depthPacking: THREE.RGBADepthPacking,
+            map: flagTexture,
+            alphaTest: 0.5
+    } );
+    
+    var poleGeo = new THREE.CubeGeometry( 30, 2000, 5 );
+    var poleMat = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 100 } );
+    var mesh = new THREE.Mesh( poleGeo, poleMat );
+    mesh.position.set(3950, 750, -6010);
+    mesh.receiveShadow = true;
+    mesh.castShadow = true;
+    scene.add( mesh );
 }
 
 function loadSphereMirror () {
@@ -662,6 +675,8 @@ function loadSphereMirror () {
         envMap: cubeCamera.renderTarget.texture
     });
     var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(50, 16, 16), sphereMirrorMaterial );
+    sphereMirror.castShadow = true;
+    sphereMirror.receiveShadow = true;
     sphereMirror.name = "mirror";
     scene.add(sphereMirror);
     sphereMirror.add(cubeCamera);
@@ -846,3 +861,4 @@ export function setGameMode (value) {
 
 init();
 render();
+

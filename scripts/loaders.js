@@ -45,7 +45,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         emitter.updateMatrixWorld();
                         gltf.scene.add(emitter);
                     }
-                    if (objName == "blaster") {
+                    if (objName === "blaster") {
                         camera.add(gltf.scene);
                     } else {
                         scene.add( gltf.scene );
@@ -54,10 +54,11 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     gltf.scene.castShadow = true;
                     gltf.scene.receiveShadow = true;
                     gltf.scene.updateMatrixWorld();
-                    //var control = new TransformControls( camera, renderer.domElement );
-                   // scene.add( control );
-                    //control.setMode("rotate");
-                    //control.attach( gltf.scene );
+                    gltf.scene.traverse( function( node ) {
+
+                        if ( node instanceof THREE.Mesh ) { node.castShadow = true; }
+
+                    } );
             },
             // called while loading is progressing
             function ( xhr ) {
@@ -103,7 +104,11 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
                     material.map.minFilter =  THREE.LinearFilter;
                     material.side = THREE.DoubleSide;
                 }
+                gltf.scene.traverse( function( node ) {
 
+                        if ( node instanceof THREE.Mesh ) { node.castShadow = true; }
+
+                    } );
 
                 scene.add( gltf.scene );
             },
@@ -174,7 +179,7 @@ export async function animatedFbxLoad (manager, path, scene, camera, objName, x,
             object.traverse( function ( child ) {
                 if ( child.isMesh ) {
                     if (child.name === "bb8-body") {
-                                                child.scale.set(scale, scale, scale);
+                        child.scale.set(scale, scale, scale);
                         child.castShadow = true;
                         child.receiveShadow = true;
                         child.position.set(x, y + 15, z);
