@@ -46,6 +46,8 @@ var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
+var tick = 0;
+
 
 function init() {
 
@@ -136,7 +138,7 @@ function loadBB8(callback) {
         renderer.render( scene, camera );
         console.log(scene);
         callback();
-    }
+    };
     manager.onError = function(error) {
         console.log(error);
     };
@@ -178,6 +180,7 @@ function onWindowResize() {
 }
 
 export function render() {
+    tick++;
     
     // INTRO CHECKS
     if (gameNameAnimation) {
@@ -224,6 +227,11 @@ export function render() {
                     r2d2Move(child);
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
+                    if (child.position.distanceTo(camera.position) < 8000) {
+                        if (tick % 2) {
+                            LASER.enemyFire(child);
+                        }
+                    }
                 } else if (child.name === "bottle") {
                     child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z + 25);
                 } else if (child.name === "box") {

@@ -40,6 +40,10 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                             console.log("intersect at", intersects[0].point);
                             gltf.scene.position.y = intersects[0].point.y;
                         }
+                        var emitter = new THREE.Object3D();
+                        emitter.position.set(0.0, 100.0, 0.0);
+                        emitter.updateMatrixWorld();
+                        gltf.scene.add(emitter);
                     }
                     if (objName == "blaster") {
                         camera.add(gltf.scene);
@@ -49,6 +53,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     
                     gltf.scene.castShadow = true;
                     gltf.scene.receiveShadow = true;
+                    gltf.scene.updateMatrixWorld();
                     //var control = new TransformControls( camera, renderer.domElement );
                    // scene.add( control );
                     //control.setMode("rotate");
