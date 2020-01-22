@@ -30,7 +30,7 @@ var TransformControls = function ( camera, domElement ) {
 	if ( domElement === undefined ) {
 
 		console.warn( 'THREE.TransformControls: The second parameter "domElement" is now mandatory.' );
-		domElement = document;
+		domElement = document.body;
 
 	}
 
@@ -130,30 +130,30 @@ var TransformControls = function ( camera, domElement ) {
 
 	{
 
-		domElement.addEventListener( "mousedown", onPointerDown, false );
-		domElement.addEventListener( "touchstart", onPointerDown, false );
-		domElement.addEventListener( "mousemove", onPointerHover, false );
-		domElement.addEventListener( "touchmove", onPointerHover, false );
-		domElement.addEventListener( "touchmove", onPointerMove, false );
+		document.addEventListener( "mousedown", onPointerDown, false );
+		document.addEventListener( "touchstart", onPointerDown, false );
+		document.addEventListener( "mousemove", onPointerHover, false );
+		document.addEventListener( "touchmove", onPointerHover, false );
+		document.addEventListener( "touchmove", onPointerMove, false );
 		document.addEventListener( "mouseup", onPointerUp, false );
-		domElement.addEventListener( "touchend", onPointerUp, false );
-		domElement.addEventListener( "touchcancel", onPointerUp, false );
-		domElement.addEventListener( "touchleave", onPointerUp, false );
+		document.addEventListener( "touchend", onPointerUp, false );
+		document.addEventListener( "touchcancel", onPointerUp, false );
+		document.addEventListener( "touchleave", onPointerUp, false );
 
 	}
 
 	this.dispose = function () {
 
-		domElement.removeEventListener( "mousedown", onPointerDown );
-		domElement.removeEventListener( "touchstart", onPointerDown );
-		domElement.removeEventListener( "mousemove", onPointerHover );
+		document.removeEventListener( "mousedown", onPointerDown );
+		document.removeEventListener( "touchstart", onPointerDown );
+		document.removeEventListener( "mousemove", onPointerHover );
 		document.removeEventListener( "mousemove", onPointerMove );
-		domElement.removeEventListener( "touchmove", onPointerHover );
-		domElement.removeEventListener( "touchmove", onPointerMove );
+		document.removeEventListener( "touchmove", onPointerHover );
+		document.removeEventListener( "touchmove", onPointerMove );
 		document.removeEventListener( "mouseup", onPointerUp );
-		domElement.removeEventListener( "touchend", onPointerUp );
-		domElement.removeEventListener( "touchcancel", onPointerUp );
-		domElement.removeEventListener( "touchleave", onPointerUp );
+		document.removeEventListener( "touchend", onPointerUp );
+		document.removeEventListener( "touchcancel", onPointerUp );
+		document.removeEventListener( "touchleave", onPointerUp );
 
 		this.traverse( function ( child ) {
 
