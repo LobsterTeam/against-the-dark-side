@@ -38,7 +38,7 @@ var clock = new THREE.Clock();
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var modelsLoading = false, manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
-var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0;
+var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
 var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
@@ -66,7 +66,6 @@ function init() {
     renderer = new THREE.WebGLRenderer({canvas: canvas, context: context});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
@@ -257,16 +256,6 @@ export function render() {
             flagGeometry.attributes.position.needsUpdate = true;
             flagGeometry.computeVertexNormals();
             
-            // cubecamera pingpong
-            if ( cubeCameraCount % 2 === 0 ) {
-                cubeCamera.update( renderer, scene );
-                sphereMirrorMaterial.envMap = cubeCamera.renderTarget.texture;
-            } else {
-                cubeCamera2.update( renderer, scene );
-                sphereMirrorMaterial.envMap = cubeCamera2.renderTarget.texture;
-            }
-            cubeCameraCount++;
-            
             userLasers.forEach(LASER.userLaserTranslate);
             enemyLasers.forEach(LASER.enemyLaserTranslate);
 
@@ -281,6 +270,18 @@ export function render() {
             controls = undefined;
             finishedLevel();
             // won
+        }
+        
+        if (showSphereMirror) {
+            // cubecamera pingpong
+            if ( cubeCameraCount % 2 === 0 ) {
+                cubeCamera.update( renderer, scene );
+                sphereMirrorMaterial.envMap = cubeCamera.renderTarget.texture;
+            } else {
+                cubeCamera2.update( renderer, scene );
+                sphereMirrorMaterial.envMap = cubeCamera2.renderTarget.texture;
+            }
+            cubeCameraCount++;
         }
     }
 
@@ -664,10 +665,10 @@ function loadFlag () {
 
 function loadSphereMirror () {
     // cubecameras
-    cubeCamera = new THREE.CubeCamera(1, 1000000000, 256);
+    cubeCamera = new THREE.CubeCamera(1, 1000000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
-    cubeCamera2 = new THREE.CubeCamera(1, 1000000000, 256);
+    cubeCamera2 = new THREE.CubeCamera(1, 1000000, 256);
     cubeCamera2.renderTarget.texture.generateMipmaps = true;
     cubeCamera2.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
     
@@ -859,6 +860,9 @@ export function setGameMode (value) {
     gameMode = value;
 }
 
+export function setShowSphereMirror (value) {
+    showSphereMirror = value;
+}
+
 init();
 render();
-

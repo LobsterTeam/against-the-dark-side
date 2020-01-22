@@ -40,7 +40,7 @@ function createSky (topColor, bottomColor) {
             "exponent": { value: 0.6 }
     };
 
-    var skyGeo = new THREE.SphereBufferGeometry( 1000000000, 32, 15 );  // TODO 700000
+    var skyGeo = new THREE.SphereBufferGeometry( 1000000, 32, 15 );  // TODO 700000
     var skyMat = new THREE.ShaderMaterial( {
             uniforms: uniforms,
             vertexShader: vertexShader,
