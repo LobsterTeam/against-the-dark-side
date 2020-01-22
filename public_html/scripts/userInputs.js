@@ -1,5 +1,5 @@
 import { gameMode, controls, setGameMode, scene, camera, renderer, render,
-    landSpeeder, moveForward, moveBackward, moveRight, moveLeft, 
+    gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
     moveUp, moveDown } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
@@ -19,27 +19,16 @@ var orbit;
 
 export function initUserInputs () {
     transformControls = new TransformControls( camera, renderer.domElement );
-    scene.add( transformControls );
-
-    transformControls.addEventListener( 'mouseDown', function ( event ) {
-
-            console.log("bu ne");
-
-            } );
-    transformControls.addEventListener( 'dragging-changed', function ( event ) {
-
-            console.log("bu ne3");
-
-            } );
-            
+    scene.add( transformControls );            
     var models = scene.getObjectByName( "bottle" ).children.concat(scene.getObjectByName( "r2-d2" ).children);
     objects = [scene.getObjectByName("mirror"), scene.getObjectByName("box")].concat(models);
+    
 }
 
 // TODO game scene check
 export function onKeyDown ( event ) {
     
-    if (!landSpeeder) return;
+    if (!gameStarted) return;
     
     switch ( event.keyCode ) {
 
@@ -120,7 +109,7 @@ export function onKeyDown ( event ) {
 
 // TODO sadece lock tayken yapabilirsin
 export function mouseMove ( event ) {
-    if (!landSpeeder) return;
+    if (!gameStarted) return;
 
     if (!gameMode) {
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -144,7 +133,7 @@ export function mouseMove ( event ) {
 
 export function mouseDown () {
     
-    if (!landSpeeder || !gameMode) return;
+    if (!gameStarted || !gameMode) return;
     
     switch ( event.button ) {
 
