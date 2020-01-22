@@ -8,7 +8,7 @@ import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js'
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { terrainMeshes } from './terrain.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
-import { scene, camera, renderer, render, enemyDensity, finishLine} from './main.js';
+import { scene, camera, renderer, render, enemyDensity, finishLine, landspeederObject} from './main.js';
 
 
 export var mixer;
@@ -151,7 +151,11 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
                 }
                 
             } else {
-                scene.add(obj);
+                if (objName === "r2-d2" || objName === "bottle") {
+                    landspeederObject.add(obj);
+                } else {
+                    scene.add(obj);
+                }
             }
         }, onProgress, onError);
     });
