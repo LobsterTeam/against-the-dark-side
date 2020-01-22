@@ -15,12 +15,13 @@ var raycaster =  new Raycaster();
 var objects;
 var mouse = new Vector2();
 var orbit;
+var rotateMode = false;
 
 
 export function initUserInputs () {
     control = new TransformControls( camera, renderer.domElement );
-    control.setMode("rotate");
-    scene.add( control );
+    
+    
     control.addEventListener( 'change', function ( event ) {
 
             console.log("bu ne2");
@@ -30,6 +31,11 @@ export function initUserInputs () {
     control.addEventListener( 'mouseDown', function ( event ) {
 
             console.log("bu ne");
+
+            } );
+    control.addEventListener( 'dragging-changed', function ( event ) {
+
+            console.log("bu ne3");
 
             } );
     var b = scene.getObjectByName( "blaster" ).children[0].children[0].children[0].children;
@@ -89,19 +95,31 @@ export function onKeyDown ( event ) {
                 moveUp();
             }
             break;
-                
+            
         case 76:        // L key
-                if (gameMode) {
-                    setGameMode(false);
-                    controls.unlock();
+            if (gameMode) {
+                setGameMode(false);
+                controls.unlock();
 
-                } else {
-                    control.detach(INTERSECTED);
-                    INTERSECTED = undefined;
-                    setGameMode(true);
-                    controls.lock();
-                }
-                break;
+            } else {
+                control.detach(INTERSECTED);
+                INTERSECTED = undefined;
+                setGameMode(true);
+                controls.lock();
+            }
+            break;
+                
+        case 82:        // R key
+            if (!gameMode && control.mode == "translate") {
+                control.setMode("rotate");
+            }
+            break;
+                
+        case 84:        // T key
+            if (!gameMode && control.mode == "rotate") {
+                control.setMode("translate");
+            }
+            break;
 
         case 77:        // M key
                 toggleSound();
@@ -129,10 +147,13 @@ export function mouseMove ( event ) {
 
                 if (INTERSECTED) {
                     control.detach(INTERSECTED);
+                    scene.remove(control);
                 }
+                console.log(intersects[0].object);
                 INTERSECTED = intersects[0].object;
+                scene.add( control );
+                control.enabled = true;
                 control.attach( INTERSECTED );
-                console.log("girdi");
             }
         }
     }
