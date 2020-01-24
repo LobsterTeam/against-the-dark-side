@@ -22,9 +22,9 @@ export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xdcdbdf;
 // blaster values
 export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
         blasterRotX = 0, blasterRotY = 0, blasterRotZ = 0;
-export var controls, gameMode = true, landSpeeder, emitter, userLasers = [], 
+export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
-export var cameraSpeed, flagGeometry;
+export var cameraSpeed, flagGeometry, landspeederObject;
 
 var container;
 var windowHalfX = window.innerWidth / 2;
@@ -39,16 +39,14 @@ var clock = new THREE.Clock();
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var modelsLoading = false, manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
-var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0;
+var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
 var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
+var tick = 0, r2d2Object, stats;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
-
-var tick = 0;
-var stats;
 
 
 function init() {
@@ -68,7 +66,6 @@ function init() {
     renderer = new THREE.WebGLRenderer({canvas: canvas, context: context});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
@@ -150,7 +147,7 @@ function loadBB8(callback) {
     };
     LOADERS.bb8FbxLoad(manager, "models/animated/bb8/forceawakenslopo.blend.fbx", 
            scene, camera, "bb8-running", camera.position.x - 150, camera.position.y - 30,
-            camera.position.z - 300, 50, 0);         // TODO onload
+            camera.position.z - 300, 50, 0);
 }
 
 function showClick() {
@@ -186,7 +183,6 @@ function onWindowResize() {
 }
 
 export function render() {
-    tick++;
     stats.update();
     
     // INTRO CHECKS
@@ -216,7 +212,7 @@ export function render() {
         labelRenderer.render(scene, camera);
     }
     
-    if (landSpeeder) {      // TODO game sahnesi olunce landspeeder i false la
+    if (gameStarted) {
                 
         if (camera.position.z < backwardFinishLine && camera.position.z > finishLine && gameMode) {
             
@@ -229,24 +225,17 @@ export function render() {
                 var child = scene.children[i];
                 if (child.name === "landspeeder"){
                     child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
-                } else if (child.name === "r2-d2") {
-                    child.position.set(camera.position.x - 130, camera.position.y - 480, camera.position.z - 700);
-                    r2d2Move(child);
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
                     if (child.position.distanceTo(camera.position) < 8000) {
+                        tick++;     // TODO gameStarted a al
                         if (tick % 2) {
                             LASER.enemyFire(child);
                         }
                     }
-                } else if (child.name === "bottle") {
-                    child.position.set(camera.position.x - 270, camera.position.y - 350, camera.position.z + 25);
-                } else if (child.name === "box") {
-                    child.position.set(camera.position.x - 290, camera.position.y - 330, camera.position.z - 100);
-                } else if (child.name === "mirror") {
-                    child.position.set(camera.position.x - 130, camera.position.y - 135, camera.position.z - 350);
                 }
             }
+            r2d2Move(r2d2Object);
             
             // FLAG WIND
             var time = Date.now();
@@ -263,6 +252,23 @@ export function render() {
             flagGeometry.attributes.position.needsUpdate = true;
             flagGeometry.computeVertexNormals();
             
+            userLasers.forEach(LASER.userLaserTranslate);
+            enemyLasers.forEach(LASER.enemyLaserTranslate);
+
+        } else if (camera.position.z >= backwardFinishLine) {
+            gameStarted = false;
+            controls.unlock();
+            controls = undefined;
+            gameOver();
+        } else if (camera.position.z <= finishLine) {
+            gameStarted = false;
+            controls.unlock();
+            controls = undefined;
+            finishedLevel();
+            // won
+        }
+        
+        if (showSphereMirror) {
             // cubecamera pingpong
             if ( cubeCameraCount % 2 === 0 ) {
                 cubeCamera.update( renderer, scene );
@@ -272,21 +278,6 @@ export function render() {
                 sphereMirrorMaterial.envMap = cubeCamera2.renderTarget.texture;
             }
             cubeCameraCount++;
-            
-            userLasers.forEach(LASER.userLaserTranslate);
-            enemyLasers.forEach(LASER.enemyLaserTranslate);
-
-        } else if (camera.position.z >= backwardFinishLine) {
-            landSpeeder = false;
-            controls.unlock();
-            controls = undefined;
-            gameOver();
-        } else if (camera.position.z <= finishLine) {
-            landSpeeder = false;
-            controls.unlock();
-            controls = undefined;
-            finishedLevel();
-            // won
         }
     }
 
@@ -362,7 +353,6 @@ function finishedLevel() {
     finishedRenderer.render(scene, camera);
 }
 
-
 function r2d2Move (r2d2) {
     
     if (r2d2.rotation.y > 5.0) {
@@ -399,9 +389,7 @@ function showStarWarsEntry () {
     audioLoader = new THREE.AudioLoader();
     audioListener = new THREE.AudioListener();
     camera.add(audioListener);
-    
     introSound = new THREE.Audio(audioListener);
-
     INTRO.createLongTimeAgoText();
 }
 
@@ -435,7 +423,6 @@ export function createLevelMap () {
     clearScene();   // remove everything from the scene
 
     if (fromIntro) {
-        //scene.remove("introObjects");
         $('#skipButton').hide();
         fromIntro = false;
         introSound.setVolume(0.0);
@@ -521,13 +508,10 @@ function createCrosshair() {
     crosshairGeometry.vertices.push(new THREE.Vector3(-x, -y, 0));
     crosshairGeometry.vertices.push(new THREE.Vector3(x, -y, 0));
     crosshairGeometry.vertices.push(new THREE.Vector3(x, y, 0));
-    
     crosshairGeometry.vertices.push(new THREE.Vector3(x, 0, 0));
     crosshairGeometry.vertices.push(new THREE.Vector3(-x, 0, 0));
-    
 
     var crosshair = new THREE.Line(crosshairGeometry, crosshairMaterial);
-
     // place it in the center
     var crosshairPercentX = 50;
     var crosshairPercentY = 50;
@@ -603,9 +587,7 @@ function createGameScene() {
     createTerrainSceneLights();
     loadTieFighters();
     loadFlag();
-    loadBox();
-    loadSphereMirror();
-    loadR2D2();
+    loadStormtroopers();
     createCrosshair();
 }
 
@@ -622,7 +604,7 @@ function loadBox () {
     var boxNormalMap = textureLoader.load("textures/box_normal.png");
 
     var bumpCube = new THREE.Mesh(
-        new THREE.BoxGeometry(100, 100, 100),
+        new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshPhongMaterial({
             color:0xffffff,
             map: boxTexture,
@@ -633,8 +615,9 @@ function loadBox () {
     bumpCube.castShadow = true;
     bumpCube.receiveShadow = true;
     bumpCube.name = 'box';
-    bumpCube.position.set(camera.position.x - 290, camera.position.y - 330, camera.position.z - 100);
-    scene.add(bumpCube);
+    bumpCube.position.set(1.7, -0.35, -1.8);
+    landspeederObject.add(bumpCube);
+    loadSphereMirror();
 }
 
 function loadFlag () {
@@ -650,7 +633,7 @@ function loadFlag () {
 
     flagGeometry = new THREE.ParametricBufferGeometry( FLAG.flagFunction, FLAG.flag.w, FLAG.flag.h );
     var flagObject = new THREE.Mesh( flagGeometry, flagMaterial );
-    flagObject.position.set( 4250, 800, -6000 );     // TODO flag position
+    flagObject.position.set( 4250, 800, -6000 );
     flagObject.castShadow = true;
     scene.add( flagObject );
     flagObject.customDepthMaterial = new THREE.MeshDepthMaterial( {
@@ -670,36 +653,42 @@ function loadFlag () {
 
 function loadSphereMirror () {
     // cubecameras
-    cubeCamera = new THREE.CubeCamera(1, 1000000000, 256);
+    cubeCamera = new THREE.CubeCamera(1, 1000000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
-    cubeCamera2 = new THREE.CubeCamera(1, 1000000000, 256);
+    cubeCamera2 = new THREE.CubeCamera(1, 1000000, 256);
     cubeCamera2.renderTarget.texture.generateMipmaps = true;
     cubeCamera2.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
     
     sphereMirrorMaterial = new THREE.MeshBasicMaterial({
         envMap: cubeCamera.renderTarget.texture
     });
-    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(50, 16, 16), sphereMirrorMaterial );
+    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(0.5, 16, 16), sphereMirrorMaterial );
     sphereMirror.castShadow = true;
     sphereMirror.receiveShadow = true;
     sphereMirror.name = "mirror";
-    scene.add(sphereMirror);
+    sphereMirror.position.set(0, 1.62, 1);
+    sphereMirror.rotation.y = (Math.PI);
     sphereMirror.add(cubeCamera);
     sphereMirror.add(cubeCamera2);
+    landspeederObject.add(sphereMirror);
+    
+    console.log(landspeederObject);
+    // all loadings are done, start game scene
+    gameSceneLoadingEnded();
+    controls = new PointerLockControls( camera, document.body );
+    controls.lock();
 }
 
 function loadR2D2 () {
-    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            console.log( 'R2D2 Loading complete!');
-            loadStormtroopers();
+        console.log( 'R2D2 Loading complete!');
+        r2d2Object = scene.getObjectByName("r2-d2")
+        loadBottle();
     };
-    
     LOADERS.objLoad(manager, "models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
-                    scene, camera, "r2-d2", camera.position.x - 130, camera.position.y - 480,
-                    camera.position.z - 700, 3, 2.5);         // TODO onload
+                    scene, camera, "r2-d2", 0, -3, 5, 2, 2.5);
 }
 
 function loadStormtroopers () {
@@ -723,7 +712,7 @@ function loadStormtroopers () {
         }
         LOADERS.gltfLoad(manager, "models/animated/stormtrooper/test.glb", 
         scene, camera, "stormtrooper", posX, camera.position.y,
-        camera.position.z - (j * (-finishLine / densityList[densityIndex])), 100, 0);         // TODO onload
+        camera.position.z - (j * (-finishLine / densityList[densityIndex])), 100, 0);
     }
 }
 
@@ -744,46 +733,45 @@ function loadBlaster () {
             emitter = new THREE.Object3D();
             emitter.position.set(2, -1.8, -11.5);
             camera.add(emitter);
-            loadBottle();
+            loadLandspeeder();
     };
     
     LOADERS.gltfLoad(manager, 'models/blaster-gltf/blaster.gltf', scene, camera, 
-                                "blaster", 2, -2.3, -3.5, 2, Math.PI / 2);        // TODO onload
+                                "blaster", 2, -2.3, -3.5, 2, Math.PI / 2);
 }
 
 function loadBottle () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-        loadLandspeeder();
         console.log( 'Bottle loading complete!');
+        loadBox();
     };
     LOADERS.objLoad (manager, "models/bottle-obj/bottle.mtl", "models/bottle-obj/bottle.obj", scene, camera,
-                    "bottle", camera.position.x - 1.25, camera.position.y - 1.5, camera.position.z , 5, 0);
+                    "bottle", 1.5, -0.25, -2.7, 1, 0);
+}
+
+function gameSceneLoadingEnded () {
+    modelsLoading = false;
+    for(i = 0; i < 7; i++ ){
+        scene.remove(scene.children[0]);
+    }
+    PANEL.createGUI();
+    console.log(scene);
+    clock = new THREE.Clock();
+    USERINPUTS.initUserInputs();
+    gameStarted = true;
 }
 
 function loadLandspeeder () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            modelsLoading = false;
-            for(i = 0; i < 7; i++ ){
-                scene.remove(scene.children[0]);
-            }
-            EXPLOSION.explode();
-            PANEL.createGUI();
-            console.log(scene);
-            console.log( 'Landspeeder loading complete!');
-            clock = new THREE.Clock();
+        landspeederObject = scene.getObjectByName("landspeeder");
+        loadR2D2();
     };
 
-    landSpeeder = LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
-                                "landspeeder", camera.position.x - 130, camera.position.y - 300,
-                                camera.position.z - 250, 100, Math.PI);        // TODO onload
-
-    if (landSpeeder) {      // when scene is loaded add controls
-        controls = new PointerLockControls( camera, document.body );
-        controls.lock();
-        USERINPUTS.initUserInputs();
-    }
+    LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
+                    "landspeeder", camera.position.x - 130, camera.position.y - 300,
+                    camera.position.z - 250, 100, Math.PI);
 }
 
 function createTerrain() {
@@ -865,6 +853,9 @@ export function setGameMode (value) {
     gameMode = value;
 }
 
+export function setShowSphereMirror (value) {
+    showSphereMirror = value;
+}
+
 init();
 render();
-

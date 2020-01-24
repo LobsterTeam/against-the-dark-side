@@ -1,5 +1,5 @@
 import { gameMode, controls, setGameMode, scene, camera, renderer, render,
-    landSpeeder, moveForward, moveBackward, moveRight, moveLeft, 
+    gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
     moveUp, moveDown } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
@@ -10,49 +10,25 @@ import {
 } from "../three.js-dev/build/three.module.js";
 
 var INTERSECTED, PARENT;
-var control;
+var transformControls;
 var raycaster =  new Raycaster();
 var objects;
 var mouse = new Vector2();
 var orbit;
-var rotateMode = false;
 
 
 export function initUserInputs () {
-    control = new TransformControls( camera, renderer.domElement );
+    transformControls = new TransformControls( camera, renderer.domElement );
+    scene.add( transformControls );            
+    var models = scene.getObjectByName( "bottle" ).children.concat(scene.getObjectByName( "r2-d2" ).children);
+    objects = [scene.getObjectByName("mirror"), scene.getObjectByName("box")].concat(models);
     
-    
-    control.addEventListener( 'change', function ( event ) {
-
-            console.log("bu ne2");
-
-            } );
-
-    control.addEventListener( 'mouseDown', function ( event ) {
-
-            console.log("bu ne");
-
-            } );
-    control.addEventListener( 'dragging-changed', function ( event ) {
-
-            console.log("bu ne3");
-
-            } );
-    var b = scene.getObjectByName( "blaster" ).children[0].children[0].children[0].children;
-    console.log(scene.getObjectByName( "blaster" ));
-    var c = [b[0].children[0], b[1].children[0], b[2].children[0], b[3].children[0]];
-    var a = scene.getObjectByName( "bottle" ).children;
-    //objects = scene.getObjectByName( "r2-d2" ).children.concat(a);
-    var d = [scene.getObjectByName("mirror"), scene.getObjectByName("box")];
-    objects = scene.getObjectByName( "r2-d2" ).children.concat(d).concat(a);
-
-    console.log(objects);
 }
 
 // TODO game scene check
 export function onKeyDown ( event ) {
     
-    if (!landSpeeder) return;
+    if (!gameStarted) return;
     
     switch ( event.keyCode ) {
 
@@ -102,7 +78,7 @@ export function onKeyDown ( event ) {
                 controls.unlock();
 
             } else {
-                control.detach(INTERSECTED);
+                transformControls.detach(INTERSECTED);
                 INTERSECTED = undefined;
                 setGameMode(true);
                 controls.lock();
@@ -110,14 +86,14 @@ export function onKeyDown ( event ) {
             break;
                 
         case 82:        // R key
-            if (!gameMode && control.mode == "translate") {
-                control.setMode("rotate");
+            if (!gameMode && transformControls.mode == "translate") {
+                transformControls.setMode("rotate");
             }
             break;
                 
         case 84:        // T key
-            if (!gameMode && control.mode == "rotate") {
-                control.setMode("translate");
+            if (!gameMode && transformControls.mode == "rotate") {
+                transformControls.setMode("translate");
             }
             break;
 
@@ -133,7 +109,7 @@ export function onKeyDown ( event ) {
 
 // TODO sadece lock tayken yapabilirsin
 export function mouseMove ( event ) {
-    if (!landSpeeder) return;
+    if (!gameStarted) return;
 
     if (!gameMode) {
         mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -146,14 +122,10 @@ export function mouseMove ( event ) {
             if ( INTERSECTED != intersects[0].object) {
 
                 if (INTERSECTED) {
-                    control.detach(INTERSECTED);
-                    scene.remove(control);
+                    transformControls.detach(INTERSECTED);
                 }
-                console.log(intersects[0].object);
                 INTERSECTED = intersects[0].object;
-                scene.add( control );
-                control.enabled = true;
-                control.attach( INTERSECTED );
+                transformControls.attach( INTERSECTED );
             }
         }
     }
@@ -161,7 +133,7 @@ export function mouseMove ( event ) {
 
 export function mouseDown () {
     
-    if (!landSpeeder || !gameMode) return;
+    if (!gameStarted || !gameMode) return;
     
     switch ( event.button ) {
 
