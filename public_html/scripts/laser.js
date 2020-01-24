@@ -6,7 +6,7 @@ var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 10);
 var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10);
 var redLaserMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
 var greenLaserMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5 });
-var laserSpeed = 5000;
+var laserSpeed = 500;
 
 var laserX = [];
 var laserY = [Math.PI/36, -Math.PI/36, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
@@ -15,14 +15,12 @@ var laserZ = [-Math.PI/32, Math.PI/32, Math.PI/34, -Math.PI/34, Math.PI/30, -Mat
 
 export function userFire () {
     var laserMesh = new THREE.Mesh(userLaserGeometry, greenLaserMaterial);
-    var ewpVector = new THREE.Vector3();
-    emitter.getWorldPosition(ewpVector);
     
-    laserMesh.position.copy(ewpVector);
-    laserMesh.quaternion.copy(camera.quaternion);
+    laserMesh.position.copy(emitter.position);
+    laserMesh.quaternion.copy(emitter.quaternion);
     laserMesh.updateWorldMatrix();
     userLasers.push(laserMesh);
-    scene.add(laserMesh);
+    camera.add(laserMesh);
 }
 
 export function enemyFire (enemy) {
@@ -50,9 +48,9 @@ export function enemyFire (enemy) {
 export function userLaserTranslate (item, index, object) {
     // TODO Hit test for enemies
     // TODO -5000 degeri ne olmali? adam cook uzaktaki birine ates edebilir mi?
-    if (item.position.z < -5000) {
+    if (item.position.distanceTo(camera.position) > 10000) {
         object.splice(index, 1);
-        scene.remove(item);
+        camera.remove(item);
     } else {
         item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
     }
