@@ -1,5 +1,6 @@
 import { FirstPersonControls } from '../three.js-dev/examples/jsm/controls/FirstPersonControls.js';
 import { PointerLockControls } from '../three.js-dev/examples/jsm/controls/PointerLockControls.js';
+import Stats from '../three.js-dev/examples/jsm/libs/stats.module.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as TERRAIN from './terrain.js';
 import * as SKYANDSUN from './skyAndSun.js';
@@ -47,6 +48,7 @@ window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
 
 var tick = 0;
+var stats;
 
 
 function init() {
@@ -79,6 +81,9 @@ function init() {
     document.addEventListener( 'keyup', USERINPUTS.onKeyUp, false );
     document.addEventListener( 'mousemove', USERINPUTS.mouseMove, false );
     document.addEventListener( 'mousedown', USERINPUTS.mouseDown, false );
+    
+    stats = new Stats();
+    container.appendChild(stats.dom);
 }
 
 function createLoadingText (callback) {    
@@ -182,6 +187,7 @@ function onWindowResize() {
 
 export function render() {
     tick++;
+    stats.update();
     
     // INTRO CHECKS
     if (gameNameAnimation) {
