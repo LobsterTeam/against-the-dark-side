@@ -229,7 +229,7 @@ export function render() {
                     child.lookAt(camera.position);
                     if (child.position.distanceTo(camera.position) < 8000) {
                         tick++;     // TODO gameStarted a al
-                        if (tick % 2) {
+                        if ((tick % 32) === 0) {
                             LASER.enemyFire(child);
                         }
                     }
