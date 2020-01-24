@@ -11,7 +11,7 @@ import { TransformControls } from '../three.js-dev/examples/jsm/controls/Transfo
 import { scene, camera, renderer, render, enemyDensity, finishLine, landspeederObject} from './main.js';
 
 
-export var mixer;
+export var mixer, stormtroopers = [];
 
 export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     // Instantiate a loader
@@ -43,6 +43,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         var emitter = new THREE.Object3D();
                         emitter.position.set(0.0, 100.0, 0.0);
                         emitter.updateMatrixWorld();
+                        stormtroopers.push(gltf.scene);
                         gltf.scene.add(emitter);
                     }
                     if (objName === "blaster") {
