@@ -87,16 +87,23 @@ export function onKeyDown ( event ) {
             break;
                 
         case 82:        // R key
-            if (!gameMode && transformControls.mode == "translate") {
+            if (!gameMode && transformControls.mode != "rotate") {
                 transformControls.setMode("rotate");
             }
             break;
                 
         case 84:        // T key
-            if (!gameMode && transformControls.mode == "rotate") {
+            if (!gameMode && transformControls.mode != "translate") {
                 transformControls.setMode("translate");
             }
             break;
+            
+        case 69:        // E key
+            if (!gameMode && transformControls.mode != "scale") {
+                transformControls.setMode("scale");
+            }
+            break;
+
 
         case 77:        // M key
                 toggleSound();
