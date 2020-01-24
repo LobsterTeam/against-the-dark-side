@@ -24,7 +24,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
         blasterRotX = 0, blasterRotY = 0, blasterRotZ = 0;
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
-export var cameraSpeed, flagGeometry, landspeederObject;
+export var cameraSpeed, flagGeometry, landspeederObject, canvas;
 
 var container;
 var windowHalfX = window.innerWidth / 2;
@@ -61,7 +61,7 @@ function init() {
     // scene
     scene = new THREE.Scene();
 
-    var canvas = document.createElement( 'canvas' );
+    canvas = document.createElement( 'canvas' );
     var context = canvas.getContext( 'webgl2', { alpha: false } );
     renderer = new THREE.WebGLRenderer({canvas: canvas, context: context});
     renderer.setPixelRatio( window.devicePixelRatio );
