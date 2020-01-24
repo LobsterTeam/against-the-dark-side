@@ -1,6 +1,6 @@
 import { gameMode, controls, setGameMode, scene, camera, renderer, render,
     gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
-    moveUp, moveDown } from './main.js';
+    moveUp, moveDown, canvas } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { OrbitControls } from '../three.js-dev/examples/jsm/controls/OrbitControls.js';
@@ -76,12 +76,13 @@ export function onKeyDown ( event ) {
             if (gameMode) {
                 setGameMode(false);
                 controls.unlock();
-
+                $('html,body').css({'cursor': 'url(cursors/lightsaber.cur), default'});
             } else {
                 transformControls.detach(INTERSECTED);
                 INTERSECTED = undefined;
                 setGameMode(true);
                 controls.lock();
+                $('html,body').css('cursor', 'default');
             }
             break;
                 
