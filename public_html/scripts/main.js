@@ -229,7 +229,7 @@ export function render() {
                     child.lookAt(camera.position);
                     if (child.position.distanceTo(camera.position) < 8000) {
                         tick++;     // TODO gameStarted a al
-                        if (tick % 2) {
+                        if ((tick % 32) === 0) {
                             LASER.enemyFire(child);
                         }
                     }
@@ -688,7 +688,7 @@ function loadR2D2 () {
         loadBottle();
     };
     LOADERS.objLoad(manager, "models/r2d2-obj/r2-d2.mtl", "models/r2d2-obj/r2-d2.obj", 
-                    scene, camera, "r2-d2", 0, -3, 5, 2, 2.5);
+                    scene, camera, "r2-d2", 0, 0, 5, 2, 2.5);
 }
 
 function loadStormtroopers () {
