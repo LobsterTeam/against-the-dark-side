@@ -131,7 +131,8 @@ export function clearGUI () {
 }
 
 function rotateAboutPoint(obj, point, axis, theta) {
-        obj.position.set(0, 0, -1000000);
+        obj.position.set(0, 0, 0);
+        console.log(point);
 
     
 

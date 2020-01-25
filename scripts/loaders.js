@@ -57,7 +57,10 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     gltf.scene.updateMatrixWorld();
                     gltf.scene.traverse( function( node ) {
 
-                        if ( node instanceof THREE.Mesh ) { node.castShadow = true; }
+                        if ( node instanceof THREE.Mesh ) { 
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
 
                     } );
             },
@@ -107,7 +110,9 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
                 }
                 gltf.scene.traverse( function( node ) {
 
-                        if ( node instanceof THREE.Mesh ) { node.castShadow = true; }
+                        if ( node instanceof THREE.Mesh ) {
+                            node.castShadow = true;
+                        }
 
                     } );
 
@@ -158,6 +163,14 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
                     scene.add(obj);
                 }
             }
+            obj.traverse( function( node ) {
+
+                if ( node instanceof THREE.Mesh ) { 
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+
+            } );
         }, onProgress, onError);
     });
     

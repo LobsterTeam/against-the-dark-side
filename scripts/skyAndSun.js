@@ -28,10 +28,7 @@ export function createTatooSuns(topSkyColor, bottomSkyColor, tatooOneColor, tato
 }
 
 function createSky (topColor, bottomColor) {
-    
-    //var loader = new THREE.TextureLoader(), texture = loader.load( "img/sky2.jpg" );
-    //scene.background = texture;
-    
+
     var vertexShader = document.getElementById( 'skyVertexShader' ).textContent;
     var fragmentShader = document.getElementById( 'skyFragmentShader' ).textContent;
     var uniforms = {
@@ -55,18 +52,17 @@ function createSky (topColor, bottomColor) {
 function createSun (sun, mesh, x, y, z) {
 
     sun.castShadow = true;
-    sun.shadow.mapSize.width = 4096;        // TODO
-    sun.shadow.mapSize.height = 4096;       // TODO
+    sun.shadow.mapSize.width = 4096;
+    sun.shadow.mapSize.height = 4096;
 
     // TODO
-    var d = 150000;
+    var d = 50000;
     
     sun.shadow.camera.left = - d;
     sun.shadow.camera.right = d;
     sun.shadow.camera.top = d;
     sun.shadow.camera.bottom = - d;
-    sun.shadow.camera.far = 400000;
-    sun.shadow.bias = - 1;
+    sun.shadow.camera.far = 200000;
     sun.position.set(x, y, z);
     scene.add( sun );
     
@@ -80,5 +76,7 @@ function createSun (sun, mesh, x, y, z) {
     lensflare.addElement( new LensflareElement( textureFlare, 50, 1 ) );
 
     sun.add( lensflare );
-    scene.add(sun.target);
+    //scene.add(sun.target);
+    var helper = new THREE.DirectionalLightHelper( sun, 5 );
+    scene.add( helper );
 }
