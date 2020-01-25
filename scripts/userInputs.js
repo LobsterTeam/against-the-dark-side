@@ -1,6 +1,6 @@
 import { gameMode, controls, setGameMode, scene, camera, renderer, render,
     gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
-    moveUp, moveDown, canvas } from './main.js';
+    moveUp, moveDown, canvas, crosshair } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { OrbitControls } from '../three.js-dev/examples/jsm/controls/OrbitControls.js';
@@ -19,7 +19,7 @@ var orbit;
 
 export function initUserInputs () {
     transformControls = new TransformControls( camera, renderer.domElement );
-    scene.add( transformControls );            
+    scene.add( transformControls );
     var models = scene.getObjectByName( "bottle" ).children.concat(scene.getObjectByName( "r2-d2" ).children);
     objects = [scene.getObjectByName("mirror"), scene.getObjectByName("box")].concat(models);
     
@@ -76,12 +76,14 @@ export function onKeyDown ( event ) {
             if (gameMode) {
                 setGameMode(false);
                 controls.unlock();
+                crosshair.visible = false;
                 $('html,body').css({'cursor': 'url(cursors/lightsaber.cur), default'});
             } else {
                 transformControls.detach(INTERSECTED);
                 INTERSECTED = undefined;
                 setGameMode(true);
                 controls.lock();
+                crosshair.visible = true;
                 $('html,body').css('cursor', 'default');
             }
             break;
