@@ -253,7 +253,7 @@ export function render() {
             flagGeometry.computeVertexNormals();
             
             userLasers.forEach(LASER.userLaserTranslate);
-            enemyLasers.forEach(LASER.enemyLaserTranslate);
+            //enemyLasers.forEach(LASER.enemyLaserTranslate);
 
         } else if (camera.position.z >= backwardFinishLine) {
             gameStarted = false;
@@ -710,7 +710,7 @@ function loadStormtroopers () {
         } else {
             posX = -4000;
         }
-        LOADERS.gltfLoad(manager, "models/animated/stormtrooper/test.glb", 
+        LOADERS.gltfLoad(manager, "models/animated/stormtrooper/one.glb", 
         scene, camera, "stormtrooper", posX, camera.position.y,
         camera.position.z - (j * (-finishLine / densityList[densityIndex])), 100, 0);
     }

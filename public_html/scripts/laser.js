@@ -3,7 +3,7 @@ import { stormtroopers } from './loaders.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as EXPLOSION from './explosion.js';
 
-var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 10);
+var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
 var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10);
 var redLaserMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
 var greenLaserMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5 });
@@ -21,6 +21,10 @@ export function userFire () {
     laserMesh.position.copy(emitter.position);
     laserMesh.quaternion.copy(emitter.quaternion);
     laserMesh.updateWorldMatrix();
+    
+    setTimeout(function(){
+        camera.remove(laserMesh);
+    }, 50);
     userLasers.push(laserMesh); 
     camera.add(laserMesh);
 }
@@ -35,6 +39,7 @@ export function enemyFire (enemy) {
   
 
     laserMesh.quaternion.copy(gun.quaternion);
+    enemyLaserGeometry.computeFaceNormals();
 
     // here
     
@@ -54,11 +59,13 @@ export function userLaserTranslate (item, index, object) {
         camera.remove(item);
         console.log("removed");
     } else {
-        item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
+        //item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
         for (var i = 0; i < stormtroopers.length; i++) {
             testHit(item, stormtroopers[i]);
         }
     }
+    //userLaserGeometry.computeVertexNormals();
+    item.updateWorldMatrix();
 }
 
 export function enemyLaserTranslate (item, index, object) {
@@ -72,12 +79,30 @@ export function enemyLaserTranslate (item, index, object) {
 }
 
 function testHit (item, stormtrooper) {
-    var raycaster = new THREE.Raycaster();
-    raycaster.set(stormtrooper, new THREE.Vector3(1.0, 1.0, 1.0));
-    var intersects = raycaster.intersectObject(item);
-    if (intersects.length !== 0){
-        console.log("intersect at", intersects[0].point);
+    
+    var itemBox = new THREE.Box3().setFromObject(item);
+    var stormtrooperBox = new THREE.Box3().setFromObject(stormtrooper);
+    //var box = new THREE.BoxHelper( item, 0xffff00 );
+    //scene.add( box );
+    var collision = itemBox.intersectsBox(stormtrooperBox);
+    
+    if (collision) {
+
+        scene.remove(stormtrooper);
     }
+    
+    //var raycaster = new THREE.Raycaster();
+    //var direction = new THREE.Vector3();
+    //var itemWorldPos = new THREE.Vector3();
+    //item.getWorldPosition(itemWorldPos);
+    //direction.subVectors(stormtrooper.position, itemWorldPos).normalize();
+    //raycaster.set(item, direction);
+    
+    
+    //var intersects = raycaster.intersectObjects(stormtrooper.children, true);
+    //if (intersects.length !== 0){
+        //console.log("intersect at", intersects[0].point);
+    //}
     // if hit
     EXPLOSION.explode();      // fonksiyonlara bak ne durumda hatirlamiyorum ornekten aldim
     
