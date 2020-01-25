@@ -24,7 +24,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
         blasterRotX = 0, blasterRotY = 0, blasterRotZ = 0;
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
-export var cameraSpeed, flagGeometry, landspeederObject, canvas;
+export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 
 var container;
 var windowHalfX = window.innerWidth / 2;
@@ -269,6 +269,7 @@ export function render() {
         }
         
         if (showSphereMirror) {
+            sphereMirror.rotation.set(0, Math.PI, 0);
             // cubecamera pingpong
             if ( cubeCameraCount % 2 === 0 ) {
                 cubeCamera.update( renderer, scene );
@@ -416,6 +417,7 @@ export function createLevelMap () {
     console.log("level map");
     PANEL.clearGUI();       // if there is already gui delete
     var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    $('html,body').css('cursor', 'default');
     scene.background = texture;
     gameNameAnimation = false;
     introAnimation = false;
@@ -511,7 +513,7 @@ function createCrosshair() {
     crosshairGeometry.vertices.push(new THREE.Vector3(x, 0, 0));
     crosshairGeometry.vertices.push(new THREE.Vector3(-x, 0, 0));
 
-    var crosshair = new THREE.Line(crosshairGeometry, crosshairMaterial);
+    crosshair = new THREE.Line(crosshairGeometry, crosshairMaterial);
     // place it in the center
     var crosshairPercentX = 50;
     var crosshairPercentY = 50;
@@ -663,7 +665,7 @@ function loadSphereMirror () {
     sphereMirrorMaterial = new THREE.MeshBasicMaterial({
         envMap: cubeCamera.renderTarget.texture
     });
-    var sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(0.5, 16, 16), sphereMirrorMaterial );
+    sphereMirror = new THREE.Mesh( new THREE.SphereBufferGeometry(0.5, 16, 16), sphereMirrorMaterial );
     sphereMirror.castShadow = true;
     sphereMirror.receiveShadow = true;
     sphereMirror.name = "mirror";
