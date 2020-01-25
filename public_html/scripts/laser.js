@@ -78,32 +78,18 @@ export function enemyLaserTranslate (item, index, object) {
     }
 }
 
-function testHit (item, stormtrooper) {
+function testHit (beam, target) {
     
-    var itemBox = new THREE.Box3().setFromObject(item);
-    var stormtrooperBox = new THREE.Box3().setFromObject(stormtrooper);
-    //var box = new THREE.BoxHelper( item, 0xffff00 );
-    //scene.add( box );
+    var itemBox = new THREE.Box3().setFromObject(beam);
+    var stormtrooperBox = new THREE.Box3().setFromObject(target);
+
     var collision = itemBox.intersectsBox(stormtrooperBox);
     
     if (collision) {
 
-        scene.remove(stormtrooper);
+        scene.remove(target);
     }
-    
-    //var raycaster = new THREE.Raycaster();
-    //var direction = new THREE.Vector3();
-    //var itemWorldPos = new THREE.Vector3();
-    //item.getWorldPosition(itemWorldPos);
-    //direction.subVectors(stormtrooper.position, itemWorldPos).normalize();
-    //raycaster.set(item, direction);
-    
-    
-    //var intersects = raycaster.intersectObjects(stormtrooper.children, true);
-    //if (intersects.length !== 0){
-        //console.log("intersect at", intersects[0].point);
-    //}
-    // if hit
+
     EXPLOSION.explode();      // fonksiyonlara bak ne durumda hatirlamiyorum ornekten aldim
     
 }
