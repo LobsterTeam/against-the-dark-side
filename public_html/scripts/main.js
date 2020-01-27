@@ -189,6 +189,10 @@ export function render() {
     
     // INTRO CHECKS
     if (gameNameAnimation) {
+        console.log(gameNameAnimation);
+        if (onLevelMap || gameStarted) {
+            gameNameAnimation = false;
+        }
         perpIntroGroup.position.z -= 15;
         INTRO.setGameNameOpacity(perpIntroGroup);
         
@@ -204,6 +208,8 @@ export function render() {
             introAnimation = false;
             createLevelMap();
         }
+    } else if (introSound !== undefined && introSound.isPlaying) {
+        introSound.stop();
     }
 
     if (!modelsLoading) {
@@ -753,7 +759,6 @@ function loadBlaster () {
             camera.add(emitter);
             loadLandspeeder();
     };
-    
     LOADERS.gltfLoad(manager, 'models/blaster-gltf/blaster.gltf', scene, camera, 
                                 "blaster", 2, -2.3, -3.5, 2, Math.PI / 2);
 }
@@ -788,8 +793,8 @@ function loadLandspeeder () {
     };
 
     LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
-                    "landspeeder", camera.position.x - 130, camera.position.y - 300,
-                    camera.position.z - 250, 100, Math.PI);
+                    "landspeeder", camera.position.x - 130, camera.position.y - 50,
+                    camera.position.z - 150, 100, Math.PI);
 }
 
 function createTerrain() {
