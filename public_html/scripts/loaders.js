@@ -8,7 +8,7 @@ import { AnimationMixer } from '../three.js-dev/src/animation/AnimationMixer.js'
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { terrainMeshes } from './terrain.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
-import { scene, camera, renderer, render, enemyDensity, finishLine, landspeederObject} from './main.js';
+import { scene, camera, renderer, render, densityList, densityIndex, finishLine, landspeederObject} from './main.js';
 
 
 export var mixer, stormtroopers = [];
@@ -145,9 +145,9 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.receiveShadow = true;
 
             if (obj.name === "tie-fighter-1"){
-                for (var i = 0; i < enemyDensity; ++i ) {
+                for (var i = 0; i < densityList[densityIndex]; ++i ) {
                     var obj2 = obj.clone();
-                    obj2.position.set(x, y, z - (i * (-finishLine / enemyDensity)));
+                    obj2.position.set(x, y, z - (i * (-finishLine / densityList[densityIndex])));
                     scene.add(obj2);
                 }
                 
