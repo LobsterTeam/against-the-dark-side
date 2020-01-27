@@ -71,6 +71,7 @@ function init() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
+    $('html,body').css('cursor', 'default');
     
     showClick();
     EXPLOSION.addParticles();
@@ -745,9 +746,12 @@ function loadTieFighters () {
     manager.onLoad = function ( ) {
             console.log( 'Tiefighter loading complete!');
     };
-    LOADERS.objLoad (manager, "models/tie-fighter-1-obj/starwars-tie-fighter.mtl", "models/tie-fighter-1-obj/starwars-tie-fighter.obj",
-                    scene, camera, "tie-fighter-1",camera.position.x - 130, camera.position.y + 480,
-                    -10000, 20, 0);
+    LOADERS.objLoad (manager, "models/tie-fighter-obj/starwars-tie-fighter.mtl", "models/tie-fighter-obj/starwars-tie-fighter.obj",
+                    scene, camera, "tie-fighter", camera.position.x - 5000, camera.position.y + 10000,
+                    -40000, 200, 0);
+    LOADERS.objLoad (manager, "models/tie-fighter-obj/starwars-tie-fighter.mtl", "models/tie-fighter-obj/starwars-tie-fighter.obj",
+                    scene, camera, "tie-fighter", camera.position.x + 5000, camera.position.y + 10000,
+                    -40000, 200, 0);
 }
 
 function loadBlaster () {

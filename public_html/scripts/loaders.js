@@ -60,8 +60,8 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         if ( node instanceof THREE.Mesh ) { 
                             node.castShadow = true;
                             node.receiveShadow = true;
+                            console.log(node);
                         }
-
                     } );
             },
             // called while loading is progressing
@@ -149,20 +149,12 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
             obj.castShadow = true;
             obj.receiveShadow = true;
 
-            if (obj.name === "tie-fighter-1"){
-                for (var i = 0; i < densityList[densityIndex]; ++i ) {
-                    var obj2 = obj.clone();
-                    obj2.position.set(x, y, z - (i * (-finishLine / densityList[densityIndex])));
-                    scene.add(obj2);
-                }
-                
+            if (objName === "r2-d2" || objName === "bottle") {
+                landspeederObject.add(obj);
             } else {
-                if (objName === "r2-d2" || objName === "bottle") {
-                    landspeederObject.add(obj);
-                } else {
-                    scene.add(obj);
-                }
+                scene.add(obj);
             }
+            
             obj.traverse( function( node ) {
 
                 if ( node instanceof THREE.Mesh ) { 
