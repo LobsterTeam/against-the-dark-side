@@ -17,7 +17,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
     // Instantiate a loader
     var loader = new GLTFLoader(manager);
     // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-    var dracoLoader = new DRACOLoader();
+    var dracoLoader = new DRACOLoader();    
     dracoLoader.setDecoderPath( '../three.js-dev/examples/js/libs/draco/' );
     loader.setDRACOLoader( dracoLoader );
 
@@ -45,9 +45,11 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         emitter.updateMatrixWorld();
                         stormtroopers.push(gltf.scene);
                         gltf.scene.add(emitter);
-                    }
-                    if (objName === "blaster") {
+                        scene.add( gltf.scene );
+                    } else if (objName === "blaster") {
                         camera.add(gltf.scene);
+                    } else if (objName === "landspeeder"){
+                        scene.add( gltf.scene );
                     } else {
                         scene.add( gltf.scene );
                     }
