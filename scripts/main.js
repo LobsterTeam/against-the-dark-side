@@ -16,7 +16,7 @@ import * as LASER from './laser.js';
 
 export var camera, scene, renderer, onLevelMap, audioListener, directionalLight, 
         perpIntroGroup, audioLoader, introSound, levelSound, gameNameAnimation, skewedIntroGroup,
-        rotatedGroup, particleArray = [], finishLine = -60000, enemyDensity;
+        rotatedGroup, particleArray = [], finishLine = -60000;
 // terrain scene sky colors
 export var topSkyColor = 0xE8BDAB , bottomSkyColor = 0xdcdbdf;
 // blaster values
@@ -25,6 +25,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
+export var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 export var gunSound;
 
 
@@ -44,7 +45,6 @@ var speedStep = 1, backwardFinishLine = 3000;
 var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
-var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 var tick = 0, r2d2Object, stats;
 
 window.createLevelMap = createLevelMap;
