@@ -60,7 +60,6 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         if ( node instanceof THREE.Mesh ) { 
                             node.castShadow = true;
                             node.receiveShadow = true;
-                            console.log(node);
                         }
                     } );
             },

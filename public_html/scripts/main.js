@@ -43,7 +43,7 @@ var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
 var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
-var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
+var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
 
@@ -217,9 +217,6 @@ export function render() {
         renderer.render( scene, camera );
     }
     
-    if (onLevelMap) {
-        labelRenderer.render(scene, camera);
-    }
     
     if (gameStarted) {
                 
@@ -302,22 +299,16 @@ function gameOver() {
     if (gameOverDiv === undefined && gameOverObject === undefined){
         gameOverDiv = document.getElementById("game-over");
         gameOverObject = new CSS2DObject(gameOverDiv);
+        gameOverObject.position.set(0.0, 0.0, -10.0);
     }
     document.body.removeChild(labelRenderer.domElement);
     gameOverDiv.style.display = "block";
     gameOverDiv.style.zIndex = 100;
-    scene.add(gameOverObject);
+    camera.add(gameOverObject);
     
-    if (gameOverHomeButton === undefined && gameOverRestartButton === undefined
-            && finishHomeButton === undefined && finishNextButton === undefined){
+    if (gameOverHomeButton === undefined && gameOverRestartButton === undefined){
         gameOverHomeButton = document.getElementById("game-over-home-button");
         gameOverRestartButton = document.getElementById("game-over-restart-button");
-        finishHomeButton = document.getElementById("finish-home-button");
-        finishNextButton = document.getElementById("finish-next-button");
-    }
-    
-    if (densityIndex === 2) {
-        finishNextButton.style.display = "none";    //TODO: Home button ortada?
     }
 
     gameOverRenderer = new CSS2DRenderer();
@@ -328,32 +319,41 @@ function gameOver() {
     gameOverRenderer.render(scene, camera);
     
     gameOverHomeButton.addEventListener("mousedown", function() {
-            createLevelMap();
-        });
+        document.body.removeChild(gameOverRenderer.domElement);
+        createLevelMap();
+    });
     
     gameOverRestartButton.addEventListener("mousedown", function() {
-            generateLevelInit();
-        });
+        document.body.removeChild(gameOverRenderer.domElement);
+        generateLevelInit();
+    });
         
-    finishHomeButton.addEventListener("mousedown", function() {
-            createLevelMap();
-        });
-        
-    finishNextButton.addEventListener("mousedown", function() {
-            if (densityIndex !== 2) {
-                densityIndex++;
-            }
-            generateLevelInit();   // TODO: handle next level
-        });
 }
 
 function finishedLevel() {
-    document.body.removeChild(labelRenderer.domElement);
-    var gameOverDiv = document.getElementById("finish");
-    gameOverDiv.style.display = "block";
-    gameOverDiv.style.zIndex = 100;
-    var gameOverObject = new CSS2DObject(gameOverDiv);
-    scene.add(gameOverObject);
+    if (finishLevelDiv === undefined && finishLevelObject === undefined){
+        finishLevelDiv = document.getElementById("finish");
+        finishLevelObject = new CSS2DObject(finishLevelDiv);
+        finishLevelObject.position.set(0.0, 0.0, -10.0);
+    }
+    //document.body.removeChild(gameOverRenderer.domElement);
+
+    finishLevelDiv.style.display = "absolute";
+    finishLevelDiv.style.zIndex = 101;
+    camera.add(finishLevelObject);
+    console.log("finish");
+    
+    
+    if (finishHomeButton === undefined && finishNextButton === undefined) {
+        finishHomeButton = document.getElementById("finish-home-button");
+        finishNextButton = document.getElementById("finish-next-button");
+    }
+    
+    console.log(densityIndex);
+    if (densityIndex === 2) {
+        finishNextButton.style.display = "none";
+    }
+
     
     finishedRenderer = new CSS2DRenderer();
     finishedRenderer.setSize( window.innerWidth, window.innerHeight );
@@ -361,6 +361,19 @@ function finishedLevel() {
     finishedRenderer.domElement.style.top = 0;
     document.body.appendChild( finishedRenderer.domElement );
     finishedRenderer.render(scene, camera);
+    
+    finishHomeButton.addEventListener("mousedown", function() {
+        document.body.removeChild(finishedRenderer.domElement);
+        createLevelMap();
+    });
+
+    finishNextButton.addEventListener("mousedown", function() {
+        document.body.removeChild(finishedRenderer.domElement);
+        if (densityIndex < 2) {
+            densityIndex++;
+        }
+        generateLevelInit();   // TODO: handle next level
+    });
 }
 
 function r2d2Move (r2d2) {
@@ -435,7 +448,6 @@ function clearScene () {
 
 export function createLevelMap () {
     console.log("level map");
-    PANEL.clearGUI();       // if there is already gui delete
     var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
     $('html,body').css('cursor', 'default');
     scene.background = texture;
@@ -453,6 +465,7 @@ export function createLevelMap () {
         
         levelMapDiv = document.getElementById("levels");
         levelMapObject = new CSS2DObject(levelMapDiv);
+
     }
     
     var levelMapLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
@@ -471,6 +484,7 @@ export function createLevelMap () {
     labelRenderer.domElement.style.position = 'absolute';
     labelRenderer.domElement.style.top = 0;
     document.body.appendChild( labelRenderer.domElement );
+    labelRenderer.render(scene, camera);
     
     var levelItems = document.getElementsByClassName("dot");
     
@@ -479,7 +493,7 @@ export function createLevelMap () {
             case "1":
                 levelItems[i].addEventListener("mousedown", function() {
                     if(levels[0]){
-                        densityIndex++;
+                        densityIndex = 0;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -490,7 +504,7 @@ export function createLevelMap () {
             case "2":
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[1]){
-                        densityIndex++;
+                        densityIndex = 1;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -501,7 +515,7 @@ export function createLevelMap () {
             case "3":
                 levelItems[i].addEventListener("mousedown", function() {
                     if (levels[2]){
-                        densityIndex++;
+                        densityIndex = 2;
                         if (levelSound){
                             levelSound.pause();
                         }
@@ -611,6 +625,8 @@ function muteAudioSlowly () {
 }
 
 function createGameScene() {
+    PANEL.clearGUI();       // if there is already gui delete
+    $('html,body').css('cursor', 'default');
     camera.position.set(0, 300, 0);
     scene.add( camera );
     cameraSpeed = new THREE.Vector3(0.0, 300.0, -300.0);        // initial camera speed
