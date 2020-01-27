@@ -110,10 +110,8 @@ function testHit (beam, target) {
     var collision = itemBox.intersectsBox(stormtrooperBox);
     
     if (collision) {
-
+        EXPLOSION.explode(target.position.x, target.position.y, target.position.z);
         scene.remove(target);
     }
-
-    EXPLOSION.explode();      // fonksiyonlara bak ne durumda hatirlamiyorum ornekten aldim
     
 }
