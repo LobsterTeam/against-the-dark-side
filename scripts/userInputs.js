@@ -1,32 +1,24 @@
-import { gameMode, controls, setGameMode, scene, camera, renderer, render,
-    gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
-    moveUp, moveDown, canvas, crosshair, toggleSound } from './main.js';
+import { gameMode, controls, setGameMode, scene, camera, renderer, gameStarted, 
+    moveForward, moveBackward, moveRight, moveLeft, moveUp, moveDown, crosshair,
+    toggleSound } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
-import { OrbitControls } from '../three.js-dev/examples/jsm/controls/OrbitControls.js';
-import {
-        Raycaster,
-        Vector2
-} from "../three.js-dev/build/three.module.js";
+import {Raycaster, Vector2} from "../three.js-dev/build/three.module.js";
 
-var INTERSECTED, PARENT;
+var INTERSECTED;
 var transformControls;
 var raycaster =  new Raycaster();
 var objects;
 var mouse = new Vector2();
-var orbit;
 export var muted = false;
-
 
 export function initUserInputs () {
     transformControls = new TransformControls( camera, renderer.domElement );
     scene.add( transformControls );
     var models = scene.getObjectByName( "bottle" ).children.concat(scene.getObjectByName( "r2-d2" ).children);
     objects = [scene.getObjectByName("mirror"), scene.getObjectByName("box")].concat(models);
-    
 }
 
-// TODO game scene check
 export function onKeyDown ( event ) {
     
     if (event.keyCode === 77) {
@@ -119,7 +111,6 @@ export function onKeyDown ( event ) {
     }
 };
 
-// TODO sadece lock tayken yapabilirsin
 export function mouseMove ( event ) {
     if (!gameStarted) return;
 
@@ -148,13 +139,10 @@ export function mouseDown () {
     if (!gameStarted || !gameMode) return;
     
     switch ( event.button ) {
-
             case 0:     // left click
-                console.log("button click");
                 userFire();
                 break;
             case 2:
                 break;
-
     }
 }
