@@ -819,6 +819,7 @@ function gameSceneLoadingEnded () {
 function loadLandspeeder () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
+        EXPLOSION.addParticles();
         landspeederObject = scene.getObjectByName("landspeeder");
         loadR2D2();
     };
