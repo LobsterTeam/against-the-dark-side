@@ -1,6 +1,6 @@
 import * as THREE from '../three.js-dev/build/three.module.js';
 
-export var terrainMeshes = [];
+export var terrainMeshes = [], terrainTexture;
 
 function getHeightData(img) {
     var canvas = document.createElement( 'canvas' );
@@ -41,10 +41,10 @@ export function generateDesertTerrain(img, scene) {
     plane.computeVertexNormals();
 
     var textureLoader = new THREE.TextureLoader();
-    var texture = textureLoader.load( "textures/sand.jpg" );
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set( 25, 25 );
-    var material = new THREE.MeshPhongMaterial( { map: texture } );
+    terrainTexture = textureLoader.load( "textures/sand.jpg" );
+    terrainTexture.wrapS = terrainTexture.wrapT = THREE.RepeatWrapping;
+    terrainTexture.repeat.set( 25, 25 );
+    var material = new THREE.MeshPhongMaterial( { map: terrainTexture } );
 
     createGroundMesh (scene, plane, material, 0, 30000);
     createGroundMesh (scene, plane, material, 0, -30000);
@@ -67,5 +67,6 @@ function createGroundMesh (scene, plane, material, x, z) {
     groundMesh.receiveShadow = true;
     groundMesh.updateMatrixWorld();
     terrainMeshes.push(groundMesh);
+    groundMesh.name = "terrain";
     scene.add( groundMesh );
 }

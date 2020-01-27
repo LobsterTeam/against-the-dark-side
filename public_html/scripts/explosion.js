@@ -11,44 +11,48 @@ export function addParticles() {
     for (i = 0; i < 500; i++) {
         var radius = Math.random() * 50;
         var vector = getRandomPointOnSphere(radius);
-        geometry.vertices.push(new THREE.Vector3(vector));
+        geometry.vertices.push(new THREE.Vector3().copy(vector));
     }
     
     var textureLoader = new THREE.TextureLoader();
-    var particleImage = textureLoader.load( "img/fraction.png" );
+    var particleImage = textureLoader.load( "img/fraction.png", function() {
+        var colorArray = [0xffffff, 0xfabe82, 0xe03809, 0xee9c64, 0x910300];
+        var sizeArray = [48, 48, 48, 48, 64];
 
-    //var particleImage = THREE.ImageUtils.loadTexture('img/fraction1.png');
-    var colorArray = [0xffffff, 0xfabe82, 0xe03809, 0xee9c64, 0x910300];
-    var sizeArray = [48, 48, 48, 48, 64];
+        for (i = 0; i < 15; ++i) {
+            var color = colorArray[i % colorArray.length];
+            var size = sizeArray[i % sizeArray.length];
 
-    for (i = 0; i < 15; ++i) {
-        var color = colorArray[i % colorArray.length];
-        var size = sizeArray[i % sizeArray.length];
+            var particleMaterial = new THREE.PointsMaterial({
+                color: color,
+                size: size,
+                map: particleImage,
+                opacity: 1.0,
+                transparent: true,
+                depthTest: false,
+                blending: THREE.AdditiveBlending
+            });
 
-        var particleMaterial = new THREE.PointsMaterial({
-            color,
-            size,
-            map: particleImage,
-            opacity: 1.0,
-            transparent: true,
-            depthTest: false,
-            blending: THREE.AdditiveBlending
-        });
-        var particles = new THREE.Points(geometry, particleMaterial);
+            var particles = new THREE.Points(geometry, particleMaterial);
 
-        particles.rotation.set(
-            Math.random() * Math.PI,
-            Math.random() * Math.PI,
-            Math.random() * Math.PI
-        );
-        particles.position.z = -500 + i;
-        particles.scale.set(0.1, 0.1, 0.1);
-        particles.visible = false;
+            particles.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            particles.position.z = -500 + i;
+            particles.scale.set(100, 100, 100);
+            particles.visible = false;
 
-        scene.add(particles);
-        var o = { p: particles, m: particleMaterial };
-        particleArray.push(o);
-    }
+            scene.add(particles);
+            var o = { p: particles, m: particleMaterial };
+            particleArray.push(o);
+        }
+    }, function(){
+        
+    }, function(error){
+        console.error(error);
+    });
 }
 
 function explodeDone() {
@@ -61,7 +65,7 @@ function explodeDone() {
             Math.random() * Math.PI,
             Math.random() * Math.PI
         );
-        particles.scale.set(0.1, 0.1, 0.1);
+        particles.scale.set(100, 100, 100);
         material.opacity = 1;
         particles.visible = false;
 
@@ -72,19 +76,16 @@ function explodeDone() {
     }
 }
 
-export function explode() {
-    //console.log(particleArray);
-
+export function explode(posX, posY, posZ) {
+    
     for (i = 0; i < particleArray.length; ++i) {
         var particles = particleArray[i].p;
         var material = particleArray[i].m;
 
         particles.visible = true;
-        particles.position.x = camera.position.x;
-        particles.position.y = camera.position.y;
-        particles.position.z = camera.position.z - 100;
-        //console.log(particles.position);
-        //console.log(camera.position);
+        particles.position.x = posX;
+        particles.position.y = posY + 300;
+        particles.position.z = posZ;
 
         var outscale = 3 + Math.random() * 5;
 
@@ -113,9 +114,9 @@ export function explode() {
         var positiontween = new TWEEN.Tween(particles.position)
           .to(
             {
-              x: camera.position.x,
-              y: camera.position.y + 30,
-              z: particles.position.z + 500
+              x: posX,
+              y: posY + 300,
+              z: posZ
             },
             2500
           )
