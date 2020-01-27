@@ -26,7 +26,7 @@ export var controls, gameMode = true, gameStarted, emitter, userLasers = [],
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 export var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
-export var gunSound;
+export var gunSound, gunSoundBuffer, modelsLoading = false;
 
 
 var container;
@@ -40,7 +40,7 @@ var audioLoader, introSound;
 var fromIntro = true, onLevelMap = false;       // to avoid recreate of the space background
 var clock = new THREE.Clock();
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
-var modelsLoading = false, manager, loadingPlaneMesh;
+var manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
 var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject;
@@ -262,7 +262,7 @@ export function render() {
             flagGeometry.computeVertexNormals();
             
             userLasers.forEach(LASER.userLaserTranslate);
-            //enemyLasers.forEach(LASER.enemyLaserTranslate);
+            enemyLasers.forEach(LASER.enemyLaserTranslate);
 
         } else if (camera.position.z >= backwardFinishLine) {
             gameStarted = false;
@@ -405,14 +405,25 @@ function showStarWarsEntry () {
 
 // manage sound button according to current sound mode
 export function toggleSound() {
+    
     var icon = $('#soundIcon');
     if (icon.attr('src') === "./img/sound_on.png") {
         icon.attr('src', './img/sound_off.png');
-        introSound.setVolume(0.0);      // TODO check introSound
+        if (introSound !== undefined && introSound.isPlaying) {
+            introSound.setVolume(0.0);
+        }
+        if (levelSound !== undefined && levelSound.isPlaying) {
+            levelSound.setVolume(0.0);   
+        }
         
     } else {
         icon.attr('src', './img/sound_on.png');
-        introSound.setVolume(1.0);      // TODO check introSound
+        if (introSound !== undefined && introSound.isPlaying) {
+            introSound.setVolume(1.0);
+        }
+        if (levelSound !== undefined && levelSound.isPlaying) {
+            levelSound.setVolume(1.0);   
+        }
     }
 }
 
@@ -545,28 +556,31 @@ function generateLevelInit() {
 function loadLevelModel() {
     var rand = Math.floor(Math.random() * 3) + 1;
     if (rand === 1) {
-        audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
-            levelSound = new THREE.Audio(audioListener);
-            levelSound.setBuffer(buffer);
-            levelSound.setLoop(true);
-            levelSound.setVolume(1.0);
-            camera.add(levelSound);
-            levelSound.play();
+        if (!USERINPUTS.muted){
+            audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
+                levelSound = new THREE.Audio(audioListener);
+                levelSound.setBuffer(buffer);
+                levelSound.setLoop(true);
+                levelSound.setVolume(1.0);
+                camera.add(levelSound);
+                levelSound.play();
 
-        });
+            });
+        }
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/chicken.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 1, -Math.PI/6);
     } else if (rand === 2) {
-        audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
-            levelSound = new THREE.Audio(audioListener);
-            levelSound.setBuffer(buffer);
-            levelSound.setLoop(true);
-            levelSound.setVolume(1.0);
-            camera.add(levelSound);
-            levelSound.play();
-        });
-        
+        if (!USERINPUTS.muted){
+            audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
+                levelSound = new THREE.Audio(audioListener);
+                levelSound.setBuffer(buffer);
+                levelSound.setLoop(true);
+                levelSound.setVolume(1.0);
+                camera.add(levelSound);
+                levelSound.play();
+            });
+        }
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/twist-dance.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.9, -Math.PI/6);
@@ -580,11 +594,8 @@ function loadLevelModel() {
 
 function loadGameSounds() {
     audioLoader.load('sounds/laser-cut.ogg', function(buffer) {
-        gunSound = new THREE.Audio(audioListener);
-        gunSound.setBuffer(buffer);
-        gunSound.setLoop(false);
-        gunSound.setVolume(1.0);
-        camera.add(gunSound);
+        gunSoundBuffer = buffer;
+
         //gunSound.play();
 
     });
