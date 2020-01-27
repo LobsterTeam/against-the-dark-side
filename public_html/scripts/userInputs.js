@@ -16,6 +16,7 @@ var objects;
 var mouse = new Vector2();
 var orbit;
 export var muted = false;
+export var flatShading = 0;
 
 
 export function initUserInputs () {
@@ -114,7 +115,8 @@ export function onKeyDown ( event ) {
 
 
         case 80:        // P key
-                // change shading
+            flatShading++;
+            flatShading = flatShading % 3;
                 break;
     }
 };

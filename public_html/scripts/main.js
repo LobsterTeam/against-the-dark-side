@@ -27,13 +27,14 @@ export var controls, gameMode = true, gameStarted, emitter, userLasers = [],
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 export var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 export var gunSound, gunSoundBuffer, modelsLoading = false;
+export var flatShading = false;
 
 
 var container;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var flagObject;
-var i, j;       // loop identifiers
+var i, j, k;       // loop identifiers
 var labelRenderer, gameOverRenderer, finishedRenderer;
 var gameNameAnimation = false, introAnimation = false;      // booleans to animate intro texts
 var audioLoader, introSound;
@@ -74,7 +75,6 @@ function init() {
     $('html,body').css('cursor', 'default');
     
     showClick();
-    EXPLOSION.addParticles();
 
     window.addEventListener( 'resize', onWindowResize, false );
     document.addEventListener( 'keydown', USERINPUTS.onKeyDown, false );
@@ -187,7 +187,7 @@ function onWindowResize() {
 
 export function render() {
     stats.update();
-    
+    TWEEN.update();
     // INTRO CHECKS
     if (gameNameAnimation) {
         console.log(gameNameAnimation);
@@ -230,16 +230,78 @@ export function render() {
             for (i = scene.children.length - 1; i >= 0; i--) {
                 var child = scene.children[i];
                 if (child.name === "landspeeder"){
+                    var children = child.children;
+                    for (j = 1; j < children.length; j++){
+                        if(children[j].name === "r2-d2"){
+                            var mesh = children[j].children[0];
+                            if (USERINPUTS.flatShading === 0){
+                                mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
+                            }
+                        } else if (children[j].name === "box") {
+                            var mesh = children[j];
+                            if (USERINPUTS.flatShading === 0){
+                                mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
+                            }
+                        } else if (children[j].name === "bottle") {
+                            var materials = children[j].children[0].material;
+                            for (k = 0; k < materials.length; k++){
+                                if (USERINPUTS.flatShading === 0){
+                                    materials[k] = new THREE.MeshPhongMaterial({color: materials[k].color});
+                                } else if (USERINPUTS.flatShading === 1) {
+                                    materials[k] = new THREE.MeshLambertMaterial({color: materials[k].color});
+                                } else if (USERINPUTS.flatShading === 2) {
+                                    materials[k] = new THREE.MeshStandardMaterial({color: materials[k].color});
+                                }
+                            }
+                            
+                        }
+                    }
                     child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
+                    var meshes = [];
+                    
+                    child.children[0].traverse( function( node ) {
+
+                        if ( node instanceof THREE.Mesh ) { 
+                            meshes.push(node);
+                        }
+                    } );
+                    for (j = 0; j < meshes.length; j++){
+                        if (USERINPUTS.flatShading === 0){
+                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color});
+                        }
+                    }
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
+                    child.children[0].children[0].children[0].children[1].material.flatShading = false;
+
                     if (child.position.distanceTo(camera.position) < 8000) {
                         tick++;     // TODO gameStarted a al
                         if ((tick % 60) === 0) {
                             LASER.enemyFire(child);
                         }
                     }
-                }
+                } else if (child.name === "terrain"){
+                    if (USERINPUTS.flatShading === 0){
+                        child.material = new THREE.MeshPhongMaterial({map: TERRAIN.terrainTexture});
+                    } else if (USERINPUTS.flatShading === 1) {
+                        child.material = new THREE.MeshLambertMaterial({map: TERRAIN.terrainTexture});
+                    } else if (USERINPUTS.flatShading === 2) {
+                        child.material = new THREE.MeshStandardMaterial({map: TERRAIN.terrainTexture});
+                    }
+                } 
+                
             }
             r2d2Move(r2d2Object);
             
@@ -705,10 +767,10 @@ function loadFlag () {
 
 function loadSphereMirror () {
     // cubecameras
-    cubeCamera = new THREE.CubeCamera(1, 1000000, 256);
+    cubeCamera = new THREE.CubeCamera(0.1, 1000000, 256);
     cubeCamera.renderTarget.texture.generateMipmaps = true;
     cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
-    cubeCamera2 = new THREE.CubeCamera(1, 1000000, 256);
+    cubeCamera2 = new THREE.CubeCamera(0.1, 1000000, 256);
     cubeCamera2.renderTarget.texture.generateMipmaps = true;
     cubeCamera2.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
     
