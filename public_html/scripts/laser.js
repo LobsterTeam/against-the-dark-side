@@ -1,4 +1,4 @@
-import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed } from './main.js';
+import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed, gunSound } from './main.js';
 import { stormtroopers } from './loaders.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as EXPLOSION from './explosion.js';
@@ -27,6 +27,7 @@ export function userFire () {
     }, 50);
     userLasers.push(laserMesh); 
     camera.add(laserMesh);
+    gunSound.play();
 }
 
 export function enemyFire (enemy) {
@@ -46,6 +47,7 @@ export function enemyFire (enemy) {
     laserMesh.updateWorldMatrix();
     enemyLasers.push(laserMesh);
     enemy.add(laserMesh);
+    gunSound.play();
 }
 
 export function userLaserTranslate (item, index, object) {
