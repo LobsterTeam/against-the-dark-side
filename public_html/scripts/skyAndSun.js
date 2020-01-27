@@ -1,17 +1,15 @@
-import { scene, camera, renderer} from './main.js';
-import { Sky } from '../three.js-dev/examples/jsm/objects/Sky.js';
+import { scene, camera} from './main.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import { Lensflare, LensflareElement } from '../three.js-dev/examples/jsm/objects/Lensflare.js';
 
 export var tatooOne, tatooTwo, tatooOneMesh, tatooTwoMesh;
 
-var sky, textureFlare, textureFlare2;
+var sky, textureFlare;
 
 export function createTatooSuns(topSkyColor, bottomSkyColor, tatooOneColor, tatooTwoColor) {
                     
     var textureLoader = new THREE.TextureLoader();
     textureFlare = textureLoader.load( "textures/sunFlare.png" );
-    textureFlare2 = textureLoader.load( "textures/sunFlare2.png" );
     createSky(topSkyColor, bottomSkyColor);
     tatooOne = new THREE.DirectionalLight( 0xffffff, 0.5 );
     tatooOneMesh =  new THREE.Mesh(
@@ -37,7 +35,7 @@ function createSky (topColor, bottomColor) {
             "exponent": { value: 0.6 }
     };
 
-    var skyGeo = new THREE.SphereBufferGeometry( 1000000, 32, 15 );  // TODO 700000
+    var skyGeo = new THREE.SphereBufferGeometry( 1000000, 32, 15 );
     var skyMat = new THREE.ShaderMaterial( {
             uniforms: uniforms,
             vertexShader: vertexShader,
@@ -70,13 +68,8 @@ function createSun (sun, mesh, x, y, z) {
     scene.add(mesh);
     
     var lensflare = new Lensflare();
-    //lensflare.addElement( new LensflareElement( textureFlare2, 300, 0, sun.color) );
     lensflare.addElement( new LensflareElement( textureFlare, 40, 0.6 ) );
     lensflare.addElement( new LensflareElement( textureFlare, 100, 0.8 ) );
     lensflare.addElement( new LensflareElement( textureFlare, 50, 1 ) );
-
     sun.add( lensflare );
-    //scene.add(sun.target);
-    var helper = new THREE.DirectionalLightHelper( sun, 5 );
-    scene.add( helper );
 }

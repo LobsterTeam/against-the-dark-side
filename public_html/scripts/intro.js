@@ -72,13 +72,12 @@ export function createBackgroundWithStars () {
 
 export function createLongTimeAgoText () {
     // load a long time ago text
-    //console.log(window.innerWidth);
-    loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000); // TODO y ve z
+    loadFont(perpIntroGroup, longTimeAgoText, 'fonts/arial.json', 60, 0x64c8c5, 30, -1000);
     
     // load intro text before so it does not create an interrupt
     for (i = 0; i < gameIntrotextArr.length; i++) {
         loadFont(skewedIntroGroup, gameIntrotextArr[i], 'fonts/star_wars_entry/intro_font.json',
-            70, 0xfcdf00, -150 * i, -window.innerHeight);     // TODO y ve z
+            70, 0xfcdf00, -150 * i, -window.innerHeight);
     }
     
     camera.add(introSound);     // add star wars intro sound
@@ -101,9 +100,9 @@ export function createLongTimeAgoText () {
 function createGameNameText () {
     perpIntroGroup.remove(textMesh);    // remove a long time ago text
     loadFont(perpIntroGroup, gameName[0], 'fonts/star_wars_entry/logo_font.json', 
-            150, 0xfcdf00, 30, -300);       // TODO y ve z
+            150, 0xfcdf00, 30, -300);
     loadFont(perpIntroGroup, gameName[1], 'fonts/star_wars_entry/logo_font.json', 
-            150, 0xfcdf00, -120, -299);       // TODO y ve z
+            150, 0xfcdf00, -120, -299);
     if (!(onLevelMap || modelsLoading || gameStarted)) {
         introSound.play();      // add star wars intro sound
         if (USERINPUTS.muted){
