@@ -25,6 +25,8 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
+export var gunSound;
+
 
 var container;
 var windowHalfX = window.innerWidth / 2;
@@ -569,6 +571,19 @@ function loadLevelModel() {
 
 }
 
+function loadGameSounds() {
+    audioLoader.load('sounds/laser-cut.ogg', function(buffer) {
+        gunSound = new THREE.Audio(audioListener);
+        gunSound.setBuffer(buffer);
+        gunSound.setLoop(false);
+        gunSound.setVolume(1.0);
+        camera.add(gunSound);
+        //gunSound.play();
+
+    });
+}
+
+
 function muteAudioSlowly () {
     while (introSound.getVolume() >= 0.0) {
         console.log(introSound.getVolume());
@@ -585,6 +600,7 @@ function createGameScene() {
     onLevelMap = false; // these needs to be checked later
     modelsLoading = true;
     SKYANDSUN.createTatooSuns(topSkyColor, bottomSkyColor, 0xFDE585, 0xfdf2c2);
+    loadGameSounds();
     createTerrain();
     createTerrainSceneLights();
     loadTieFighters();
