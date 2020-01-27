@@ -1,6 +1,6 @@
 import { gameMode, controls, setGameMode, scene, camera, renderer, render,
     gameStarted, moveForward, moveBackward, moveRight, moveLeft, 
-    moveUp, moveDown, canvas, crosshair } from './main.js';
+    moveUp, moveDown, canvas, crosshair, toggleSound } from './main.js';
 import { userFire } from './laser.js';
 import { TransformControls } from '../three.js-dev/examples/jsm/controls/TransformControls.js';
 import { OrbitControls } from '../three.js-dev/examples/jsm/controls/OrbitControls.js';
@@ -15,6 +15,7 @@ var raycaster =  new Raycaster();
 var objects;
 var mouse = new Vector2();
 var orbit;
+export var muted = false;
 
 
 export function initUserInputs () {
@@ -27,6 +28,11 @@ export function initUserInputs () {
 
 // TODO game scene check
 export function onKeyDown ( event ) {
+    
+    if (event.keyCode === 77) {
+        muted = !muted;
+        toggleSound();
+    }
     
     if (!gameStarted) return;
     
@@ -106,10 +112,6 @@ export function onKeyDown ( event ) {
             }
             break;
 
-
-        case 77:        // M key
-                toggleSound();
-                break;
 
         case 80:        // P key
                 // change shading
