@@ -104,9 +104,8 @@ function createGameNameText () {
             150, 0xfcdf00, -120, -299);       // TODO y ve z
     if (!onLevelMap) {
         introSound.play();      // add star wars intro sound
+        setGameNameAnimation(true);
     }
-    
-    setGameNameAnimation(true);
 }
 
 function createIntroText () {
