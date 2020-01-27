@@ -1,7 +1,9 @@
 import * as THREE from '../three.js-dev/build/three.module.js';
+import * as USERINPUTS from './userInputs.js';
 import { scene, camera, renderer, onLevelMap, audioListener, directionalLight, perpIntroGroup,
     audioLoader, introSound, gameNameAnimation, setGameNameAnimation, setIntroAnimation,
-    skewedIntroGroup, rotatedGroup, createLevelMap} from './main.js';
+    skewedIntroGroup, rotatedGroup, createLevelMap, gameStarted, modelsLoading} from './main.js';
+
 
 var gameName = ["AGAINST THE", "DARK SIDE"];
 var longTimeAgoText = "A long time ago, in a galaxy far,\nfar away....";
@@ -102,8 +104,11 @@ function createGameNameText () {
             150, 0xfcdf00, 30, -300);       // TODO y ve z
     loadFont(perpIntroGroup, gameName[1], 'fonts/star_wars_entry/logo_font.json', 
             150, 0xfcdf00, -120, -299);       // TODO y ve z
-    if (!onLevelMap) {
+    if (!(onLevelMap || modelsLoading || gameStarted)) {
         introSound.play();      // add star wars intro sound
+        if (USERINPUTS.muted){
+            introSound.setVolume(0.0);
+        }
         setGameNameAnimation(true);
     }
 }
