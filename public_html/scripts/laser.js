@@ -1,10 +1,13 @@
-import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed, gunSound } from './main.js';
+import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed,
+        audioListener, gunSoundBuffer } from './main.js';
 import { stormtroopers } from './loaders.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as EXPLOSION from './explosion.js';
+import * as USERINPUTS from './userInputs.js';
+
 
 var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
-var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10);
+var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10000);
 var redLaserMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
 var greenLaserMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5 });
 var laserSpeed = 200;
@@ -27,7 +30,14 @@ export function userFire () {
     }, 50);
     userLasers.push(laserMesh); 
     camera.add(laserMesh);
-    gunSound.play();
+    if (!USERINPUTS.muted){
+        var gunSound = new THREE.Audio(audioListener);
+        gunSound.setBuffer(gunSoundBuffer);
+        gunSound.setLoop(false);
+        gunSound.setVolume(1.0);
+        camera.add(gunSound);
+        gunSound.play();
+    }
 }
 
 export function enemyFire (enemy) {
@@ -36,18 +46,30 @@ export function enemyFire (enemy) {
     // TODO find stomtrooper's gun's and tie fighter's mid positions. they are the emitter
     // update here to
     var gun = enemy.children[1];
-    laserMesh.position.copy(gun.position);
+    var pos = new THREE.Vector3();
+    pos.copy(gun.position);
+    pos.y -= 50;
+    laserMesh.position.copy(pos);
   
 
     laserMesh.quaternion.copy(gun.quaternion);
     enemyLaserGeometry.computeFaceNormals();
 
-    // here
+    setTimeout(function(){
+        enemy.remove(laserMesh);
+    }, 50);
     
     laserMesh.updateWorldMatrix();
     enemyLasers.push(laserMesh);
     enemy.add(laserMesh);
-    gunSound.play();
+    if (!USERINPUTS.muted){
+        var gunSound = new THREE.Audio(audioListener);
+        gunSound.setBuffer(gunSoundBuffer);
+        gunSound.setLoop(false);
+        gunSound.setVolume(1.0);
+        camera.add(gunSound);
+        gunSound.play();
+    }
 }
 
 export function userLaserTranslate (item, index, object) {
@@ -76,7 +98,7 @@ export function enemyLaserTranslate (item, index, object) {
         object.splice(index, 1);
         scene.remove(item);
     } else {
-        item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + enemyLaserSpeed));   // move along the local z-axis
+        //item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + enemyLaserSpeed));   // move along the local z-axis
     }
 }
 
