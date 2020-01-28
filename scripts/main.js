@@ -501,13 +501,7 @@ function finishedLevel() {
     if (finishNextButton === undefined) {
         finishNextButton = document.getElementById("finish-next-button");
     }
-    
-    console.log(densityIndex);
-    if (densityIndex === 2) {
-        finishNextButton.style.display = "none";
-    }
 
-    
     finishedRenderer = new CSS2DRenderer();
     finishedRenderer.setSize( window.innerWidth, window.innerHeight );
     finishedRenderer.domElement.style.position = 'absolute';
@@ -516,13 +510,20 @@ function finishedLevel() {
     finishedRenderer.render(scene, camera);
     
 
-    finishNextButton.addEventListener("mousedown", function() {
-        document.body.removeChild(finishedRenderer.domElement);
-        if (densityIndex < 2) {
-            densityIndex++;
-        }
-        generateLevelInit();   // TODO: handle next level
-    });
+    finishNextButton.addEventListener("mousedown", nextButton);
+    if (densityIndex === 2) {
+        finishNextButton.getElementsByTagName('img')[0].src = "img/done.png";
+        finishNextButton.removeEventListener("mousedown", nextButton);
+    }
+}
+
+function nextButton(){
+    camera.remove(finishLevelObject);
+    document.body.removeChild(finishedRenderer.domElement);
+    if (densityIndex < 2) {
+        densityIndex++;
+    }
+    generateLevelInit();   // TODO: handle next level
 }
 
 function r2d2Move (r2d2) {
