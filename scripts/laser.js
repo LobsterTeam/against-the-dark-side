@@ -141,6 +141,7 @@ function testHit (beam, target) {
         } else if (target.name === "landspeeder"){
             console.log("hit");
             health -= 10;
+            document.getElementById("health-text").innerText = "Health: " + health;
             if (health <= 0){
                 EXPLOSION.explode(target.position.x, target.position.y, target.position.z, target);
                 var geometry = new THREE.BoxBufferGeometry();

@@ -183,3 +183,15 @@ h20 {font-size:12px;}
     opacity: 0.8;
     color: #FFFFFF;
 }
+
+#health {
+    position: fixed;
+    z-index: 150;
+    color: #FFFFFF;
+    margin-bottom: 50px;
+    margin-left : 40px;
+    bottom: 0;
+    font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
+    font-size: 40px;
+    font-weight: bold;
+}

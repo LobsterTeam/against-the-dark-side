@@ -711,6 +711,7 @@ function createCrosshair() {
 }
 
 function generateLevelInit() {
+    document.getElementById("health").style.display = "none";
     clearScene();
     LASER.restart();
     scene.background = new THREE.Color( 0x000000 );
@@ -819,6 +820,9 @@ function loadBox () {
     bumpCube.position.set(1.7, -0.35, -1.8);
     landspeederObject.add(bumpCube);
     loadSphereMirror();
+    
+    document.getElementById("health").style.display = "block";
+    document.getElementById("health-text").innerText = "Health: " + LASER.health;
 }
 
 function loadFlag () {
