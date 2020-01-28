@@ -82,8 +82,10 @@ function init() {
     document.addEventListener( 'mousemove', USERINPUTS.mouseMove, false );
     document.addEventListener( 'mousedown', USERINPUTS.mouseDown, false );
     
-    stats = new Stats();
-    container.appendChild(stats.dom);
+    controls = new PointerLockControls( camera, document.body );
+    
+    //stats = new Stats();
+    //container.appendChild(stats.dom);
 }
 
 function createLoadingText (callback) {   
@@ -876,7 +878,7 @@ function loadSphereMirror () {
     
     // all loadings are done, start game scene
     gameSceneLoadingEnded();
-    controls = new PointerLockControls( camera, document.body );
+    
     controls.lock();
 }
 
