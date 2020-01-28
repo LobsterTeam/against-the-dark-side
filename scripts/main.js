@@ -46,7 +46,7 @@ var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphe
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
-var currentShading = -1;
+var currentShading = -1, flagTexture;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -238,12 +238,12 @@ export function render() {
                     }
                 }
             }
-        
+            
             for (i = scene.children.length - 1; i >= 0; i--) {
                 var child = scene.children[i];
                 if (child.name === "landspeeder"){
-                    var children = child.children;
                     if (currentShading !== USERINPUTS.flatShading){
+                        var children = child.children;
                         for (j = 1; j < children.length; j++){
                             if(children[j].name === "r2-d2"){
                                 var mesh = children[j].children[0];
@@ -331,6 +331,7 @@ export function render() {
                     }
                 } else if (child.name === "terrain"){
                     if (currentShading !== USERINPUTS.flatShading){
+                        
                         if (USERINPUTS.flatShading === 0){
                             child.material = new THREE.MeshPhongMaterial({map: TERRAIN.terrainTexture});
                         } else if (USERINPUTS.flatShading === 1) {
@@ -361,11 +362,35 @@ export function render() {
                             }
                         }
                     }
-                    currentShading = USERINPUTS.flatShading;
-
+                } else if (child.name === "flag"){
+                    if (currentShading !== USERINPUTS.flatShading){
+                        if (USERINPUTS.flatShading === 0){
+                            child.material = new THREE.MeshPhongMaterial({map: flagTexture,
+                                                                        side: THREE.DoubleSide,
+                                                                        alphaTest: 0.5});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            child.material = new THREE.MeshLambertMaterial({map: flagTexture,
+                                                                        side: THREE.DoubleSide,
+                                                                        alphaTest: 0.5});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            child.material = new THREE.MeshStandardMaterial({map: flagTexture,
+                                                                        side: THREE.DoubleSide,
+                                                                        alphaTest: 0.5});
+                        }
+                    }
+                } else if (child.name === "pole"){
+                    if (currentShading !== USERINPUTS.flatShading){
+                        if (USERINPUTS.flatShading === 0){
+                            child.material = new THREE.MeshPhongMaterial({color: 0xffffff, specular: 0x111111, shininess: 100});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            child.material = new THREE.MeshLambertMaterial({color: 0xffffff});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            child.material = new THREE.MeshStandardMaterial({color: 0xffffff});
+                        }
+                    }
                 }
-                
             }
+            currentShading = USERINPUTS.flatShading;
             r2d2Move(r2d2Object);
             
             // FLAG WIND
@@ -390,11 +415,13 @@ export function render() {
             gameStarted = false;
             controls.unlock();
             controls = undefined;
+            currentShading = -1
             gameOver();
         } else if (camera.position.z <= finishLine) {
             gameStarted = false;
             controls.unlock();
             controls = undefined;
+            currentShading = -1
             finishedLevel();
             // won
         }
@@ -792,7 +819,7 @@ function loadBox () {
 
 function loadFlag () {
     var textureLoader = new THREE.TextureLoader();
-    var flagTexture = textureLoader.load( 'textures/stormtrooper_flag.jpg' );
+    flagTexture = textureLoader.load( 'textures/stormtrooper_flag.jpg' );
     flagTexture.anisotropy = 16;
 
     var flagMaterial = new THREE.MeshLambertMaterial( {
@@ -803,7 +830,8 @@ function loadFlag () {
 
     flagGeometry = new THREE.ParametricBufferGeometry( FLAG.flagFunction, FLAG.flag.w, FLAG.flag.h );
     var flagObject = new THREE.Mesh( flagGeometry, flagMaterial );
-    flagObject.position.set( 4250, 800, -6000 );
+    flagObject.name = "flag";
+    flagObject.position.set( 4250, 750, -61100 );
     flagObject.castShadow = true;
     scene.add( flagObject );
     flagObject.customDepthMaterial = new THREE.MeshDepthMaterial( {
@@ -815,7 +843,8 @@ function loadFlag () {
     var poleGeo = new THREE.CubeGeometry( 30, 2000, 5 );
     var poleMat = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 100 } );
     var mesh = new THREE.Mesh( poleGeo, poleMat );
-    mesh.position.set(3950, 750, -6010);
+    mesh.name = "pole";
+    mesh.position.set(3950, 700, -61110);
     mesh.receiveShadow = true;
     mesh.castShadow = true;
     scene.add( mesh );
