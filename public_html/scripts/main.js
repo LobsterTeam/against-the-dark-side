@@ -197,12 +197,6 @@ export function render() {
     } else if (introSound !== undefined && introSound.isPlaying) {
         introSound.stop();
     }
-
-    if (!modelsLoading) {
-        renderer.render( scene, camera );
-    }
-    
-    
     
     if (gameStarted) {
                 
@@ -440,6 +434,10 @@ export function render() {
             }
             cubeCameraCount++;
         }
+    }
+    
+    if (!modelsLoading) {
+        renderer.render( scene, camera );
     }
 
     if(LOADERS.mixer){
@@ -967,8 +965,8 @@ function loadLandspeeder () {
     };
 
     LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
-                    "landspeeder", camera.position.x - 130, camera.position.y - 50,
-                    camera.position.z - 150, 100, Math.PI);
+                    "landspeeder", camera.position.x - 130, camera.position.y - 300,
+                    camera.position.z - 250, 100, Math.PI);
 }
 
 function createTerrain() {
