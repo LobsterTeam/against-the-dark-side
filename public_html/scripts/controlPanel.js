@@ -2,6 +2,8 @@ import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import * as SKYANDSUN from './skyAndSun.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import {setShowSphereMirror} from './main.js';
+import {showHitboxes} from './laser.js';
+
 
 var gui;
 
@@ -28,6 +30,9 @@ export function createGUI () {
     };
     
     var sphereMirrorParameters = {
+        on: false
+    };
+    var showEnemyHitboxesParameters = {
         on: false
     };
     
@@ -112,7 +117,7 @@ export function createGUI () {
         rotateAboutPoint(SKYANDSUN.tatooTwo.target, SKYANDSUN.tatooTwo.position, axis, value);
     });
     tatooTwoFolder.add( tattooTwoParameters, 'rotateZ', 0, 2*Math.PI, 0.001).name('Rotate Z').onChange(function(value) {
-        var axis = new THREE.Vector3(0, 0, 1)
+        var axis = new THREE.Vector3(0, 0, 1);
         rotateAboutPoint(SKYANDSUN.tatooTwo.target, SKYANDSUN.tatooTwo.position, axis, value);
     });
     tatooTwoFolder.close();
@@ -120,10 +125,14 @@ export function createGUI () {
     gui.add(sphereMirrorParameters, 'on').name('Activate Shpere Mirror').onChange(function(value) {
         setShowSphereMirror(value);
     });
+    
+    gui.add(showEnemyHitboxesParameters, 'on').name('Show Enemy Hitboxes').onChange(function(value) {
+        showHitboxes(value);
+    });
 }
 
 export function clearGUI () {
-    if (gui != undefined) {
+    if (gui !== undefined) {
         gui.destroy();
     }
 }
