@@ -89,14 +89,10 @@ function init() {
 function createLoadingText (callback) {    
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-        console.log( 'Text loading complete!');
         loadBB8(callback);
-
     };
     
-    manager.onError = function(error) {
-        console.log(error);
-    };
+    manager.onError = function(error) {};
     
     var material = new THREE.MeshPhongMaterial( { color: 0xd6835b, dithering: true } );
     var geometry = new THREE.PlaneBufferGeometry( 2000, 2000 );
@@ -140,14 +136,10 @@ function createLoadingSpotlight(posX, posY, posZ, tarX, tarY, tarZ, angle){
 function loadBB8(callback) {
     manager = new THREE.LoadingManager();
     manager.onLoad = function() {
-        console.log( 'BB8 loading complete!');
         renderer.render( scene, camera );
-        console.log(scene);
         callback();
     };
-    manager.onError = function(error) {
-        console.log(error);
-    };
+    manager.onError = function(error) {};
     LOADERS.bb8FbxLoad(manager, "models/animated/bb8/forceawakenslopo.blend.fbx", 
            scene, camera, "bb8-running", camera.position.x - 150, camera.position.y - 30,
             camera.position.z - 300, 50, 0);
@@ -184,7 +176,6 @@ export function render() {
     TWEEN.update();
     // INTRO CHECKS
     if (gameNameAnimation) {
-        console.log(gameNameAnimation);
         if (onLevelMap || gameStarted) {
             gameNameAnimation = false;
         }
@@ -325,7 +316,7 @@ export function render() {
                         }
                     }
                     if (child.position.distanceTo(camera.position) < 8000) {
-                        tick++;     // TODO gameStarted a al
+                        tick++;
                         if ((tick % 60) === 0) {
                             LASER.enemyFire(child);
                         }
@@ -447,7 +438,6 @@ function gameOver() {
         document.body.removeChild(gameOverRenderer.domElement);
         generateLevelInit();
     });
-        
 }
 
 function finishedLevel() {
@@ -567,8 +557,7 @@ function clearScene () {
 }
 
 export function createLevelMap () {
-    console.log("level map");
-    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/sky.jpg" );
+    var loader  = new THREE.TextureLoader(), texture = loader.load( "img/death-star.jpg" );
     $('html,body').css('cursor', 'default');
     scene.background = texture;
     gameNameAnimation = false;
@@ -593,9 +582,7 @@ export function createLevelMap () {
     scene.add(levelMapLight);
 
     manager = new THREE.LoadingManager();
-    manager.onLoad = function ( ) {
-            console.log( 'Level map stormtrooper Loading complete!');
-    };
+    manager.onLoad = function ( ) {};
     
     loadLevelModel();
     scene.add(levelMapObject);
@@ -676,7 +663,6 @@ function createCrosshair() {
     crosshair.position.x = crosshairPositionX * camera.aspect;
     crosshair.position.y = crosshairPositionY;
     crosshair.position.z = -10;
-    console.log("crosshair added");
     camera.add(crosshair);
 }
 
@@ -690,31 +676,30 @@ function generateLevelInit() {
 function loadLevelModel() {
     var rand = Math.floor(Math.random() * 3) + 1;
     if (rand === 1) {
-        if (!USERINPUTS.muted){
-            audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
-                levelSound = new THREE.Audio(audioListener);
-                levelSound.setBuffer(buffer);
-                levelSound.setLoop(true);
-                levelSound.setVolume(1.0);
-                camera.add(levelSound);
-                levelSound.play();
-
-            });
-        }
+        audioLoader.load('sounds/chicken-cut.ogg', function(buffer) {
+            levelSound = new THREE.Audio(audioListener);
+            levelSound.setBuffer(buffer);
+            levelSound.setLoop(true);
+            if (USERINPUTS.muted){
+                levelSound.setVolume(0.0);
+            }
+            camera.add(levelSound);
+            levelSound.play();
+        });
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/chicken.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 1, -Math.PI/6);
     } else if (rand === 2) {
-        if (!USERINPUTS.muted){
-            audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
-                levelSound = new THREE.Audio(audioListener);
-                levelSound.setBuffer(buffer);
-                levelSound.setLoop(true);
-                levelSound.setVolume(1.0);
-                camera.add(levelSound);
-                levelSound.play();
-            });
-        }
+        audioLoader.load('sounds/twist-cut.ogg', function(buffer) {
+            levelSound = new THREE.Audio(audioListener);
+            levelSound.setBuffer(buffer);
+            levelSound.setLoop(true);
+            if (USERINPUTS.muted){
+                levelSound.setVolume(0.0);
+            }
+            camera.add(levelSound);
+            levelSound.play();
+        });
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/twist-dance.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.9, -Math.PI/6);
@@ -738,7 +723,6 @@ function loadGameSounds() {
 
 function muteAudioSlowly () {
     while (introSound.getVolume() >= 0.0) {
-        console.log(introSound.getVolume());
         introSound.setVolume(introSound.getVolume() - 0.01);
     }
     introSound.setVolume(0.0);
@@ -845,7 +829,6 @@ function loadSphereMirror () {
     sphereMirror.add(cubeCamera2);
     landspeederObject.add(sphereMirror);
     
-    console.log(landspeederObject);
     // all loadings are done, start game scene
     gameSceneLoadingEnded();
     controls = new PointerLockControls( camera, document.body );
@@ -855,7 +838,6 @@ function loadSphereMirror () {
 function loadR2D2 () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-        console.log( 'R2D2 Loading complete!');
         r2d2Object = scene.getObjectByName("r2-d2")
         loadBottle();
     };
@@ -866,13 +848,10 @@ function loadR2D2 () {
 function loadStormtroopers () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-        console.log( 'Stormtrooper loading complete!');
         loadBlaster();
     };
     
-    manager.onError = function(error) {
-        console.log(error);
-    };
+    manager.onError = function(error) {};
     
     for (var j = 1; j < densityList[densityIndex] + 1; j++){
         var randomInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
@@ -890,9 +869,7 @@ function loadStormtroopers () {
 
 function loadTieFighters () {
     manager = new THREE.LoadingManager();
-    manager.onLoad = function ( ) {
-            console.log( 'Tiefighter loading complete!');
-    };
+    manager.onLoad = function ( ) {};
     LOADERS.objLoad (manager, "models/tie-fighter-obj/starwars-tie-fighter.mtl", "models/tie-fighter-obj/starwars-tie-fighter.obj",
                     scene, camera, "tie-fighter", camera.position.x - 5000, camera.position.y + 10000,
                     -40000, 200, 0);
@@ -904,7 +881,6 @@ function loadTieFighters () {
 function loadBlaster () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-            console.log( 'Loading complete! BLASTER');
             emitter = new THREE.Object3D();
             emitter.position.set(2, -1.8, -11.5);
             camera.add(emitter);
@@ -917,7 +893,6 @@ function loadBlaster () {
 function loadBottle () {
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
-        console.log( 'Bottle loading complete!');
         loadBox();
     };
     LOADERS.objLoad (manager, "models/bottle-obj/bottle.mtl", "models/bottle-obj/bottle.obj", scene, camera,
@@ -930,7 +905,6 @@ function gameSceneLoadingEnded () {
         scene.remove(scene.children[0]);
     }
     PANEL.createGUI();
-    console.log(scene);
     clock = new THREE.Clock();
     USERINPUTS.initUserInputs();
     gameStarted = true;
@@ -998,30 +972,6 @@ export function setGameNameAnimation (bool) {
 
 export function setIntroAnimation (bool) {
     introAnimation = bool;    
-}
-
-export function setBlasterTransX (value) {
-    blasterTransX = value;
-}
-
-export function setBlasterTransY (value) {
-    blasterTransY = value;
-}
-
-export function setBlasterTransZ (value) {
-    blasterTransZ = value;
-}
-
-export function setBlasterRotX (value) {
-    blasterRotX = value;
-}
-
-export function setBlasterRotY (value) {
-    blasterRotY = value;
-}
-
-export function setBlasterRotZ (value) {
-    blasterRotZ = value;
 }
 
 export function setGameMode (value) {

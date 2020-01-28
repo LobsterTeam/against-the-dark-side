@@ -41,7 +41,7 @@ export function generateDesertTerrain(img, scene) {
     plane.computeVertexNormals();
 
     var textureLoader = new THREE.TextureLoader();
-    terrainTexture = textureLoader.load( "textures/sand.jpg" );       // TODO
+    terrainTexture = textureLoader.load( "textures/sand.jpg" );
     terrainTexture.wrapS = terrainTexture.wrapT = THREE.RepeatWrapping;
     terrainTexture.repeat.set( 25, 25 );
     var material = new THREE.MeshPhongMaterial( { map: terrainTexture } );

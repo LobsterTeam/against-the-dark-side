@@ -1,8 +1,7 @@
 import * as DAT from '../three.js-dev/examples/jsm/libs/dat.gui.module.js';
 import * as SKYANDSUN from './skyAndSun.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
-import {setBlasterTransX, setBlasterTransY, setBlasterTransZ, setBlasterRotX,
-        setBlasterRotY, setBlasterRotZ, setShowSphereMirror} from './main.js';
+import {setShowSphereMirror} from './main.js';
 
 var gui;
 
@@ -39,7 +38,6 @@ export function createGUI () {
     // Tatoo One
     var tatooOneFolder = gui.addFolder('Tatoo I');
     tatooOneFolder.add( tattooOneParameters, 'intensity', 0, 2, 0.1 ).name('Intensity').onChange (function(value) {
-        console.log(SKYANDSUN.tatooOne.children[1]);
         
         if (value === 0.0) {        // if intensity is 0 then no sun flares
             SKYANDSUN.tatooOne.children[0].visible = false;
@@ -47,7 +45,7 @@ export function createGUI () {
             if (SKYANDSUN.tatooOne.children[0].visible === false) {
                 SKYANDSUN.tatooOne.children[0].visible = true;
             }
-            SKYANDSUN.tatooOne.children[0].opacity = value;     // TODO opacity?
+            SKYANDSUN.tatooOne.children[0].opacity = value;
         }
         
         SKYANDSUN.tatooOne.intensity = value;
@@ -88,7 +86,7 @@ export function createGUI () {
             if (SKYANDSUN.tatooTwo.children[0].visible === false) {
                 SKYANDSUN.tatooTwo.children[0].visible = true;
             }
-            SKYANDSUN.tatooTwo.children[0].opacity = value;     // TODO opacity works?
+            SKYANDSUN.tatooTwo.children[0].opacity = value;
         }
         
         SKYANDSUN.tatooTwo.intensity = value;
@@ -131,21 +129,10 @@ export function clearGUI () {
 }
 
 function rotateAboutPoint(obj, point, axis, theta) {
-        obj.position.set(0, 0, 0);
-        console.log(point);
-
-    
-
+    obj.position.set(0, 0, 0);
     obj.position.sub(point); // remove the offset
-    //console.log(obj.position);
     obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
-
     obj.position.add(point); // re-add the offset
-
     obj.rotateOnAxis(axis, theta); // rotate the OBJECT
-
-    
-    console.log(obj.position);
-    
     obj.updateMatrixWorld();
 }
