@@ -9,7 +9,7 @@ export var health = 100;
 
 
 var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
-var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10000);
+var enemyLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 10000);
 var redLaserMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 1.0 });
 var greenLaserMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, opacity: 1.0 });
 var laserSpeed = 200;
@@ -58,8 +58,9 @@ export function enemyFire (enemy) {
     var gun = enemy.children[1];
     var pos = new THREE.Vector3();
     pos.copy(gun.position);
-    pos.y -= 50;
-    pos.z += 4900;
+    pos.x -= 1;
+    pos.y -= 91;
+    pos.z += 5000;
     laserMesh.position.copy(pos);
   
 
