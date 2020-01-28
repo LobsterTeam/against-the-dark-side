@@ -4,7 +4,6 @@ import * as THREE from '../three.js-dev/build/three.module.js';
 import {setShowSphereMirror} from './main.js';
 import {showHitboxes} from './laser.js';
 
-
 var gui;
 
 export function createGUI () {
@@ -35,9 +34,7 @@ export function createGUI () {
     var showEnemyHitboxesParameters = {
         on: false
     };
-    
-    var a = 0;
-    
+        
     gui = new DAT.GUI();
     
     // Tatoo One
@@ -126,7 +123,7 @@ export function createGUI () {
         setShowSphereMirror(value);
     });
     
-    gui.add(showEnemyHitboxesParameters, 'on').name('Show Enemy Hitboxes').onChange(function(value) {
+    gui.add(showEnemyHitboxesParameters, 'on').name('Show Hitboxes').onChange(function(value) {
         showHitboxes(value);
     });
 }

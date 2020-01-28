@@ -42,7 +42,7 @@ var clock = new THREE.Clock();
 var r2d2RightMove = true, r2d2MoveSpeed = 0.01;
 var manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
-var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
+var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 1, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
 var gameOverRestartButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
@@ -201,12 +201,6 @@ export function render() {
     } else if (introSound !== undefined && introSound.isPlaying) {
         introSound.stop();
     }
-
-    if (!modelsLoading) {
-        renderer.render( scene, camera );
-    }
-    
-    
     
     if (gameStarted) {
                 
@@ -420,12 +414,14 @@ export function render() {
             controls.unlock();
             //controls = undefined;
             currentShading = -1;
+            showSphereMirror = false;
             gameOver();
         } else if (camera.position.z <= finishLine) {
             gameStarted = false;
             controls.unlock();
             //controls = undefined;
             currentShading = -1;
+            showSphereMirror = false;
             finishedLevel();
             // won
         }
@@ -442,6 +438,10 @@ export function render() {
             }
             cubeCameraCount++;
         }
+    }
+    
+    if (!modelsLoading) {
+        renderer.render( scene, camera );
     }
 
     if(LOADERS.mixer){
@@ -964,8 +964,8 @@ function loadLandspeeder () {
     };
 
     LOADERS.gltfLoad(manager, 'models/landspeeder-gltf/landspeeder.gltf', scene, camera, 
-                    "landspeeder", camera.position.x - 130, camera.position.y - 50,
-                    camera.position.z - 150, 100, Math.PI);
+                    "landspeeder", camera.position.x - 130, camera.position.y - 300,
+                    camera.position.z - 250, 100, Math.PI);
 }
 
 function createTerrain() {
