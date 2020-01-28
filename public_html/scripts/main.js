@@ -27,7 +27,6 @@ export var controls, gameMode = true, gameStarted, emitter, userLasers = [],
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 export var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
 export var gunSound, gunSoundBuffer, modelsLoading = false;
-export var flatShading = false;
 
 
 var container;
@@ -47,6 +46,7 @@ var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphe
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
 var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
+var currentShading = -1;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -215,22 +215,25 @@ export function render() {
                 var child = camera.children[i];
                 if (child.name === "blaster"){
                     var meshes = [];
+                    if (currentShading !== USERINPUTS.flatShading){
                     child.traverse( function( node ) {
 
                         if ( node instanceof THREE.Mesh ) { 
                             meshes.push(node);
-                        }
-                    } );
-                    for (j = 0; j < meshes.length; j++){
-                        if (USERINPUTS.flatShading === 0){
-                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
-                        } else if (USERINPUTS.flatShading === 1) {
-                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
-                        } else if (USERINPUTS.flatShading === 2) {
-                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
+                            }
+                        } );
+
+                        for (j = 0; j < meshes.length; j++){
+                            if (USERINPUTS.flatShading === 0){
+                                meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            }
                         }
                     }
                 }
@@ -240,79 +243,84 @@ export function render() {
                 var child = scene.children[i];
                 if (child.name === "landspeeder"){
                     var children = child.children;
-                    for (j = 1; j < children.length; j++){
-                        if(children[j].name === "r2-d2"){
-                            var mesh = children[j].children[0];
-                            if (USERINPUTS.flatShading === 0){
-                                mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
-                            } else if (USERINPUTS.flatShading === 1) {
-                                mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
-                            } else if (USERINPUTS.flatShading === 2) {
-                                mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
-                            }
-                        } else if (children[j].name === "box") {
-                            var mesh = children[j];
-                            if (USERINPUTS.flatShading === 0){
-                                mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
-                            } else if (USERINPUTS.flatShading === 1) {
-                                mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
-                            } else if (USERINPUTS.flatShading === 2) {
-                                mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
-                            }
-                        } else if (children[j].name === "bottle") {
-                            var materials = children[j].children[0].material;
-                            for (k = 0; k < materials.length; k++){
+                    if (currentShading !== USERINPUTS.flatShading){
+                        for (j = 1; j < children.length; j++){
+                            if(children[j].name === "r2-d2"){
+                                var mesh = children[j].children[0];
                                 if (USERINPUTS.flatShading === 0){
-                                    materials[k] = new THREE.MeshPhongMaterial({color: materials[k].color});
+                                    mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
                                 } else if (USERINPUTS.flatShading === 1) {
-                                    materials[k] = new THREE.MeshLambertMaterial({color: materials[k].color});
+                                    mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
                                 } else if (USERINPUTS.flatShading === 2) {
-                                    materials[k] = new THREE.MeshStandardMaterial({color: materials[k].color});
+                                    mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
                                 }
+                            } else if (children[j].name === "box") {
+                                var mesh = children[j];
+                                if (USERINPUTS.flatShading === 0){
+                                    mesh.material = new THREE.MeshPhongMaterial({map: mesh.material.map});
+                                } else if (USERINPUTS.flatShading === 1) {
+                                    mesh.material = new THREE.MeshLambertMaterial({map: mesh.material.map});
+                                } else if (USERINPUTS.flatShading === 2) {
+                                    mesh.material = new THREE.MeshStandardMaterial({map: mesh.material.map});
+                                }
+                            } else if (children[j].name === "bottle") {
+                                var materials = children[j].children[0].material;
+                                for (k = 0; k < materials.length; k++){
+                                    if (USERINPUTS.flatShading === 0){
+                                        materials[k] = new THREE.MeshPhongMaterial({color: materials[k].color});
+                                    } else if (USERINPUTS.flatShading === 1) {
+                                        materials[k] = new THREE.MeshLambertMaterial({color: materials[k].color});
+                                    } else if (USERINPUTS.flatShading === 2) {
+                                        materials[k] = new THREE.MeshStandardMaterial({color: materials[k].color});
+                                    }
+                                }
+
                             }
-                            
                         }
                     }
                     child.position.set(camera.position.x - 130, camera.position.y - 300, camera.position.z - 250);
                     var meshes = [];
-                    
-                    child.children[0].traverse( function( node ) {
+                    if (currentShading !== USERINPUTS.flatShading){
+                        child.children[0].traverse( function( node ) {
 
-                        if ( node instanceof THREE.Mesh ) { 
-                            meshes.push(node);
-                        }
-                    } );
-                    for (j = 0; j < meshes.length; j++){
-                        if (USERINPUTS.flatShading === 0){
-                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color});
-                        } else if (USERINPUTS.flatShading === 1) {
-                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color});
-                        } else if (USERINPUTS.flatShading === 2) {
-                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color});
+                            if ( node instanceof THREE.Mesh ) { 
+                                meshes.push(node);
+                            }
+                        } );
+                        for (j = 0; j < meshes.length; j++){
+                            if (USERINPUTS.flatShading === 0){
+                                meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color});
+                            }
                         }
                     }
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
                     var meshes = [];
-                    child.traverse( function( node ) {
+                    if (currentShading !== USERINPUTS.flatShading){
+                        child.traverse( function( node ) {
 
-                        if ( node instanceof THREE.Mesh ) { 
-                            meshes.push(node);
-                        }
-                    } );
-                    for (j = 0; j < meshes.length; j++){
-                        if (USERINPUTS.flatShading === 0){
-                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map,
-                                                                                skinning: meshes[j].material.skinning});
-                        } else if (USERINPUTS.flatShading === 1) {
-                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map,
-                                                                                skinning: meshes[j].material.skinning});
-                        } else if (USERINPUTS.flatShading === 2) {
-                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map,
-                                                                                skinning: meshes[j].material.skinning});
+                            if ( node instanceof THREE.Mesh ) { 
+                                meshes.push(node);
+                            }
+                        } );
+                        for (j = 0; j < meshes.length; j++){
+                            if (USERINPUTS.flatShading === 0){
+                                meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map,
+                                                                                    skinning: meshes[j].material.skinning});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map,
+                                                                                    skinning: meshes[j].material.skinning});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map,
+                                                                                    skinning: meshes[j].material.skinning});
+                            }
                         }
                     }
                     if (child.position.distanceTo(camera.position) < 8000) {
@@ -322,33 +330,39 @@ export function render() {
                         }
                     }
                 } else if (child.name === "terrain"){
-                    if (USERINPUTS.flatShading === 0){
-                        child.material = new THREE.MeshPhongMaterial({map: TERRAIN.terrainTexture});
-                    } else if (USERINPUTS.flatShading === 1) {
-                        child.material = new THREE.MeshLambertMaterial({map: TERRAIN.terrainTexture});
-                    } else if (USERINPUTS.flatShading === 2) {
-                        child.material = new THREE.MeshStandardMaterial({map: TERRAIN.terrainTexture});
+                    if (currentShading !== USERINPUTS.flatShading){
+                        if (USERINPUTS.flatShading === 0){
+                            child.material = new THREE.MeshPhongMaterial({map: TERRAIN.terrainTexture});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            child.material = new THREE.MeshLambertMaterial({map: TERRAIN.terrainTexture});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            child.material = new THREE.MeshStandardMaterial({map: TERRAIN.terrainTexture});
+                        }
                     }
                 } else if (child.name === "tie-fighter"){
                     var meshes = [];
-                    child.traverse( function( node ) {
+                    if (currentShading !== USERINPUTS.flatShading){
+                        child.traverse( function( node ) {
 
-                        if ( node instanceof THREE.Mesh ) { 
-                            meshes.push(node);
-                        }
-                    } );
-                    for (j = 0; j < meshes.length; j++){
-                        if (USERINPUTS.flatShading === 0){
-                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
-                        } else if (USERINPUTS.flatShading === 1) {
-                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
-                        } else if (USERINPUTS.flatShading === 2) {
-                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
-                                                                                map: meshes[j].material.map});
+                            if ( node instanceof THREE.Mesh ) { 
+                                meshes.push(node);
+                            }
+                        } );
+                        for (j = 0; j < meshes.length; j++){
+                            if (USERINPUTS.flatShading === 0){
+                                meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            } else if (USERINPUTS.flatShading === 1) {
+                                meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            } else if (USERINPUTS.flatShading === 2) {
+                                meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                    map: meshes[j].material.map});
+                            }
                         }
                     }
+                    currentShading = USERINPUTS.flatShading;
+
                 }
                 
             }
