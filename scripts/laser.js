@@ -12,6 +12,8 @@ var redLaserMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 1
 var greenLaserMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, opacity: 1.0 });
 var laserSpeed = 200;
 var enemyLaserSpeed = 500;
+var i;
+var stormtrooperHelperBoxes = [];
 
 var laserX = [];
 var laserY = [Math.PI/36, -Math.PI/36, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
@@ -137,4 +139,23 @@ function testHit (beam, target) {
         stormtroopers.splice(stormtroopers.indexOf(target), 1);
     }
     
+}
+
+export function showHitboxes(show){
+    console.log(show);
+    if (show){
+        stormtrooperHelperBoxes = [];
+        for(i = 0; i < stormtroopers.length; i++){
+            var stormtrooperBox = new THREE.Box3().setFromObject(stormtroopers[i]);
+            var stormtrooperHelperBox = new THREE.Box3Helper( stormtrooperBox, 0xff0000 );
+            stormtrooperHelperBoxes.push(stormtrooperHelperBox);
+        }
+        for(i = 0; i < stormtrooperHelperBoxes.length; i++){
+            scene.add(stormtrooperHelperBoxes[i]);
+        }
+    } else {
+        for(i = 0; i < stormtrooperHelperBoxes.length; i++){
+            scene.remove(stormtrooperHelperBoxes[i]);
+        }
+    }
 }
