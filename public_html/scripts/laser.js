@@ -62,12 +62,14 @@ export function enemyFire (enemy) {
     laserMesh.updateWorldMatrix();
     enemyLasers.push(laserMesh);
     enemy.add(laserMesh);
+    
     if (!USERINPUTS.muted){
-        var gunSound = new THREE.Audio(audioListener);
+        var gunSound = new THREE.PositionalAudio(audioListener);
         gunSound.setBuffer(gunSoundBuffer);
         gunSound.setLoop(false);
         gunSound.setVolume(1.0);
-        camera.add(gunSound);
+        gunSound.setRefDistance(2000);
+        enemy.add(gunSound);
         gunSound.play();
     }
 }
