@@ -70,7 +70,7 @@ function explodeDone() {
         particles.visible = false;
 
         var positiontween = new TWEEN.Tween(particles.position)
-          .to({ z: particles.position.z - 500 }, 1000)
+          .to({ z: particles.position.z - 500 }, 200)
           .easing(TWEEN.Easing.Linear.EaseNone);
         positiontween.start();
     }
@@ -90,12 +90,12 @@ export function explode(posX, posY, posZ) {
         var outscale = 3 + Math.random() * 5;
 
         var scaletween = new TWEEN.Tween(particles.scale)
-          .to({ x: outscale, y: outscale, z: outscale }, 1500)
+          .to({ x: outscale, y: outscale, z: outscale }, 300)
           .easing(TWEEN.Easing.Exponential.EaseOut);
         scaletween.start();
 
         var alphatween = new TWEEN.Tween(material)
-          .to({ opacity: 0 }, 1500)
+          .to({ opacity: 0 }, 300)
           .easing(TWEEN.Easing.Exponential.EaseOut);
         alphatween.start();
 
@@ -106,7 +106,7 @@ export function explode(posX, posY, posZ) {
               y: particles.rotation.y + 0.75,
               z: particles.rotation.z + 0.75
             },
-            1700
+            340
           )
           .easing(TWEEN.Easing.Exponential.EaseOut);
         rotatetween.start();
@@ -118,16 +118,16 @@ export function explode(posX, posY, posZ) {
               y: posY + 300,
               z: posZ
             },
-            2500
+            500
           )
           .easing(TWEEN.Easing.Exponential.EaseOut);
         positiontween.start();
     }
 
     var delaytween = new TWEEN.Tween(camera.up)
-      .to({ x: 0 }, 1000)
+      .to({ x: 0 }, 200)
       .easing(TWEEN.Easing.Exponential.EaseOut)
-      .delay(1500)
+      .delay(150)
       .onComplete(explodeDone);
     delaytween.start();
 
