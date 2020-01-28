@@ -236,8 +236,8 @@ export function simulate( time ) {
     for ( particles = flag.particles, i = 0, il = particles.length; i < il; i ++ ) {
         particle = particles[ i ];
         pos = particle.position;
-        if ( pos.y < - 250 ) {
-            pos.y = - 250;
+        if ( pos.y < - 400 ) {
+            pos.y = - 400;
         }
     }
 

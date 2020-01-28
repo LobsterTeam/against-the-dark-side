@@ -37,7 +37,6 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         raycaster.set(gltf.scene.position, new THREE.Vector3(0, -1, 0));
                         var intersects = raycaster.intersectObject(terrainMeshes[1]);
                         if (intersects.length !== 0){
-                            console.log("intersect at", intersects[0].point);
                             gltf.scene.position.y = intersects[0].point.y;
                         }
                         var emitter = new THREE.Object3D();
@@ -66,17 +65,9 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                     } );
             },
             // called while loading is progressing
-            function ( xhr ) {
-
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-            },
+            function ( xhr ) {},
             // called when loading has errors
-            function ( error ) {
-                    console.log(error);
-                    console.log( 'An error happened' );
-
-            }
+            function ( error ) {}
     );
 }
 
@@ -120,17 +111,9 @@ export async function animatedGltfLoad(manager, path, scene, camera, objName, x,
                 scene.add( gltf.scene );
             },
             // called while loading is progressing
-            function ( xhr ) {
-
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-            },
+            function ( xhr ) {},
             // called when loading has errors
-            function ( error ) {
-                    console.log(error);
-                    console.log( 'An error happened' );
-
-            }
+            function ( error ) {}
     );
 }
 
@@ -167,16 +150,9 @@ export async function objLoad (manager, mtlPath, objPath, scene, camera, objName
         }, onProgress, onError);
     });
     
-    function onProgress( xhr ) {
-        if ( xhr.lengthComputable ) {
-                var percentComplete = xhr.loaded / xhr.total * 100;
-                console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
-        }
-    }
+    function onProgress( xhr ) {}
     
-    function onError() {
-        console.log("Error while loading model");
-    }
+    function onError() {}
 }
 
 export async function animatedFbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
@@ -206,18 +182,10 @@ export async function animatedFbxLoad (manager, path, scene, camera, objName, x,
             } );
             scene.add( object );
     },
-                // called while loading is progressing
-            function ( xhr ) {
-
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-            },
-            // called when loading has errors
-            function ( error ) {
-                    console.log(error);
-                    console.log( 'An error happened' );
-
-            });
+    // called while loading is progressing
+    function ( xhr ) {},
+    // called when loading has errors
+    function ( error ) {});
 }
 
 export async function bb8FbxLoad (manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
@@ -246,15 +214,7 @@ export async function bb8FbxLoad (manager, path, scene, camera, objName, x, y, z
             scene.add( object );
     },
         // called while loading is progressing
-    function ( xhr ) {
-
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-    },
+    function ( xhr ) {},
     // called when loading has errors
-    function ( error ) {
-            console.log(error);
-            console.log( 'An error happened' );
-
-    });
+    function ( error ) {});
 }
