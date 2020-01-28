@@ -203,10 +203,10 @@ export function render() {
     }
     
     
+    
     if (gameStarted) {
                 
-        if (camera.position.z < backwardFinishLine && camera.position.z > finishLine && gameMode) {
-            
+        if (camera.position.z < backwardFinishLine && camera.position.z > finishLine && gameMode && LASER.health > 0) {
             currentDelta = clock.getDelta();
             camera.position.x = cameraSpeed.x;
             camera.position.y = cameraSpeed.y;
@@ -409,19 +409,19 @@ export function render() {
             flagGeometry.computeVertexNormals();
             
             userLasers.forEach(LASER.userLaserTranslate);
-            enemyLasers.forEach(LASER.enemyLaserTranslate);
 
-        } else if (camera.position.z >= backwardFinishLine) {
+        } else if (camera.position.z >= backwardFinishLine || LASER.health <= 0) {
+            console.log("dead");
             gameStarted = false;
             controls.unlock();
-            controls = undefined;
-            currentShading = -1
+            //controls = undefined;
+            currentShading = -1;
             gameOver();
         } else if (camera.position.z <= finishLine) {
             gameStarted = false;
             controls.unlock();
-            controls = undefined;
-            currentShading = -1
+            //controls = undefined;
+            currentShading = -1;
             finishedLevel();
             // won
         }
@@ -447,13 +447,14 @@ export function render() {
     requestAnimationFrame(render);
 }
 
-function gameOver() {
+export function gameOver() {
+    controls.lock();
     if (gameOverDiv === undefined && gameOverObject === undefined){
         gameOverDiv = document.getElementById("game-over");
         gameOverObject = new CSS2DObject(gameOverDiv);
         gameOverObject.position.set(0.0, 0.0, -10.0);
     }
-    document.body.removeChild(labelRenderer.domElement);
+    //document.body.removeChild(labelRenderer.domElement);
     gameOverDiv.style.display = "block";
     gameOverDiv.style.zIndex = 100;
     camera.add(gameOverObject);
@@ -482,6 +483,7 @@ function gameOver() {
 }
 
 function finishedLevel() {
+    controls.lock();
     if (finishLevelDiv === undefined && finishLevelObject === undefined){
         finishLevelDiv = document.getElementById("finish");
         finishLevelObject = new CSS2DObject(finishLevelDiv);
@@ -709,6 +711,7 @@ function createCrosshair() {
 
 function generateLevelInit() {
     clearScene();
+    LASER.restart();
     scene.background = new THREE.Color( 0x000000 );
     modelsLoading = true;
     createLoadingText(createGameScene);

@@ -1,9 +1,11 @@
 import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed,
-        audioListener, gunSoundBuffer, explosionSoundBuffer } from './main.js';
-import { stormtroopers } from './loaders.js';
+        audioListener, gunSoundBuffer, explosionSoundBuffer, gameOver } from './main.js';
+import { stormtroopers, landspeeder } from './loaders.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as EXPLOSION from './explosion.js';
 import * as USERINPUTS from './userInputs.js';
+
+export var health = 100;
 
 
 var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
@@ -18,6 +20,10 @@ var stormtrooperHelperBoxes = [];
 var laserX = [];
 var laserY = [Math.PI/36, -Math.PI/36, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
 var laserZ = [-Math.PI/32, Math.PI/32, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
+
+export function restart(){
+    health = 100;
+}
 
 
 export function userFire () {
@@ -77,6 +83,7 @@ export function enemyFire (enemy) {
         enemy.add(gunSound);
         gunSound.play();
     }
+    testHit(laserMesh, landspeeder);
 }
 
 export function userLaserTranslate (item, index, object) {
@@ -99,44 +106,58 @@ export function userLaserTranslate (item, index, object) {
     item.updateWorldMatrix();
 }
 
-export function enemyLaserTranslate (item, index, object) {
-    // Hit test for user
-    if (item.position.z > 5000) {
-        object.splice(index, 1);
-        scene.remove(item);
-    } else {
-        //item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + enemyLaserSpeed));   // move along the local z-axis
-        //testHit(item, )
-    }
-}
 
 function testHit (beam, target) {
     
     var itemBox = new THREE.Box3().setFromObject(beam);
-    var stormtrooperBox = new THREE.Box3().setFromObject(target);
-
-    var collision = itemBox.intersectsBox(stormtrooperBox);
+    var targetBox = new THREE.Box3().setFromObject(target);
+    
+    var collision = itemBox.intersectsBox(targetBox);
     
     if (collision) {
-        EXPLOSION.explode(target.position.x, target.position.y, target.position.z, target);
-        var geometry = new THREE.BoxBufferGeometry();
-        var material = new THREE.MeshBasicMaterial();
-        var mesh = new THREE.Mesh( geometry, material );
-        mesh.position.copy(target.position);
-        scene.add( mesh );
-        
-        if (!USERINPUTS.muted){
-            var explosionSound = new THREE.PositionalAudio(audioListener);
-            explosionSound.setBuffer(explosionSoundBuffer);
-            explosionSound.setLoop(false);
-            explosionSound.setVolume(1.0);
-            explosionSound.setRefDistance(10000);
-            mesh.add(explosionSound);
-            explosionSound.play();
-            scene.remove(mesh);
-        }
-        scene.remove(target);
-        stormtroopers.splice(stormtroopers.indexOf(target), 1);
+        if (target.name === "stormtrooper"){
+            EXPLOSION.explode(target.position.x, target.position.y, target.position.z, target);
+            var geometry = new THREE.BoxBufferGeometry();
+            var material = new THREE.MeshBasicMaterial();
+            var mesh = new THREE.Mesh( geometry, material );
+            mesh.position.copy(target.position);
+            scene.add( mesh );
+            stormtroopers.splice(stormtroopers.indexOf(target), 1);
+            if (!USERINPUTS.muted){
+                var explosionSound = new THREE.PositionalAudio(audioListener);
+                explosionSound.setBuffer(explosionSoundBuffer);
+                explosionSound.setLoop(false);
+                explosionSound.setVolume(1.0);
+                explosionSound.setRefDistance(10000);
+                mesh.add(explosionSound);
+                explosionSound.play();
+                scene.remove(mesh);
+            }
+            scene.remove(target);
+        } else if (target.name === "landspeeder"){
+            console.log("hit");
+            health -= 10;
+            if (health <= 0){
+                EXPLOSION.explode(target.position.x, target.position.y, target.position.z, target);
+                var geometry = new THREE.BoxBufferGeometry();
+                var material = new THREE.MeshBasicMaterial();
+                var mesh = new THREE.Mesh( geometry, material );
+                mesh.position.copy(target.position);
+                scene.add( mesh );
+                stormtroopers.splice(stormtroopers.indexOf(target), 1);
+                if (!USERINPUTS.muted){
+                    var explosionSound = new THREE.PositionalAudio(audioListener);
+                    explosionSound.setBuffer(explosionSoundBuffer);
+                    explosionSound.setLoop(false);
+                    explosionSound.setVolume(1.0);
+                    explosionSound.setRefDistance(10000);
+                    mesh.add(explosionSound);
+                    explosionSound.play();
+                    scene.remove(mesh);
+                }
+                scene.remove(target);
+            }
+        }        
     }
     
 }

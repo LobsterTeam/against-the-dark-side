@@ -11,7 +11,7 @@ import { TransformControls } from '../three.js-dev/examples/jsm/controls/Transfo
 import { scene, camera, renderer, render, densityList, densityIndex, finishLine, landspeederObject} from './main.js';
 
 
-export var mixer, stormtroopers = [];
+export var mixer, stormtroopers = [], landspeeder;
 
 export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, scale, yRotation) {
     // Instantiate a loader
@@ -49,6 +49,7 @@ export async function gltfLoad(manager, path, scene, camera, objName, x, y, z, s
                         camera.add(gltf.scene);
                     } else if (objName === "landspeeder"){
                         scene.add( gltf.scene );
+                        landspeeder = gltf.scene;
                     } else {
                         scene.add( gltf.scene );
                     }
