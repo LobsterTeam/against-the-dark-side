@@ -1,5 +1,5 @@
 import { scene, camera, emitter, userLasers, enemyLasers, currentDelta, cameraSpeed,
-        audioListener, gunSoundBuffer } from './main.js';
+        audioListener, gunSoundBuffer, explosionSoundBuffer } from './main.js';
 import { stormtroopers } from './loaders.js';
 import * as THREE from '../three.js-dev/build/three.module.js';
 import * as EXPLOSION from './explosion.js';
@@ -112,8 +112,25 @@ function testHit (beam, target) {
     var collision = itemBox.intersectsBox(stormtrooperBox);
     
     if (collision) {
-        EXPLOSION.explode(target.position.x, target.position.y, target.position.z);
+        EXPLOSION.explode(target.position.x, target.position.y, target.position.z, target);
+        var geometry = new THREE.BoxBufferGeometry();
+        var material = new THREE.MeshBasicMaterial();
+        var mesh = new THREE.Mesh( geometry, material );
+        mesh.position.copy(target.position);
+        scene.add( mesh );
+        
+        if (!USERINPUTS.muted){
+            var explosionSound = new THREE.PositionalAudio(audioListener);
+            explosionSound.setBuffer(explosionSoundBuffer);
+            explosionSound.setLoop(false);
+            explosionSound.setVolume(1.0);
+            explosionSound.setRefDistance(10000);
+            mesh.add(explosionSound);
+            explosionSound.play();
+            scene.remove(mesh);
+        }
         scene.remove(target);
+        stormtroopers.splice(stormtroopers.indexOf(target), 1);
     }
     
 }
