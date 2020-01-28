@@ -208,7 +208,7 @@ export function render() {
             currentDelta = clock.getDelta();
             camera.position.x = cameraSpeed.x;
             camera.position.y = cameraSpeed.y;
-            camera.position.z += currentDelta * cameraSpeed.z;
+            camera.position.z += cameraSpeed.z * 0.04;
             for (i = 0; i < camera.children.length; i++){
                 var child = camera.children[i];
                 if (child.name === "blaster"){
