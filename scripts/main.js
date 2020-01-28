@@ -103,10 +103,8 @@ function createLoadingText (callback) {
     loadingPlaneMesh.receiveShadow = true;
     scene.add( loadingPlaneMesh );
     camera.position.set(0.0, 0.0, 0.0);
-    console.log(camera);
     camera.rotation.copy(new THREE.Euler());
     camera.quaternion.copy(new THREE.Quaternion());
-    console.log(camera);
     
     var loadingGroup =  new THREE.Group();
     loadingGroup.position.x = 130;
@@ -178,7 +176,7 @@ function onWindowResize() {
 }
 
 export function render() {
-    stats.update();
+    //stats.update();
     TWEEN.update();
     // INTRO CHECKS
     if (gameNameAnimation) {
@@ -480,6 +478,7 @@ export function gameOver() {
     
     
     gameOverRestartButton.addEventListener("mousedown", function() {
+        camera.remove(gameOverObject);
         document.body.removeChild(gameOverRenderer.domElement);
         generateLevelInit();
     });
@@ -492,12 +491,11 @@ function finishedLevel() {
         finishLevelObject = new CSS2DObject(finishLevelDiv);
         finishLevelObject.position.set(0.0, 0.0, -10.0);
     }
-    //document.body.removeChild(gameOverRenderer.domElement);
+    
 
     finishLevelDiv.style.display = "absolute";
     finishLevelDiv.style.zIndex = 101;
     camera.add(finishLevelObject);
-    console.log("finish");
     
     
     if (finishNextButton === undefined) {
