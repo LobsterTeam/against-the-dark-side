@@ -96,7 +96,6 @@ export function userLaserTranslate (item, index, object) {
     if (distance > 2000) {
         object.splice(index, 1);
         camera.remove(item);
-        console.log("removed");
     } else {
         //item.translateZ(currentDelta * -(Math.abs(cameraSpeed.z) + laserSpeed));   // move along the local z-axis
         for (var i = 0; i < stormtroopers.length; i++) {
@@ -139,7 +138,6 @@ function testHit (beam, target) {
             }
             scene.remove(target);
         } else if (target.name === "landspeeder"){
-            console.log("hit");
             health -= 10;
             document.getElementById("health-text").innerText = "Health: " + health;
             if (health <= 0){
@@ -168,7 +166,6 @@ function testHit (beam, target) {
 }
 
 export function showHitboxes(show){
-    console.log(show);
     if (show){
         stormtrooperHelperBoxes = [];
         for(i = 0; i < stormtroopers.length; i++){
