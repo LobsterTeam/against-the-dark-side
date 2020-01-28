@@ -338,7 +338,27 @@ export function render() {
                     } else if (USERINPUTS.flatShading === 2) {
                         child.material = new THREE.MeshStandardMaterial({map: TERRAIN.terrainTexture});
                     }
-                } 
+                } else if (child.name === "tie-fighter"){
+                    var meshes = [];
+                    child.traverse( function( node ) {
+
+                        if ( node instanceof THREE.Mesh ) { 
+                            meshes.push(node);
+                        }
+                    } );
+                    for (j = 0; j < meshes.length; j++){
+                        if (USERINPUTS.flatShading === 0){
+                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        }
+                    }
+                }
                 
             }
             r2d2Move(r2d2Object);
