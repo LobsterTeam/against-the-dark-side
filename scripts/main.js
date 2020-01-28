@@ -155,13 +155,7 @@ function loadBB8(callback) {
 
 function showClick() {
     const skipclickbox = document.getElementById('skipclickbox');
-    skipclickbox.style.display = 'block';
-    skipclickbox.style.marginLeft = `-${parseInt(
-        skipclickbox.offsetWidth / 2
-    )}px`;
-    skipclickbox.style.marginTop = `-${parseInt(
-        skipclickbox.offsetHeight / 2
-    )}px`;
+
     document.addEventListener('click', skipClick);
     document.addEventListener('keydown', skipClick);
 }
