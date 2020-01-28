@@ -107,9 +107,11 @@ export function onKeyDown ( event ) {
 
 
         case 80:        // P key
-            flatShading++;
-            flatShading = flatShading % 3;
+            if (gameMode) {
+                flatShading++;
+                flatShading = flatShading % 3;
                 break;
+            }
     }
 };
 
