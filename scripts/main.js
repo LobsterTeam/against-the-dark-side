@@ -278,8 +278,28 @@ export function render() {
                     }
                 } else if (child.name === "stormtrooper"){
                     child.lookAt(camera.position);
-                    child.children[0].children[0].children[0].children[1].material.flatShading = false;
+                    var meshes = [];
+                    child.traverse( function( node ) {
 
+                        if ( node instanceof THREE.Mesh ) { 
+                            meshes.push(node);
+                        }
+                    } );
+                    for (j = 0; j < meshes.length; j++){
+                        if (USERINPUTS.flatShading === 0){
+                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map,
+                                                                                skinning: meshes[j].material.skinning});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map,
+                                                                                skinning: meshes[j].material.skinning});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map,
+                                                                                skinning: meshes[j].material.skinning});
+                        }
+                    }
                     if (child.position.distanceTo(camera.position) < 8000) {
                         tick++;     // TODO gameStarted a al
                         if ((tick % 60) === 0) {
