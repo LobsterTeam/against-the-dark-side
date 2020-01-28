@@ -220,6 +220,30 @@ export function render() {
             camera.position.x = cameraSpeed.x;
             camera.position.y = cameraSpeed.y;
             camera.position.z += currentDelta * cameraSpeed.z;
+            for (i = 0; i < camera.children.length; i++){
+                var child = camera.children[i];
+                if (child.name === "blaster"){
+                    var meshes = [];
+                    child.traverse( function( node ) {
+
+                        if ( node instanceof THREE.Mesh ) { 
+                            meshes.push(node);
+                        }
+                    } );
+                    for (j = 0; j < meshes.length; j++){
+                        if (USERINPUTS.flatShading === 0){
+                            meshes[j].material = new THREE.MeshPhongMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        } else if (USERINPUTS.flatShading === 1) {
+                            meshes[j].material = new THREE.MeshLambertMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        } else if (USERINPUTS.flatShading === 2) {
+                            meshes[j].material = new THREE.MeshStandardMaterial({color: meshes[j].material.color,
+                                                                                map: meshes[j].material.map});
+                        }
+                    }
+                }
+            }
         
             for (i = scene.children.length - 1; i >= 0; i--) {
                 var child = scene.children[i];
