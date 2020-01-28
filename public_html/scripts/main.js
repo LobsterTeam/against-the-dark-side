@@ -26,7 +26,7 @@ export var controls, gameMode = true, gameStarted, emitter, userLasers = [],
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 export var levels = [1, 1, 0], densityList = [10, 17, 30], densityIndex = 0;
-export var gunSound, gunSoundBuffer, modelsLoading = false;
+export var gunSound, gunSoundBuffer, explosionSoundBuffer, modelsLoading = false;
 
 
 var container;
@@ -728,9 +728,9 @@ function loadLevelModel() {
 function loadGameSounds() {
     audioLoader.load('sounds/laser-cut.ogg', function(buffer) {
         gunSoundBuffer = buffer;
-
-        //gunSound.play();
-
+    });
+    audioLoader.load('sounds/explosion-cut.ogg', function(buffer) {
+        explosionSoundBuffer = buffer;
     });
 }
 
