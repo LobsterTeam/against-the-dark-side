@@ -44,7 +44,7 @@ var manager, loadingPlaneMesh;
 var speedStep = 1, backwardFinishLine = 3000;
 var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 0, showSphereMirror = false;
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
-var gameOverHomeButton, gameOverRestartButton, finishHomeButton, finishNextButton;
+var gameOverRestartButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
 var currentShading = -1, flagTexture;
 
@@ -86,7 +86,7 @@ function init() {
     container.appendChild(stats.dom);
 }
 
-function createLoadingText (callback) {    
+function createLoadingText (callback) {   
     manager = new THREE.LoadingManager();
     manager.onLoad = function ( ) {
         loadBB8(callback);
@@ -101,6 +101,10 @@ function createLoadingText (callback) {
     loadingPlaneMesh.receiveShadow = true;
     scene.add( loadingPlaneMesh );
     camera.position.set(0.0, 0.0, 0.0);
+    console.log(camera);
+    camera.rotation.copy(new THREE.Euler());
+    camera.quaternion.copy(new THREE.Quaternion());
+    console.log(camera);
     
     var loadingGroup =  new THREE.Group();
     loadingGroup.position.x = 130;
@@ -447,6 +451,8 @@ export function render() {
     requestAnimationFrame(render);
 }
 
+
+
 export function gameOver() {
     controls.lock();
     if (gameOverDiv === undefined && gameOverObject === undefined){
@@ -459,8 +465,7 @@ export function gameOver() {
     gameOverDiv.style.zIndex = 100;
     camera.add(gameOverObject);
     
-    if (gameOverHomeButton === undefined && gameOverRestartButton === undefined){
-        gameOverHomeButton = document.getElementById("game-over-home-button");
+    if (gameOverRestartButton === undefined){
         gameOverRestartButton = document.getElementById("game-over-restart-button");
     }
 
@@ -471,10 +476,6 @@ export function gameOver() {
     document.body.appendChild( gameOverRenderer.domElement );
     gameOverRenderer.render(scene, camera);
     
-    gameOverHomeButton.addEventListener("mousedown", function() {
-        document.body.removeChild(gameOverRenderer.domElement);
-        createLevelMap();
-    });
     
     gameOverRestartButton.addEventListener("mousedown", function() {
         document.body.removeChild(gameOverRenderer.domElement);
@@ -497,8 +498,7 @@ function finishedLevel() {
     console.log("finish");
     
     
-    if (finishHomeButton === undefined && finishNextButton === undefined) {
-        finishHomeButton = document.getElementById("finish-home-button");
+    if (finishNextButton === undefined) {
         finishNextButton = document.getElementById("finish-next-button");
     }
     
@@ -515,10 +515,6 @@ function finishedLevel() {
     document.body.appendChild( finishedRenderer.domElement );
     finishedRenderer.render(scene, camera);
     
-    finishHomeButton.addEventListener("mousedown", function() {
-        document.body.removeChild(finishedRenderer.domElement);
-        createLevelMap();
-    });
 
     finishNextButton.addEventListener("mousedown", function() {
         document.body.removeChild(finishedRenderer.domElement);
@@ -596,6 +592,9 @@ export function toggleSound() {
 function clearScene () {
     for(i = scene.children.length - 1; i >= 0; i--) {
         scene.remove(scene.children[i]);
+    }
+    for(i = 0; i < camera.children.length -1; i++){
+        camera.remove(camera.children[i]);
     }
 }
 

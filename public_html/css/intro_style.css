@@ -140,20 +140,6 @@ h20 {font-size:12px;}
 }
 
 
-#game-over-home-button {
-    padding: 50px;
-    width: 50px;
-    height: 50px;
-    background-color: #1F1F1F;
-    border-radius: 50%;
-    display: inline-block;
-    font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
-    font-size: 50px;
-    font-weight: bold;
-    opacity: 0.8;
-    color: #FFFFFF;
-}
-
 #game-over-restart-button {
     padding: 50px;
     width: 50px;
@@ -183,20 +169,6 @@ h20 {font-size:12px;}
     padding: 40px 40px 0px 40px;
 }
 
-
-#finish-home-button {
-    padding: 50px;
-    width: 50px;
-    height: 50px;
-    background-color: #1F1F1F;
-    border-radius: 50%;
-    display: inline-block;
-    font: 30px/1.2 Verdana, Arial, Helvetica, Sans-Serif;
-    font-size: 50px;
-    font-weight: bold;
-    opacity: 0.8;
-    color: #FFFFFF;
-}
 
 #finish-next-button {
     padding: 50px;

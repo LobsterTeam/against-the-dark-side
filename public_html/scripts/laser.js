@@ -112,6 +112,9 @@ function testHit (beam, target) {
     
     var itemBox = new THREE.Box3().setFromObject(beam);
     var targetBox = new THREE.Box3().setFromObject(target);
+    if (target.name === "landspeeder"){
+        targetBox.expandByPoint(new THREE.Vector3(camera.position.x, camera.position.y + 2000, camera.position.z));
+    }
     
     var collision = itemBox.intersectsBox(targetBox);
     
