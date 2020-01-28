@@ -8,8 +8,8 @@ import * as USERINPUTS from './userInputs.js';
 
 var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
 var enemyLaserGeometry = new THREE.CubeGeometry(1.5, 1.5, 10000);
-var redLaserMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5 });
-var greenLaserMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5 });
+var redLaserMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 1.0 });
+var greenLaserMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, opacity: 1.0 });
 var laserSpeed = 200;
 var enemyLaserSpeed = 500;
 
@@ -42,6 +42,8 @@ export function userFire () {
 
 export function enemyFire (enemy) {
     var laserMesh = new THREE.Mesh(enemyLaserGeometry, redLaserMaterial);
+    laserMesh.castShadow = true;
+    laserMesh.receiveShadow = true;
     
     // TODO find stomtrooper's gun's and tie fighter's mid positions. they are the emitter
     // update here to
@@ -49,6 +51,7 @@ export function enemyFire (enemy) {
     var pos = new THREE.Vector3();
     pos.copy(gun.position);
     pos.y -= 50;
+    pos.z += 4900;
     laserMesh.position.copy(pos);
   
 
@@ -101,6 +104,7 @@ export function enemyLaserTranslate (item, index, object) {
         scene.remove(item);
     } else {
         //item.translateZ(currentDelta * (Math.abs(cameraSpeed.z) + enemyLaserSpeed));   // move along the local z-axis
+        //testHit(item, )
     }
 }
 
