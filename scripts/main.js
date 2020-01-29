@@ -25,7 +25,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
-export var levels = [1, 1, 0], densityList = [10, 14, 18], densityIndex = 0;
+export var levels = [1, 0, 0], densityList = [10, 14, 18], densityIndex = 0;
 export var gunSound, gunSoundBuffer, explosionSoundBuffer, modelsLoading = false;
 
 
@@ -479,7 +479,9 @@ export function gameOver() {
     
     gameOverRestartButton.addEventListener("mousedown", function() {
         camera.remove(gameOverObject);
-        document.body.removeChild(gameOverRenderer.domElement);
+        if (document.body.contains(gameOverRenderer.domElement)){
+            document.body.removeChild(gameOverRenderer.domElement);
+        }
         generateLevelInit();
     });
 }
@@ -519,7 +521,9 @@ function finishedLevel() {
 
 function nextButton(){
     camera.remove(finishLevelObject);
-    document.body.removeChild(finishedRenderer.domElement);
+    if (document.body.contains(finishedRenderer.domElement)){
+        document.body.removeChild(finishedRenderer.domElement);
+    }
     if (densityIndex < 2) {
         densityIndex++;
     }
