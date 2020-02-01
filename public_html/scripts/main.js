@@ -25,7 +25,7 @@ export var blasterTransX, blasterTransY = 0, blasterTransZ = 0,
 export var controls, gameMode = true, gameStarted, emitter, userLasers = [], 
         enemyLasers = [], currentDelta;
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
-export var levels = [1, 0, 0], densityList = [10, 14, 18], densityIndex = 0;
+export var levels = [1, 1, 1], densityList = [10, 14, 18], densityIndex = 0;
 export var gunSound, gunSoundBuffer, explosionSoundBuffer, modelsLoading = false;
 
 
