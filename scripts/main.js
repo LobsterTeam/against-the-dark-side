@@ -753,6 +753,16 @@ function loadLevelModel() {
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.9, -Math.PI/6);
     } else {
+        audioLoader.load('sounds/smooth-criminal-cut.ogg', function(buffer) {
+            levelSound = new THREE.Audio(audioListener);
+            levelSound.setBuffer(buffer);
+            levelSound.setLoop(true);
+            if (USERINPUTS.muted){
+                levelSound.setVolume(0.0);
+            }
+            camera.add(levelSound);
+            levelSound.play();
+        });
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/stormtrooper-moonwalk.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
         camera.position.z - 5, 0.8, -Math.PI/2);
