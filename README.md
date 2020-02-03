@@ -1,8 +1,8 @@
 # Against the Dark Side
-Against the Dark Side is a Star Wars-Tatooine Planet themed **browser game**. In this game, the player tries to reach the finish lines in consecutive levels to transmit the secret plans to the hidden base.
-**Blender** is used for rigging and modelling Stormtroopers.
-**Animations** are taken from [Mixamo](https://www.mixamo.com).
-**Heightmap** is generated for sand terrain from [Heightmap Generator](https://thealpacajumps.neocities.org/heightmap/).
+Against the Dark Side is a Star Wars-Tatooine Planet themed **browser game**. In this game, the player tries to reach the finish lines in consecutive levels to transmit the secret plans to the hidden base.  
+**Blender** is used for rigging and modelling Stormtroopers.  
+**Animations** are taken from [Mixamo](https://www.mixamo.com).  
+**Heightmap** is generated for sand terrain from [Heightmap Generator](https://thealpacajumps.neocities.org/heightmap/).  
 [A head-related transfer function (HRTF)](https://en.wikipedia.org/wiki/Head-related_transfer_function) is used for **positional sound effects**.
 
 ## Developed by
@@ -24,7 +24,7 @@ Against the Dark Side is a Star Wars-Tatooine Planet themed **browser game**. In
 - [Stormtrooper Weapon](https://clara.io/view/21c110f9-e28e-4eae-af01-f9572e8f121e)
 - [TIE Fighter](https://clara.io/view/4a8bf2a3-f47a-44f2-b117-f443dc076400)
 
-Watch trailer: <https://www.youtube.com/watch?v=Y1EbZUzT21w>
+Watch trailer: <https://www.youtube.com/watch?v=Y1EbZUzT21w>  
 Play it: <https://fidansamet.github.io/Against-the-Dark-Side>
 
 ![Logo](img/logo.png)
