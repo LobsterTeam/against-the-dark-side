@@ -6,8 +6,6 @@ import * as EXPLOSION from './explosion.js';
 import * as USERINPUTS from './userInputs.js';
 
 export var health = 100;
-
-
 var userLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 20000);
 var enemyLaserGeometry = new THREE.CubeGeometry(0.2, 0.2, 10000);
 var redLaserMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 1.0 });
@@ -16,7 +14,6 @@ var laserSpeed = 200;
 var enemyLaserSpeed = 500;
 var i;
 var stormtrooperHelperBoxes = [];
-
 var laserX = [];
 var laserY = [Math.PI/36, -Math.PI/36, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
 var laserZ = [-Math.PI/32, Math.PI/32, Math.PI/34, -Math.PI/34, Math.PI/30, -Math.PI/30];
@@ -24,7 +21,6 @@ var laserZ = [-Math.PI/32, Math.PI/32, Math.PI/34, -Math.PI/34, Math.PI/30, -Mat
 export function restart(){
     health = 100;
 }
-
 
 export function userFire () {
     var laserMesh = new THREE.Mesh(userLaserGeometry, greenLaserMaterial);
@@ -53,8 +49,6 @@ export function enemyFire (enemy) {
     laserMesh.castShadow = true;
     laserMesh.receiveShadow = true;
     
-    // TODO find stomtrooper's gun's and tie fighter's mid positions. they are the emitter
-    // update here to
     var gun = enemy.children[1];
     var pos = new THREE.Vector3();
     pos.copy(gun.position);
@@ -62,7 +56,6 @@ export function enemyFire (enemy) {
     pos.y -= 91;
     pos.z += 5000;
     laserMesh.position.copy(pos);
-  
 
     laserMesh.quaternion.copy(gun.quaternion);
     enemyLaserGeometry.computeFaceNormals();
@@ -88,8 +81,6 @@ export function enemyFire (enemy) {
 }
 
 export function userLaserTranslate (item, index, object) {
-    // TODO Hit test for enemies
-    // TODO -5000 degeri ne olmali? adam cook uzaktaki birine ates edebilir mi?,
     var itemWorldPos = new THREE.Vector3();
     item.getWorldPosition(itemWorldPos);
     var distance = itemWorldPos.distanceTo(camera.position);
