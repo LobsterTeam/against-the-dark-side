@@ -27,8 +27,6 @@ export var controls, gameMode = true, gameStarted, emitter, userLasers = [],
 export var cameraSpeed, flagGeometry, landspeederObject, canvas, sphereMirror, crosshair;
 export var levels = [1, 1, 1], densityList = [10, 14, 18], densityIndex = 0;
 export var gunSound, gunSoundBuffer, explosionSoundBuffer, modelsLoading = false;
-
-
 var container;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
@@ -46,7 +44,7 @@ var sphereMirrorMaterial, cubeCamera, cubeCamera2, cubeCameraCount = 1, showSphe
 var levelMapDiv, levelMapObject, gameOverDiv, gameOverObject, finishLevelDiv, finishLevelObject;
 var gameOverRestartButton, finishNextButton;
 var tick = 0, r2d2Object, stats;
-var currentShading = -1, flagTexture;
+var currentShading = -1, flagTexture, lockTry = 5;
 
 window.createLevelMap = createLevelMap;
 window.toggleSound = toggleSound;
@@ -203,7 +201,6 @@ export function render() {
     }
     
     if (gameStarted) {
-                
         if (camera.position.z < backwardFinishLine && camera.position.z > finishLine && gameMode && LASER.health > 0) {
             currentDelta = clock.getDelta();
             camera.position.x = cameraSpeed.x;
@@ -409,7 +406,6 @@ export function render() {
             userLasers.forEach(LASER.userLaserTranslate);
 
         } else if (camera.position.z >= backwardFinishLine || LASER.health <= 0) {
-            console.log("dead");
             gameStarted = false;
             controls.unlock();
             //controls = undefined;
@@ -454,7 +450,12 @@ export function render() {
 
 
 export function gameOver() {
-    controls.lock();
+    for (i = 0; i < lockTry; i++) {       // try to lock controls
+        if (!controls.isLocked) {
+            controls.lock();
+        }
+    }
+    
     if (gameOverDiv === undefined && gameOverObject === undefined){
         gameOverDiv = document.getElementById("game-over");
         gameOverObject = new CSS2DObject(gameOverDiv);
@@ -464,6 +465,7 @@ export function gameOver() {
     gameOverDiv.style.display = "block";
     gameOverDiv.style.zIndex = 100;
     camera.add(gameOverObject);
+    camera.remove(crosshair);
     
     if (gameOverRestartButton === undefined){
         gameOverRestartButton = document.getElementById("game-over-restart-button");
@@ -487,18 +489,22 @@ export function gameOver() {
 }
 
 function finishedLevel() {
-    controls.lock();
+    for (i = 0; i < lockTry; i++) {       // try to lock controls
+        if (!controls.isLocked) {
+            controls.lock();
+        }
+    }
+    
     if (finishLevelDiv === undefined && finishLevelObject === undefined){
         finishLevelDiv = document.getElementById("finish");
         finishLevelObject = new CSS2DObject(finishLevelDiv);
         finishLevelObject.position.set(0.0, 0.0, -10.0);
     }
     
-
     finishLevelDiv.style.display = "absolute";
     finishLevelDiv.style.zIndex = 101;
     camera.add(finishLevelObject);
-    
+    camera.remove(crosshair);
     
     if (finishNextButton === undefined) {
         finishNextButton = document.getElementById("finish-next-button");
@@ -734,6 +740,7 @@ function loadLevelModel() {
             }
             camera.add(levelSound);
             levelSound.play();
+            levelSound.setVolume(0.6);
         });
         LOADERS.animatedGltfLoad(manager, "models/animated/stormtrooper/chicken.glb", 
         scene, camera, "stormtrooper-level", camera.position.x + 3, camera.position.y - 2,
@@ -896,7 +903,11 @@ function loadSphereMirror () {
     // all loadings are done, start game scene
     gameSceneLoadingEnded();
     
-    controls.lock();
+    for (i = 0; i < lockTry; i++) {       // try to lock controls
+        if (!controls.isLocked) {
+            controls.lock();
+        }
+    }
 }
 
 function loadR2D2 () {
