@@ -25,7 +25,7 @@ Against the Dark Side is a Star Wars-Tatooine Planet themed **browser game**. In
 - [TIE Fighter](https://clara.io/view/4a8bf2a3-f47a-44f2-b117-f443dc076400)
 
 Watch trailer: <https://www.youtube.com/watch?v=Y1EbZUzT21w>  
-Play it: <https://fidansamet.github.io/Against-the-Dark-Side>  
+Play it: <https://lobsterteam.github.io/Against-the-Dark-Side>  
 (When mouse is not locked in the game scene, you can relock it by pressing L key twice.)
 
 ![Logo](img/logo.png)
